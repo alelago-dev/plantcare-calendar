@@ -1,0 +1,11 @@
+{
+  "name": "PlantCare Calendar",
+  "short_name": "PlantCare",
+  "description": "Calendario para seguimiento de cultivos horticolas legalmente permitidos.",
+  "start_url": "/es",
+  "display": "standalone",
+  "background_color": "#f8faf5",
+  "theme_color": "#4f8f38",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "lifestyle"]
+}
