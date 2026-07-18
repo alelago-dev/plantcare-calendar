@@ -16,6 +16,78 @@ export const seedClimateOptions: SeedClimate[] = ["Templado", "Calido", "Fresco"
 
 export const seedCatalog: SeedProfile[] = [
   {
+    id: "cannabis-photoperiod-regular",
+    name: "Fotoperiodica regular",
+    crop: "Cannabis legal",
+    seedType: "Regulada - registro manual",
+    climates: [],
+    daysToHarvest: "Definido por el usuario",
+    sowingWindow: "Segun normativa local",
+    careNote:
+      "Registro disponible solo donde el cultivo sea legal. La app no calcula clima, cosecha ni rendimiento para cannabis.",
+    recommendationEnabled: false
+  },
+  {
+    id: "cannabis-photoperiod-feminized",
+    name: "Fotoperiodica feminizada",
+    crop: "Cannabis legal",
+    seedType: "Regulada - registro manual",
+    climates: [],
+    daysToHarvest: "Definido por el usuario",
+    sowingWindow: "Segun normativa local",
+    careNote:
+      "Registro disponible solo donde el cultivo sea legal. La app no calcula clima, cosecha ni rendimiento para cannabis.",
+    recommendationEnabled: false
+  },
+  {
+    id: "cannabis-autoflowering",
+    name: "Autofloreciente",
+    crop: "Cannabis legal",
+    seedType: "Regulada - registro manual",
+    climates: [],
+    daysToHarvest: "Definido por el usuario",
+    sowingWindow: "Segun normativa local",
+    careNote:
+      "Registro disponible solo donde el cultivo sea legal. La app no calcula clima, cosecha ni rendimiento para cannabis.",
+    recommendationEnabled: false
+  },
+  {
+    id: "cannabis-cbd",
+    name: "CBD / medicinal",
+    crop: "Cannabis legal",
+    seedType: "Regulada - registro manual",
+    climates: [],
+    daysToHarvest: "Definido por el usuario",
+    sowingWindow: "Segun normativa local",
+    careNote:
+      "Registro disponible solo donde el cultivo sea legal. La app no calcula clima, cosecha ni rendimiento para cannabis.",
+    recommendationEnabled: false
+  },
+  {
+    id: "cannabis-hemp",
+    name: "Canamo industrial",
+    crop: "Cannabis legal",
+    seedType: "Regulada - registro manual",
+    climates: [],
+    daysToHarvest: "Definido por el usuario",
+    sowingWindow: "Segun normativa local",
+    careNote:
+      "Registro disponible solo donde el cultivo sea legal. La app no calcula clima, cosecha ni rendimiento para cannabis.",
+    recommendationEnabled: false
+  },
+  {
+    id: "cannabis-custom",
+    name: "Otra genetica / banco propio",
+    crop: "Cannabis legal",
+    seedType: "Regulada - carga libre",
+    climates: [],
+    daysToHarvest: "Definido por el usuario",
+    sowingWindow: "Segun normativa local",
+    careNote:
+      "Usa esta opcion para registrar cualquier variedad legal que no figure en el listado. Los datos tecnicos quedan a cargo del usuario.",
+    recommendationEnabled: false
+  },
+  {
     id: "tomato-roma",
     name: "Roma",
     crop: "Tomate",

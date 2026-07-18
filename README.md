@@ -7,7 +7,8 @@ PlantCare Calendar es una PWA mobile-first para seguimiento de cultivos horticol
 - Registro e inicio de sesion preparado para Supabase Auth.
 - Espacios de cultivo y plantas asociadas.
 - Campos para variedad o semilla, fecha de inicio, modalidad, region aproximada, maceta, sustrato e iluminacion.
-- Selector de semillas con banco demo horticola legal, clima compatible y ventana estimada de cosecha.
+- Selector de semillas con categorias horticultoras y categorias cannabicas legales para registro manual.
+- Plan manual legal con espacio, tamano de indoor, luz, litros de maceta y fechas definidas por el usuario.
 - Tareas manuales y recurrentes con vista de hoy.
 - Calendario mensual.
 - Bitacora de observaciones y fotografias.
@@ -16,7 +17,7 @@ PlantCare Calendar es una PWA mobile-first para seguimiento de cultivos horticol
 - Base para exportacion y eliminacion completa de datos del usuario.
 
 La app evita recomendaciones destinadas a maximizar sustancias controladas o evadir controles legales.
-Para cultivos regulados, la app permite carga manual de datos solo donde sea legal, sin recomendador automatico de semilla, clima ni cosecha.
+Para cultivos regulados, la app permite carga manual de datos solo donde sea legal, sin recomendador automatico de semilla, clima, cosecha ni rendimiento.
 
 ## Instalacion
 

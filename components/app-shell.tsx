@@ -38,6 +38,7 @@ export function AppShell({
   const outdoorPlants = plants.filter((plant) => plant.mode === "Exterior").length;
   const selectedClimate = "Templado";
   const recommendedSeeds = getRecommendedSeeds(selectedClimate);
+  const regulatedSeedOptions = seedCatalog.filter((seed) => !seed.recommendationEnabled);
 
   return (
     <main className="min-h-screen pb-28 text-moss-950 lg:pb-0">
@@ -169,11 +170,11 @@ export function AppShell({
 
       <section className="mx-auto mt-8 grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8" id="seeds">
         <section className="surface p-4 sm:p-5" aria-labelledby="seed-selector-title">
-          <SectionHeader eyebrow="Semillas" title="Selector por clima" />
+          <SectionHeader eyebrow="Semillas" title="Selector de tipo" />
           <div className="mt-5 grid gap-3">
             <label className="grid gap-1 text-sm font-black text-moss-950">
               Tipo de semilla
-              <select className="form-control" defaultValue="tomato-roma">
+              <select className="form-control" defaultValue="cannabis-photoperiod-feminized">
                 {seedCatalog.map((seed) => (
                   <option key={seed.id} value={seed.id}>
                     {seed.crop} - {seed.name}
@@ -192,8 +193,42 @@ export function AppShell({
             <div className="seed-result">
               <p className="text-sm font-black text-moss-950">Resultado demo</p>
               <p className="mt-1 text-sm leading-6 text-stone-700">
-                Para clima {selectedClimate.toLowerCase()}, el banco sugiere {recommendedSeeds.length} opciones
-                horticolas legales con ventana estimada de cosecha.
+                El selector permite registrar categorias de cannabis legal y otras semillas. Para cannabis no calcula
+                clima, cosecha ni rendimiento; esos datos quedan como carga manual del usuario.
+              </p>
+            </div>
+            <div className="seed-result border-emerald-800/20 bg-emerald-50/80">
+              <p className="text-sm font-black text-moss-950">Plan manual legal</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1 text-sm font-black text-moss-950">
+                  Tipo de espacio
+                  <select className="form-control" defaultValue="Interior">
+                    <option>Interior</option>
+                    <option>Exterior</option>
+                    <option>Invernadero</option>
+                  </select>
+                </label>
+                <FormField label="Tamano indoor" placeholder="Ej. 80 x 80 cm" />
+                <label className="grid gap-1 text-sm font-black text-moss-950">
+                  Tipo de luz
+                  <select className="form-control" defaultValue="LED">
+                    <option>LED</option>
+                    <option>Sodio</option>
+                    <option>Mixta</option>
+                    <option>Luz natural</option>
+                  </select>
+                </label>
+                <FormField label="Maceta en litros" placeholder="Ej. 10 L" />
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <FormField label="Proxima revision de humedad" placeholder="Fecha definida por el usuario" />
+                <FormField label="Cambio de etapa" placeholder="Fecha definida por el usuario" />
+                <FormField label="Postcosecha / secado" placeholder="Fecha definida por el usuario" />
+                <FormField label="Mantenimiento" placeholder="Fecha definida por el usuario" />
+              </div>
+              <p className="mt-3 text-xs font-bold leading-5 text-stone-600">
+                Estos campos sirven para agenda y recordatorios. No generan instrucciones automaticas para cultivos
+                regulados.
               </p>
             </div>
           </div>
@@ -201,10 +236,24 @@ export function AppShell({
 
         <section className="surface p-4 sm:p-5" aria-labelledby="seed-bank-title">
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <SectionHeader eyebrow="Banco demo" title="Compatibilidad y cosecha" />
-            <span className="pill pill-blue">Horticola legal</span>
+            <SectionHeader eyebrow="Banco demo" title="Categorias de semillas" />
+            <span className="pill pill-blue">Uso legal</span>
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {regulatedSeedOptions.map((seed) => (
+              <article className="seed-card border-amber-700/20 bg-amber-50/72" key={seed.id}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="font-black text-moss-950">
+                      {seed.crop} {seed.name}
+                    </h3>
+                    <p className="mt-1 text-sm font-semibold text-stone-600">{seed.seedType}</p>
+                  </div>
+                  <span className="pill pill-amber">Manual</span>
+                </div>
+                <p className="mt-3 text-sm leading-6 text-stone-700">{seed.careNote}</p>
+              </article>
+            ))}
             {recommendedSeeds.slice(0, 4).map((seed) => (
               <article className="seed-card" key={seed.id}>
                 <div className="flex items-start justify-between gap-3">
@@ -227,10 +276,10 @@ export function AppShell({
               </article>
             ))}
             <article className="seed-card border-amber-700/20 bg-amber-50/72">
-              <h3 className="font-black text-moss-950">Cultivos regulados</h3>
+              <h3 className="font-black text-moss-950">Variedades especificas</h3>
               <p className="mt-2 text-sm leading-6 text-stone-700">
-                Se pueden registrar manualmente solo donde sean legales. El recomendador no calcula variedad, clima ni
-                cosecha para cultivos regulados.
+                No existe una lista cerrada de todas las geneticas posibles. Para cubrir bancos y nombres comerciales,
+                usa la opcion &quot;Otra genetica / banco propio&quot; y completa el nombre en notas.
               </p>
             </article>
           </div>
@@ -347,7 +396,7 @@ export function AppShell({
             <FormField label="Nombre" placeholder="Ej. Tomate patio" />
             <label className="grid gap-1 text-sm font-black text-moss-950">
               Variedad o semilla
-              <select className="form-control" defaultValue="tomato-roma">
+              <select className="form-control" defaultValue="cannabis-photoperiod-feminized">
                 {seedCatalog.map((seed) => (
                   <option key={seed.id} value={seed.id}>
                     {seed.crop} - {seed.name}
