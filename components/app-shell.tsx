@@ -73,15 +73,15 @@ export function AppShell({
         </div>
       </header>
 
-      <section className="hero-shell mx-auto grid max-w-7xl gap-5 px-4 pb-8 pt-5 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-10 lg:pt-8">
+      <section className="hero-shell mx-auto grid max-w-7xl gap-5 px-4 pb-7 pt-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-9 lg:pt-7">
         <div className="hero-card">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="eyebrow text-mint-100">{dictionary.hero.kicker}</p>
-              <h1 className="mt-3 max-w-2xl text-4xl font-black leading-[1.02] tracking-tight text-white sm:text-5xl">
+              <h1 className="mt-3 max-w-2xl text-3xl font-black leading-[1.04] tracking-tight text-white sm:text-4xl lg:text-[2.65rem]">
                 {dictionary.hero.title}
               </h1>
-              <p className="mt-4 max-w-xl text-base leading-7 text-mint-50/86 sm:text-lg">{dictionary.hero.body}</p>
+              <p className="hero-copy mt-4 max-w-xl text-sm leading-6 sm:text-base">{dictionary.hero.body}</p>
             </div>
             <span className="rounded-md border border-white/18 bg-white/12 px-3 py-2 text-sm font-black text-mint-50">
               {locale.toUpperCase()}
@@ -99,7 +99,7 @@ export function AppShell({
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="eyebrow text-emerald-800">Grow log</p>
-              <h2 className="mt-2 text-2xl font-black tracking-tight text-moss-950" id="grow-preview-title">
+              <h2 className="mt-2 text-xl font-black tracking-tight text-moss-950 sm:text-2xl" id="grow-preview-title">
                 Vista diaria compacta
               </h2>
             </div>
@@ -168,7 +168,7 @@ export function AppShell({
         </section>
       </section>
 
-      <section className="mx-auto mt-8 grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8" id="seeds">
+      <section className="mx-auto mt-7 grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8" id="seeds">
         <section className="surface p-4 sm:p-5" aria-labelledby="seed-selector-title">
           <SectionHeader eyebrow="Semillas" title="Selector de tipo" />
           <div className="mt-5 grid gap-3">
@@ -310,7 +310,7 @@ export function AppShell({
         </section>
       </section>
 
-      <section className="mx-auto mt-8 max-w-7xl px-4 sm:px-6 lg:px-8" id="spaces">
+      <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8" id="spaces">
         <SectionHeader eyebrow="Cultivos" title="Espacios y plantas" />
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           {spaces.map((space) => (
@@ -355,7 +355,7 @@ export function AppShell({
         </div>
       </section>
 
-      <section className="mx-auto mt-8 max-w-7xl px-4 sm:px-6 lg:px-8" id="calendar">
+      <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8" id="calendar">
         <SectionHeader eyebrow="Agenda" title="Calendario mensual" />
         <div className="surface mt-5 p-3 sm:p-5">
           <div className="grid grid-cols-7 gap-1 text-center text-xs font-black uppercase text-stone-500">
@@ -385,7 +385,7 @@ export function AppShell({
         </div>
       </section>
 
-      <section className="mx-auto mt-8 grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8" id="journal">
+      <section className="mx-auto mt-7 grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8" id="journal">
         <div className="surface p-4 sm:p-5">
           <SectionHeader eyebrow="Bitacora" title="Observaciones y fotos" />
           <div className="mt-5 grid gap-3">
@@ -413,7 +413,7 @@ export function AppShell({
 
         <section className="surface p-4 sm:p-5" aria-labelledby="new-plant-title">
           <p className="eyebrow text-emerald-800">Alta rapida</p>
-          <h2 className="mt-2 text-2xl font-black tracking-tight text-moss-950" id="new-plant-title">
+          <h2 className="mt-2 text-xl font-black tracking-tight text-moss-950 sm:text-2xl" id="new-plant-title">
             Nueva planta
           </h2>
           <form className="mt-5 grid gap-3">
@@ -489,7 +489,7 @@ export function AppShell({
 function Metric({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "light" }) {
   return (
     <div className={tone === "light" ? "metric-card light" : "metric-card"}>
-      <p className="text-3xl font-black tracking-tight">{value}</p>
+      <p className="text-2xl font-black tracking-tight">{value}</p>
       <p className="mt-1 text-sm font-bold">{label}</p>
     </div>
   );
@@ -524,7 +524,7 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
     <div>
       <p className="eyebrow text-emerald-800">{eyebrow}</p>
-      <h2 className="mt-1 text-2xl font-black tracking-tight text-moss-950 sm:text-3xl">{title}</h2>
+      <h2 className="mt-1 text-xl font-black tracking-tight text-moss-950 sm:text-2xl">{title}</h2>
     </div>
   );
 }

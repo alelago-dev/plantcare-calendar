@@ -20,11 +20,11 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(169, 217, 157, 0.36), transparent 360px),
-    linear-gradient(180deg, rgba(219, 237, 228, 0.9), rgba(245, 247, 239, 0) 520px),
+    linear-gradient(180deg, rgba(231, 242, 232, 0.82), rgba(245, 247, 239, 0) 420px),
     var(--background);
   color: var(--foreground);
   font-feature-settings: "ss01" on, "cv01" on;
+  font-size: 15px;
 }
 
 button,
@@ -42,8 +42,8 @@ textarea {
 @layer components {
   .brand-mark {
     display: grid;
-    height: 42px;
-    width: 42px;
+    height: 38px;
+    width: 38px;
     place-items: center;
     border-radius: 8px;
     background:
@@ -52,7 +52,7 @@ textarea {
     color: white;
     font-size: 0.8rem;
     font-weight: 950;
-    box-shadow: 0 12px 30px rgba(45, 111, 82, 0.25);
+    box-shadow: 0 10px 22px rgba(45, 111, 82, 0.18);
   }
 
   .status-dot,
@@ -74,28 +74,24 @@ textarea {
     position: relative;
     border-radius: 8px;
     background:
-      linear-gradient(135deg, rgba(16, 32, 25, 0.86), rgba(30, 85, 61, 0.92)),
-      #132018;
-    padding: 1.25rem;
-    box-shadow: 0 22px 70px rgba(21, 49, 34, 0.24);
+      linear-gradient(135deg, rgba(24, 58, 43, 0.97), rgba(46, 99, 73, 0.94)),
+      #183a2b;
+    padding: 1rem;
+    box-shadow: 0 14px 42px rgba(21, 49, 34, 0.16);
   }
 
   @media (min-width: 640px) {
     .hero-card {
-      padding: 1.75rem;
+      padding: 1.45rem;
     }
   }
 
   .hero-card::after {
-    content: "";
-    position: absolute;
-    right: -72px;
-    bottom: -84px;
-    height: 220px;
-    width: 220px;
-    border-radius: 999px;
-    background: radial-gradient(circle, rgba(226, 180, 87, 0.42), rgba(226, 180, 87, 0));
-    pointer-events: none;
+    content: none;
+  }
+
+  .hero-copy {
+    color: rgba(247, 252, 243, 0.9);
   }
 
   .grow-visual-card,
@@ -103,46 +99,38 @@ textarea {
     border: 1px solid rgba(22, 32, 21, 0.1);
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.82);
-    box-shadow: 0 18px 60px rgba(28, 54, 38, 0.1);
+    box-shadow: 0 10px 32px rgba(28, 54, 38, 0.08);
     backdrop-filter: blur(14px);
   }
 
   .grow-visual-card {
     position: relative;
     overflow: hidden;
-    padding: 1.25rem;
+    padding: 1rem;
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(238, 245, 232, 0.86)),
       #ffffff;
   }
 
   .grow-visual-card::before {
-    content: "";
-    position: absolute;
-    inset: auto 18px 18px auto;
-    height: 92px;
-    width: 92px;
-    border-radius: 8px;
-    background:
-      linear-gradient(135deg, rgba(45, 111, 82, 0.18), rgba(226, 180, 87, 0.2)),
-      #edf5e9;
+    content: none;
   }
 
   .eyebrow {
-    font-size: 0.76rem;
-    font-weight: 950;
+    font-size: 0.7rem;
+    font-weight: 900;
     text-transform: uppercase;
   }
 
   .metric-card {
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.72);
-    padding: 1rem;
+    padding: 0.78rem;
     color: #162015;
   }
 
   .metric-card.light {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.14);
     color: #ffffff;
   }
 
@@ -167,7 +155,7 @@ textarea {
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.08);
     background: rgba(255, 255, 255, 0.7);
-    padding: 0.875rem;
+    padding: 0.78rem;
   }
 
   .seed-card,
@@ -196,8 +184,8 @@ textarea {
   }
 
   .plant-swatch {
-    height: 46px;
-    width: 46px;
+    height: 40px;
+    width: 40px;
     background:
       linear-gradient(135deg, rgba(45, 111, 82, 0.95), rgba(134, 172, 90, 0.88)),
       #2d6f52;
@@ -247,11 +235,11 @@ textarea {
   }
 
   .metric-tile {
-    min-height: 96px;
+    min-height: 86px;
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.08);
     background: rgba(248, 250, 244, 0.86);
-    padding: 1rem;
+    padding: 0.85rem;
   }
 
   .space-banner {
@@ -267,7 +255,7 @@ textarea {
   }
 
   .day-cell {
-    min-height: 92px;
+    min-height: 84px;
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.08);
     background: #eef6e8;
@@ -310,11 +298,11 @@ textarea {
   }
 
   .form-control {
-    min-height: 44px;
+    min-height: 40px;
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.14);
     background: #f8faf4;
-    padding: 0.65rem 0.75rem;
+    padding: 0.55rem 0.7rem;
     color: #162015;
   }
 
@@ -322,8 +310,8 @@ textarea {
   .secondary-button,
   .dark-button {
     border-radius: 8px;
-    padding: 0.82rem 1rem;
-    font-size: 0.92rem;
+    padding: 0.7rem 0.9rem;
+    font-size: 0.88rem;
     font-weight: 950;
     transition:
       transform 160ms ease,
