@@ -2,11 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
 import "./globals.css";
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export const metadata: Metadata = {
   title: "PlantCare Calendar",
   description: "Calendario PWA para seguimiento de cultivos horticolas legales.",
   applicationName: "PlantCare Calendar",
-  manifest: "/manifest.webmanifest",
+  manifest: `${basePath}/manifest.webmanifest`,
   appleWebApp: {
     capable: true,
     title: "PlantCare"
