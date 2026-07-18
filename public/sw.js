@@ -1,6 +1,11 @@
 self.addEventListener("install", (event) => {
+  const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, "");
+  const withScope = (path) => `${scopePath}${path}`;
+
   event.waitUntil(
-    caches.open("plantcare-calendar-v1").then((cache) => cache.addAll(["/es", "/manifest.webmanifest"]))
+    caches
+      .open("plantcare-calendar-v1")
+      .then((cache) => cache.addAll([withScope("/"), withScope("/es/"), withScope("/en/"), withScope("/manifest.webmanifest")]))
   );
 });
 
