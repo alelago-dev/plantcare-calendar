@@ -8,6 +8,7 @@ PlantCare Calendar es una PWA mobile-first para seguimiento de cultivos horticol
 - Espacios de cultivo y plantas asociadas.
 - Campos para variedad o semilla, fecha de inicio, modalidad, region aproximada, maceta, sustrato e iluminacion.
 - Selector de semillas con categorias horticultoras y categorias cannabicas legales para registro manual.
+- Calculadora horticola no regulada por semilla, maceta, luz y espacio, con estimaciones orientativas de riego, agua y sustrato.
 - Plan manual legal con banco/catalogo, genetica, tipo declarado, dias informados por el usuario, espacio, tamano de indoor, luz, litros de maceta y fechas definidas por el usuario.
 - Tareas manuales y recurrentes con vista de hoy.
 - Calendario mensual.

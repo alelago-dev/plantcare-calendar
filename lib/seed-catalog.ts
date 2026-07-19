@@ -12,6 +12,24 @@ export type SeedProfile = {
   recommendationEnabled: boolean;
 };
 
+export type HorticulturePlanInput = {
+  indoorSize: "small" | "medium" | "large";
+  lightType: "led" | "sun" | "mixed";
+  potLiters: number;
+  seedId: string;
+};
+
+export type HorticulturePlan = {
+  seedLabel: string;
+  substrateLiters: string;
+  waterCheck: string;
+  waterAmount: string;
+  lightFit: string;
+  spaceFit: string;
+  harvestWindow: string;
+  note: string;
+};
+
 export const seedClimateOptions: SeedClimate[] = ["Templado", "Calido", "Fresco", "Seco", "Interior controlado"];
 
 export const seedCatalog: SeedProfile[] = [
@@ -180,4 +198,61 @@ export const seedCatalog: SeedProfile[] = [
 
 export function getRecommendedSeeds(climate: SeedClimate) {
   return seedCatalog.filter((seed) => seed.recommendationEnabled && seed.climates.includes(climate));
+}
+
+export function getHorticultureSeeds() {
+  return seedCatalog.filter((seed) => seed.recommendationEnabled);
+}
+
+export function calculateHorticulturePlan(input: HorticulturePlanInput): HorticulturePlan {
+  const seed = getHorticultureSeeds().find((item) => item.id === input.seedId) ?? getHorticultureSeeds()[0];
+  const potLiters = Math.max(1, Math.min(input.potLiters, 80));
+  const waterBase = getWaterBaseBySeed(seed.seedType);
+  const lightMultiplier = input.lightType === "led" ? 1.05 : input.lightType === "sun" ? 1.15 : 1;
+  const spaceMultiplier = input.indoorSize === "small" ? 0.88 : input.indoorSize === "large" ? 1.08 : 1;
+  const waterMin = Math.round(potLiters * waterBase * lightMultiplier * spaceMultiplier);
+  const waterMax = Math.round(waterMin * 1.35);
+
+  return {
+    seedLabel: `${seed.crop} ${seed.name}`,
+    substrateLiters: `${Math.ceil(potLiters * 1.05)} a ${Math.ceil(potLiters * 1.2)} L de mezcla total`,
+    waterCheck: getWaterCheckBySeed(seed.seedType, input.lightType),
+    waterAmount: `${waterMin}-${waterMax} ml por registro, ajustando segun humedad real`,
+    lightFit: getLightFit(seed.seedType, input.lightType),
+    spaceFit: getSpaceFit(seed.seedType, input.indoorSize),
+    harvestWindow: seed.daysToHarvest,
+    note: "Calculo horticola orientativo para cultivos no regulados. Confirmar humedad del sustrato antes de regar."
+  };
+}
+
+function getWaterBaseBySeed(seedType: string) {
+  if (seedType.includes("Hoja")) return 55;
+  if (seedType.includes("Aromatica perenne")) return 35;
+  if (seedType.includes("Aromatica")) return 42;
+  return 60;
+}
+
+function getWaterCheckBySeed(seedType: string, lightType: HorticulturePlanInput["lightType"]) {
+  const extraLight = lightType === "sun" ? " y despues de dias de mucho sol" : "";
+  if (seedType.includes("Hoja")) return `Revisar humedad cada 1-2 dias${extraLight}`;
+  if (seedType.includes("Aromatica perenne")) return `Revisar humedad cada 3-5 dias${extraLight}`;
+  return `Revisar humedad cada 2-3 dias${extraLight}`;
+}
+
+function getLightFit(seedType: string, lightType: HorticulturePlanInput["lightType"]) {
+  if (seedType.includes("Hoja")) {
+    return lightType === "sun" ? "Luz moderada o media sombra" : "LED suave a medio";
+  }
+  if (seedType.includes("Aromatica")) {
+    return lightType === "mixed" ? "Luz mixta estable" : "Luz alta sin exceso de calor";
+  }
+  return lightType === "led" ? "LED medio a alto" : "Sol directo o luz intensa";
+}
+
+function getSpaceFit(seedType: string, indoorSize: HorticulturePlanInput["indoorSize"]) {
+  if (seedType.includes("Hortaliza de fruto")) {
+    return indoorSize === "small" ? "Usar variedades compactas o tutorado" : "Espacio apto para plantas de fruto";
+  }
+  if (seedType.includes("Aromatica perenne")) return "Espacio compacto, priorizar buen drenaje";
+  return "Espacio compatible con maceta y cosecha progresiva";
 }

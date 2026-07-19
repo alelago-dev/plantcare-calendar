@@ -1,4 +1,5 @@
 import type { CalendarDay, CareEntry, Dictionary, GrowSpace, Locale, Plant, Task } from "@/lib/types";
+import { HorticultureCalculator } from "@/components/horticulture-calculator";
 import { getRecommendedSeeds, seedCatalog, seedClimateOptions } from "@/lib/seed-catalog";
 import { getWeatherReadiness } from "@/lib/weather";
 
@@ -258,7 +259,9 @@ export function AppShell({
           </div>
         </section>
 
-        <section className="surface p-4 sm:p-5" aria-labelledby="seed-bank-title">
+        <div className="grid gap-5">
+          <HorticultureCalculator />
+          <section className="surface p-4 sm:p-5" aria-labelledby="seed-bank-title">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <SectionHeader eyebrow="Banco demo" title="Categorias de semillas" />
             <span className="pill pill-blue">Uso legal</span>
@@ -307,7 +310,8 @@ export function AppShell({
               </p>
             </article>
           </div>
-        </section>
+          </section>
+        </div>
       </section>
 
       <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8" id="spaces">
