@@ -170,7 +170,7 @@ export function ManualCannabisForm({
   return (
     <div className="grid gap-4">
       <FormGroup title="Identificacion">
-        <FormSelect label="Banco o catalogo" options={bankOptions} />
+        <FormSelect label="Banco o catalogo" options={bankOptions} recentKey="bank" />
         <FormSelect
           label="Nombre de la genetica"
           options={["No seleccionada", ...geneticsCatalogAlphabetically.map((genetic) => genetic.name), "Otra / no listada"]}
@@ -198,9 +198,9 @@ export function ManualCannabisForm({
         <FormSelect label="Dias a flora" options={floweringDayOptions} />
         <FormSelect label="Semanas de floracion" options={floweringWeekOptions} />
         <FormSelect label="Tipo de espacio" options={["Interior", "Exterior", "Invernadero"]} />
-        <FormSelect label="Tamano indoor" options={indoorSizeOptions} />
-        <FormSelect label="Tipo de luz" options={["LED", "Sodio", "Mixta", "Luz natural", "No declarado"]} />
-        <FormSelect label="Maceta en litros" options={potOptions} />
+        <FormSelect label="Tamano indoor" options={indoorSizeOptions} recentKey="indoor-size" />
+        <FormSelect label="Tipo de luz" options={["LED", "Sodio", "Mixta", "Luz natural", "No declarado"]} recentKey="light-type" />
+        <FormSelect label="Maceta en litros" options={potOptions} recentKey="pot-liters" />
       </FormGroup>
 
       <FormGroup title="Fechas y recordatorios">
@@ -245,25 +245,40 @@ function FormSelect({
   label,
   onChange,
   options,
+  recentKey,
   value
 }: {
   label: string;
   onChange?: (value: string) => void;
   options: string[] | Array<{ label: string; value: string }>;
+  recentKey?: string;
   value?: string;
 }) {
   const normalizedOptions = options.map((option) => (typeof option === "string" ? { label: option, value: option } : option));
+  const { recentOptions, rememberOption } = useRecentOptions(recentKey, normalizedOptions);
+  const regularOptions = normalizedOptions.filter((option) => !recentOptions.some((recentOption) => recentOption.value === option.value));
 
   return (
     <label className="grid gap-1 text-sm font-black text-moss-950">
       {label}
       <select
+        aria-label={label}
         className="form-control"
         defaultValue={value ? undefined : normalizedOptions[0]?.value}
         value={value}
-        onChange={(event) => onChange?.(event.target.value)}
+        onChange={(event) => {
+          rememberOption(event.target.value);
+          onChange?.(event.target.value);
+        }}
       >
-        {normalizedOptions.map((option) => (
+        {recentOptions.length > 0 ? <option disabled>Usados recientemente</option> : null}
+        {recentOptions.map((option) => (
+          <option key={`recent-${option.value}`} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+        {recentOptions.length > 0 ? <option disabled>Opciones</option> : null}
+        {regularOptions.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
@@ -271,6 +286,30 @@ function FormSelect({
       </select>
     </label>
   );
+}
+
+function useRecentOptions(key: string | undefined, options: Array<{ label: string; value: string }>) {
+  const storageKey = key ? `plantcare-recent-${key}` : "";
+  const [recentValues, setRecentValues] = useState<string[]>(() => {
+    if (!storageKey || typeof window === "undefined") return [];
+    const storedValue = window.localStorage.getItem(storageKey);
+    return storedValue ? JSON.parse(storedValue) as string[] : [];
+  });
+
+  function rememberOption(value: string) {
+    if (!storageKey) return;
+
+    const nextValues = [value, ...recentValues.filter((recentValue) => recentValue !== value)].slice(0, 3);
+    setRecentValues(nextValues);
+    window.localStorage.setItem(storageKey, JSON.stringify(nextValues));
+  }
+
+  return {
+    recentOptions: recentValues
+      .map((recentValue) => options.find((option) => option.value === recentValue))
+      .filter((option): option is { label: string; value: string } => Boolean(option)),
+    rememberOption
+  };
 }
 
 function formatSeedType(type: SeedType) {

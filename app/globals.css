@@ -130,6 +130,12 @@ textarea {
     color: #23543e;
   }
 
+  .desktop-nav-item:focus-visible,
+  .mobile-tab:focus-visible {
+    outline: 3px solid rgba(35, 84, 62, 0.48);
+    outline-offset: 3px;
+  }
+
   .nav-icon {
     display: grid;
     height: 22px;
@@ -382,6 +388,7 @@ textarea {
   .task-check.done {
     border-color: #2d6f52;
     background: #e8f3df;
+    animation: task-confirm 420ms ease;
   }
 
   .weather-panel {
@@ -564,6 +571,176 @@ textarea {
 
   .copy-value-button:active {
     color: #162015;
+  }
+
+  .onboarding-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    background: rgba(22, 32, 21, 0.38);
+    padding: 1rem;
+    backdrop-filter: blur(8px);
+  }
+
+  .onboarding-panel {
+    width: min(92vw, 520px);
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.12);
+    background: #ffffff;
+    padding: 1rem;
+    box-shadow: 0 24px 60px rgba(28, 54, 38, 0.24);
+  }
+
+  .onboarding-illustration {
+    display: grid;
+    margin-top: 1.25rem;
+    min-height: 132px;
+    place-items: center;
+    border-radius: 8px;
+    background: #e8f3df;
+  }
+
+  .plant-state-icon {
+    position: relative;
+    display: inline-grid;
+    height: 28px;
+    width: 28px;
+    place-items: center;
+    color: #23543e;
+  }
+
+  .plant-state-icon span {
+    position: absolute;
+    display: block;
+    background: currentColor;
+  }
+
+  .plant-state-icon span:nth-child(1) {
+    bottom: 4px;
+    height: 16px;
+    width: 4px;
+    border-radius: 999px;
+  }
+
+  .plant-state-icon span:nth-child(2),
+  .plant-state-icon span:nth-child(3) {
+    top: 7px;
+    height: 12px;
+    width: 16px;
+    border-radius: 999px 999px 0 999px;
+  }
+
+  .plant-state-icon span:nth-child(2) {
+    left: 3px;
+    transform: rotate(-35deg);
+  }
+
+  .plant-state-icon span:nth-child(3) {
+    right: 3px;
+    transform: scaleX(-1) rotate(-35deg);
+  }
+
+  .plant-state-icon.sprout span:nth-child(3),
+  .plant-state-icon.leaf span:nth-child(1) {
+    opacity: 0.38;
+  }
+
+  .plant-state-icon.flower::after,
+  .plant-state-icon.harvest::after {
+    position: absolute;
+    top: 1px;
+    height: 10px;
+    width: 10px;
+    border-radius: 999px;
+    background: #e2b457;
+    content: "";
+  }
+
+  .plant-progress {
+    margin-top: 0.5rem;
+  }
+
+  .plant-progress-step {
+    display: grid;
+    gap: 0.35rem;
+    justify-items: center;
+    color: #52604d;
+    font-size: 0.68rem;
+    font-weight: 950;
+  }
+
+  .plant-progress-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 999px;
+    background: #d7dfcf;
+  }
+
+  .plant-progress-dot.active {
+    background: #23543e;
+  }
+
+  .plant-progress-track {
+    margin-top: 0.75rem;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #eef0ec;
+  }
+
+  .plant-progress-track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #23543e;
+  }
+
+  .journal-timeline {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .journal-group {
+    display: grid;
+    gap: 0.75rem;
+    border-left: 3px solid #d7dfcf;
+    padding-left: 0.9rem;
+  }
+
+  .journal-date {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .journal-photo-card {
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    background: #ffffff;
+  }
+
+  .journal-photo {
+    aspect-ratio: 16 / 9;
+    background:
+      linear-gradient(135deg, rgba(35, 84, 62, 0.2), rgba(226, 180, 87, 0.22)),
+      #e8f3df;
+  }
+
+  @keyframes task-confirm {
+    0% {
+      transform: scale(0.92);
+    }
+
+    55% {
+      transform: scale(1.12);
+    }
+
+    100% {
+      transform: scale(1);
+    }
   }
 
   .quick-plant-mobile {

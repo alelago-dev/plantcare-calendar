@@ -135,6 +135,7 @@ export const demoCalendarEvents: CalendarEvent[] = [
 export const demoEntries: CareEntry[] = [
   {
     id: "entry-1",
+    plantId: "plant-roma",
     title: "Control visual general",
     createdAt: "2026-07-17",
     note: "Hojas firmes, sustrato fresco y sin senales visibles de plagas. Se pospone riego hasta nueva revision.",
@@ -142,6 +143,7 @@ export const demoEntries: CareEntry[] = [
   },
   {
     id: "entry-2",
+    plantId: "plant-lavender",
     title: "Mantenimiento del patio",
     createdAt: "2026-07-15",
     note: "Se ordenaron macetas, se limpio el area de trabajo y se actualizaron recordatorios recurrentes.",

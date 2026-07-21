@@ -46,6 +46,7 @@ export type Task = {
 
 export type CareEntry = {
   id: string;
+  plantId?: string;
   title: string;
   createdAt: string;
   note: string;

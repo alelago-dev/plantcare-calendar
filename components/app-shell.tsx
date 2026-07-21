@@ -6,12 +6,14 @@ import { SeedsSection } from "@/components/seeds-section";
 import {
   buildMonthGrid,
   buildWeekGrid,
+  addDays,
   createEventId,
   expandEventOccurrences,
   getEventKindLabel,
   getTodayIso
 } from "@/lib/calendar-events";
 import { getSectionHref, navigationByLocale, type AppSection } from "@/lib/navigation";
+import { requestReminderNotification } from "@/lib/notifications";
 import { seedCatalog } from "@/lib/seed-catalog";
 import type { CalendarEvent, CalendarEventOccurrence, CareEntry, Dictionary, GrowSpace, Locale, Plant, Task } from "@/lib/types";
 import { getWeatherReadiness } from "@/lib/weather";
@@ -57,6 +59,8 @@ const manualPlantId = "plant-manual-regulated";
 const storageKeys = {
   calendarDate: "plantcare-calendar-selected-date",
   events: "plantcare-calendar-events",
+  habitDates: "plantcare-habit-dates",
+  onboarding: "plantcare-onboarding-complete",
   plants: "plantcare-plants",
   tasks: "plantcare-tasks"
 };
@@ -74,6 +78,10 @@ export function AppShell({
   const [plantState, setPlantState] = useStoredState(storageKeys.plants, plants);
   const [taskState, setTaskState] = useStoredState(storageKeys.tasks, tasks);
   const [eventState, setEventState] = useStoredState(storageKeys.events, calendarEvents);
+  const [habitDates, setHabitDates] = useStoredState<string[]>(storageKeys.habitDates, []);
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => typeof window !== "undefined" && window.localStorage.getItem(storageKeys.onboarding) !== "true"
+  );
   const todayIso = getTodayIso();
   const weather = getWeatherReadiness(spaces[0]?.region ?? "Region sin definir");
   const navItems = navigationByLocale[locale];
@@ -87,10 +95,13 @@ export function AppShell({
   );
   const openTasks = agendaItems.filter((task) => task.status === "open").length;
   const todayHref = getSectionHref(locale, "today");
+  const calendarHref = getSectionHref(locale, "calendar");
+  const streakCount = getStreakCount(habitDates, todayIso);
 
   function handleToggleTask(item: AgendaItem) {
     if (item.source === "event" && item.eventId && item.occurrenceDate) {
       setEventState((events) => toggleEventCompletion(events, item.eventId!, item.occurrenceDate!));
+      rememberHabitDate(item.occurrenceDate);
       return;
     }
 
@@ -99,6 +110,15 @@ export function AppShell({
         task.id === item.id ? { ...task, status: task.status === "done" ? "open" : "done" } : task
       )
     );
+    rememberHabitDate(todayIso);
+  }
+
+  function rememberHabitDate(isoDate: string) {
+    setHabitDates((existingDates) => {
+      const nextDates = Array.from(new Set([...existingDates, isoDate])).sort();
+      persistStoredState(storageKeys.habitDates, nextDates);
+      return nextDates;
+    });
   }
 
   function handleAddManualEvents(events: CalendarEvent[]) {
@@ -124,6 +144,11 @@ export function AppShell({
     persistStoredState(storageKeys.plants, nextPlants);
     persistStoredState(storageKeys.events, nextEvents);
     persistCalendarDate(events[0]?.startDate ?? todayIso);
+    void requestReminderNotification({
+      body: `${events.length} recordatorio(s) manual(es) agregados.`,
+      title: "PlantCare Calendar",
+      url: calendarHref
+    });
   }
 
   function handleCreateQuickPlant(input: QuickPlantInput) {
@@ -182,6 +207,11 @@ export function AppShell({
     setEventState(nextEventState);
     persistStoredState(storageKeys.plants, nextPlantState);
     persistStoredState(storageKeys.events, nextEventState);
+    void requestReminderNotification({
+      body: "Se creo un recordatorio para tu nueva planta.",
+      title: "PlantCare Calendar",
+      url: getSectionHref(locale, "calendar")
+    });
     goToCalendar(nextEvents[0]?.startDate ?? todayIso, locale);
   }
 
@@ -228,14 +258,17 @@ export function AppShell({
           dictionary={dictionary}
           onToggleTask={handleToggleTask}
           openTasks={openTasks}
+          calendarEvents={eventState}
+          tasks={taskState}
           plants={plantState}
+          streakCount={streakCount}
           weather={weather}
         />
       ) : null}
 
       {currentSection === "seeds" ? (
         <SeedsSection
-          calendarHref={getSectionHref(locale, "calendar")}
+          calendarHref={calendarHref}
           locale={locale}
           onCreateManualEvents={handleAddManualEvents}
         />
@@ -249,8 +282,18 @@ export function AppShell({
           plants={plantState}
         />
       ) : null}
-      {currentSection === "journal" ? <JournalSection entries={entries} onCreateQuickPlant={handleCreateQuickPlant} /> : null}
+      {currentSection === "journal" ? <JournalSection entries={entries} onCreateQuickPlant={handleCreateQuickPlant} plants={plantState} /> : null}
       {currentSection === "privacy" ? <PrivacySection /> : null}
+
+      {showOnboarding ? (
+        <OnboardingFlow
+          onClose={() => {
+            window.localStorage.setItem(storageKeys.onboarding, "true");
+            setShowOnboarding(false);
+          }}
+          todayHref={todayHref}
+        />
+      ) : null}
 
       <nav className="mobile-tab-bar" aria-label="Navegacion principal">
         {navItems.map((item) => (
@@ -269,18 +312,24 @@ export function AppShell({
 function TodaySection({
   agendaItems,
   careScore,
+  calendarEvents,
   dictionary,
   onToggleTask,
   openTasks,
   plants,
+  streakCount,
+  tasks,
   weather
 }: {
   agendaItems: AgendaItem[];
   careScore: number;
+  calendarEvents: CalendarEvent[];
   dictionary: Dictionary;
   onToggleTask: (item: AgendaItem) => void;
   openTasks: number;
   plants: Plant[];
+  streakCount: number;
+  tasks: Task[];
   weather: ReturnType<typeof getWeatherReadiness>;
 }) {
   return (
@@ -295,7 +344,7 @@ function TodaySection({
           <div className="summary-grid">
             <MiniStat label="Cultivos" value={plants.length.toString()} />
             <MiniStat featured label="Pendientes" value={openTasks.toString()} />
-            <MiniStat label="Cuidado" value={`${careScore}%`} />
+            <MiniStat label="Racha" value={`${streakCount} dias`} />
           </div>
         </div>
       </section>
@@ -340,16 +389,157 @@ function TodaySection({
           </div>
         </section>
       </section>
+
+      <section className="mx-auto mt-5 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <SeasonInsights calendarEvents={calendarEvents} careScore={careScore} plants={plants} tasks={tasks} />
+      </section>
     </>
   );
 }
 
+function SeasonInsights({
+  calendarEvents,
+  careScore,
+  plants,
+  tasks
+}: {
+  calendarEvents: CalendarEvent[];
+  careScore: number;
+  plants: Plant[];
+  tasks: Task[];
+}) {
+  const todayIso = getTodayIso();
+  const nextMilestone = calendarEvents
+    .filter((event) => event.kind === "review" && event.startDate >= todayIso)
+    .sort((first, second) => first.startDate.localeCompare(second.startDate))[0];
+  const nextMilestonePlant = plants.find((plant) => plant.id === nextMilestone?.plantId);
+  const completedTasks = tasks.filter((task) => task.status === "done").length;
+  const completionRate = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : careScore;
+
+  return (
+    <section className="surface p-4 sm:p-5" aria-labelledby="season-title">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <SectionHeader eyebrow="Mi temporada" title="Resumen activo" />
+        <span className="pill pill-green">{completionRate}% tareas hechas</span>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        {plants.slice(0, 3).map((plant) => (
+          <div className="metric-tile" key={plant.id}>
+            <div className="flex items-center gap-2">
+              <PlantStateIcon stage={plant.stage} />
+              <p className="font-black text-moss-950">{plant.name}</p>
+            </div>
+            <p className="mt-3 text-2xl font-black text-moss-950">{getElapsedDays(plant.startedAt, todayIso)}</p>
+            <p className="text-xs font-black uppercase text-stone-500">dias desde fecha cargada</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 rounded-lg border border-moss-950/10 bg-paper/80 p-3">
+        <p className="text-xs font-black uppercase text-stone-500">Proximo hito declarado</p>
+        <p className="mt-1 font-black text-moss-950">
+          {nextMilestone
+            ? `${nextMilestone.title} - ${nextMilestonePlant?.name ?? "planta"} - ${nextMilestone.startDate}`
+            : "Sin hitos manuales proximos"}
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function OnboardingFlow({ onClose, todayHref }: { onClose: () => void; todayHref: string }) {
+  const [step, setStep] = useState(0);
+  const steps = [
+    {
+      body: "Elegir si vas a registrar cannabis legal o cultivos horticolas no regulados. Cada flujo mantiene sus limites.",
+      title: "Que vas a cultivar?"
+    },
+    {
+      body: "Interior, exterior o invernadero. Esto solo configura el contexto visual inicial.",
+      title: "Donde?"
+    },
+    {
+      body: "Listo. Tu panel queda preparado con tareas, calendario, diario y privacidad.",
+      title: "Asi se ve tu panel"
+    }
+  ];
+  const currentStep = steps[step];
+
+  function finish() {
+    onClose();
+    window.location.href = todayHref;
+  }
+
+  return (
+    <div className="onboarding-backdrop" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+      <section className="onboarding-panel">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="eyebrow text-emerald-800">Primer uso</p>
+            <h2 className="mt-1 text-2xl font-black text-moss-950" id="onboarding-title">
+              {currentStep.title}
+            </h2>
+          </div>
+          <button className="secondary-button" onClick={onClose} type="button">
+            Saltar por ahora
+          </button>
+        </div>
+        <div className="onboarding-illustration" aria-hidden="true">
+          <PlantStateIcon stage={step === 2 ? "Floracion" : step === 1 ? "Vegetativo" : "Plantin"} />
+        </div>
+        <p className="mt-4 text-sm font-bold leading-6 text-stone-700">{currentStep.body}</p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {step > 0 ? (
+            <button className="secondary-button" onClick={() => setStep((value) => value - 1)} type="button">
+              Atras
+            </button>
+          ) : null}
+          {step < steps.length - 1 ? (
+            <button className="primary-button" onClick={() => setStep((value) => value + 1)} type="button">
+              Continuar
+            </button>
+          ) : (
+            <button className="primary-button" onClick={finish} type="button">
+              Ir a Hoy
+            </button>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function SpacesSection({ plants, spaces }: { plants: Plant[]; spaces: GrowSpace[] }) {
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleSpaces = spaces
+    .map((space) => {
+      const matchingPlants = plants.filter((plant) => {
+        const matchesSpace = space.name.toLowerCase().includes(normalizedQuery);
+        const matchesPlant = [plant.name, plant.variety, plant.stage].join(" ").toLowerCase().includes(normalizedQuery);
+        return plant.spaceId === space.id && (!normalizedQuery || matchesSpace || matchesPlant);
+      });
+
+      return { ...space, plants: matchingPlants };
+    })
+    .filter((space) => !normalizedQuery || space.name.toLowerCase().includes(normalizedQuery) || space.plants.length > 0);
+
   return (
     <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8">
-      <SectionHeader eyebrow="Cultivos" title="Espacios y plantas" />
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <SectionHeader eyebrow="Cultivos" title="Espacios y plantas" />
+        <label className="grid min-w-64 gap-1 text-sm font-black text-moss-950">
+          Buscar
+          <input
+            aria-label="Buscar por espacio o planta"
+            className="form-control"
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Nombre de planta o espacio"
+            value={query}
+          />
+        </label>
+      </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        {spaces.map((space) => (
+        {visibleSpaces.map((space) => (
           <article className="surface overflow-hidden" key={space.id}>
             <div className="space-banner">
               <div>
@@ -361,8 +551,7 @@ function SpacesSection({ plants, spaces }: { plants: Plant[]; spaces: GrowSpace[
               <span className="rounded-md bg-white/16 px-3 py-1.5 text-xs font-black text-white">{space.privacyLevel}</span>
             </div>
             <div className="grid gap-0 divide-y divide-moss-950/10 p-4">
-              {plants
-                .filter((plant) => plant.spaceId === space.id)
+              {space.plants
                 .map((plant) => (
                   <details className="plant-row-details" id={plant.id} key={plant.id}>
                     <summary>
@@ -379,6 +568,7 @@ function SpacesSection({ plants, spaces }: { plants: Plant[]; spaces: GrowSpace[
                       <PlantFact label="Luz" value={plant.lighting} />
                       <PlantFact label="Modo" value={plant.mode} />
                     </dl>
+                    <PlantStageProgress plant={plant} />
                   </details>
                 ))}
             </div>
@@ -540,30 +730,50 @@ function CalendarOccurrenceCard({
   );
 }
 
-function JournalSection({ entries, onCreateQuickPlant }: { entries: CareEntry[]; onCreateQuickPlant: (input: QuickPlantInput) => void }) {
+function JournalSection({
+  entries,
+  onCreateQuickPlant,
+  plants
+}: {
+  entries: CareEntry[];
+  onCreateQuickPlant: (input: QuickPlantInput) => void;
+  plants: Plant[];
+}) {
+  const groupedEntries = groupEntriesByPlantAndDate(entries, plants);
+
   return (
     <section className="mx-auto mt-7 grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
       <div className="surface p-4 sm:p-5">
         <SectionHeader eyebrow="Bitacora" title="Observaciones y fotos" />
-        <div className="mt-5 grid gap-3">
-          {entries.map((entry) => (
-            <article className="journal-row" key={entry.id}>
-              <div className="photo-thumb" aria-hidden="true" />
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="font-black text-moss-950">{entry.title}</h3>
-                  <span className="text-sm font-bold text-stone-600">{entry.createdAt}</span>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-stone-700">{entry.note}</p>
-                <div className="mt-3 flex flex-wrap gap-2 text-xs font-black text-moss-700">
-                  {entry.tags.map((tag) => (
-                    <span className="pill pill-soft" key={tag}>
-                      {tag}
-                    </span>
-                  ))}
+        <div className="journal-timeline mt-5">
+          {groupedEntries.map((group) => (
+            <section className="journal-group" key={`${group.plantName}-${group.date}`}>
+              <div className="journal-date">
+                <PlantStateIcon stage={group.stage} />
+                <div>
+                  <p className="font-black text-moss-950">{group.plantName}</p>
+                  <p className="text-xs font-bold text-stone-600">{group.date}</p>
                 </div>
               </div>
-            </article>
+              <div className="grid gap-3">
+                {group.entries.map((entry) => (
+                  <article className="journal-photo-card" key={entry.id}>
+                    <div className="journal-photo" aria-label={`Foto demo de ${entry.title}`} />
+                    <div className="p-3">
+                      <h3 className="font-black text-moss-950">{entry.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-stone-700">{entry.note}</p>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-black text-moss-700">
+                        {entry.tags.map((tag) => (
+                          <span className="pill pill-soft" key={tag}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       </div>
@@ -762,8 +972,41 @@ function SectionHeader({ eyebrow, title }: { eyebrow: string; title: string }) {
 function PlantAvatar({ plant }: { plant: Plant }) {
   return (
     <span className="plant-avatar" aria-hidden="true">
-      {plant.name.slice(0, 2).toUpperCase()}
+      <PlantStateIcon stage={plant.stage} />
     </span>
+  );
+}
+
+function PlantStateIcon({ stage }: { stage: string }) {
+  const currentStage = getPlantStage(stage);
+
+  return (
+    <span className={`plant-state-icon ${currentStage}`} aria-hidden="true">
+      <span />
+      <span />
+      <span />
+    </span>
+  );
+}
+
+function PlantStageProgress({ plant }: { plant: Plant }) {
+  const stages = ["Semilla", "Vegetativo", "Floracion", "Cosecha"];
+  const currentIndex = getPlantStageIndex(plant.stage);
+
+  return (
+    <div className="plant-progress" aria-label={`Etapa declarada de ${plant.name}: ${plant.stage}`}>
+      <div className="mt-4 flex items-center justify-between gap-2">
+        {stages.map((stage, index) => (
+          <div className="plant-progress-step" key={stage}>
+            <span className={index <= currentIndex ? "plant-progress-dot active" : "plant-progress-dot"} />
+            <span>{stage}</span>
+          </div>
+        ))}
+      </div>
+      <div className="plant-progress-track">
+        <span style={{ width: `${(currentIndex / (stages.length - 1)) * 100}%` }} />
+      </div>
+    </div>
   );
 }
 
@@ -782,7 +1025,7 @@ function SeedSelect({ onChange, value }: { onChange: (value: string) => void; va
   return (
     <label className="grid gap-1 text-sm font-black text-moss-950">
       Variedad o semilla
-      <select className="form-control" value={value} onChange={(event) => onChange(event.target.value)}>
+      <select aria-label="Variedad o semilla" className="form-control" value={value} onChange={(event) => onChange(event.target.value)}>
         {horticultureSeeds.map((seed) => (
           <option key={seed.id} value={seed.id}>
             {seed.crop} - {seed.name}
@@ -797,7 +1040,7 @@ function ModeSelect({ onChange, value }: { onChange: (value: Plant["mode"]) => v
   return (
     <label className="grid gap-1 text-sm font-black text-moss-950">
       Modalidad
-      <select className="form-control" value={value} onChange={(event) => onChange(event.target.value as Plant["mode"])}>
+      <select aria-label="Modalidad" className="form-control" value={value} onChange={(event) => onChange(event.target.value as Plant["mode"])}>
         <option>Exterior</option>
         <option>Interior</option>
         <option>Invernadero</option>
@@ -820,7 +1063,7 @@ function FormField({
   return (
     <label className="grid gap-1 text-sm font-black text-moss-950">
       {label}
-      <input className="form-control" onChange={(event) => onChange(event.target.value)} placeholder={placeholder} value={value} />
+      <input aria-label={label} className="form-control" onChange={(event) => onChange(event.target.value)} placeholder={placeholder} value={value} />
     </label>
   );
 }
@@ -841,7 +1084,7 @@ function FormSelect({
   return (
     <label className="grid gap-1 text-sm font-black text-moss-950">
       {label}
-      <select className="form-control" value={value} onChange={(event) => onChange(event.target.value)}>
+      <select aria-label={label} className="form-control" value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map((option) => (
           <option key={option} value={option}>
             {valueLabels?.[option] ?? option}
@@ -937,6 +1180,69 @@ function toggleEventCompletion(events: CalendarEvent[], eventId: string, date: s
         : [...event.completedDates, date]
     };
   });
+}
+
+function groupEntriesByPlantAndDate(entries: CareEntry[], plants: Plant[]) {
+  const groups = new Map<string, { date: string; entries: CareEntry[]; plantName: string; stage: string }>();
+
+  entries.forEach((entry) => {
+    const plant = plants.find((candidate) => candidate.id === entry.plantId);
+    const plantName = plant?.name ?? "Sin planta";
+    const stage = plant?.stage ?? "Semilla";
+    const key = `${plantName}-${entry.createdAt}`;
+    const existingGroup = groups.get(key);
+
+    if (existingGroup) {
+      existingGroup.entries.push(entry);
+      return;
+    }
+
+    groups.set(key, {
+      date: entry.createdAt,
+      entries: [entry],
+      plantName,
+      stage
+    });
+  });
+
+  return Array.from(groups.values()).sort((first, second) => second.date.localeCompare(first.date));
+}
+
+function getElapsedDays(startedAt: string, todayIso: string) {
+  const diff = new Date(`${todayIso}T00:00:00`).getTime() - new Date(`${startedAt}T00:00:00`).getTime();
+
+  return Math.max(0, Math.floor(diff / 86_400_000));
+}
+
+function getPlantStage(stage: string) {
+  const normalizedStage = stage.toLowerCase();
+
+  if (normalizedStage.includes("cosecha") || normalizedStage.includes("seca")) return "harvest";
+  if (normalizedStage.includes("flora") || normalizedStage.includes("flor")) return "flower";
+  if (normalizedStage.includes("crec") || normalizedStage.includes("veget")) return "leaf";
+  return "sprout";
+}
+
+function getPlantStageIndex(stage: string) {
+  const currentStage = getPlantStage(stage);
+
+  if (currentStage === "harvest") return 3;
+  if (currentStage === "flower") return 2;
+  if (currentStage === "leaf") return 1;
+  return 0;
+}
+
+function getStreakCount(habitDates: string[], todayIso: string) {
+  const uniqueDates = new Set(habitDates);
+  let count = 0;
+  let cursor = todayIso;
+
+  while (uniqueDates.has(cursor)) {
+    count += 1;
+    cursor = addDays(cursor, -1);
+  }
+
+  return count;
 }
 
 function useStoredState<T>(key: string, initialState: T) {
