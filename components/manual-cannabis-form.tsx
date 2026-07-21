@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { getReferenceRow, type SeedType } from "@/lib/cultivation-reference";
-import { searchGeneticsByName, type GeneticReferenceEntry } from "@/lib/genetics-catalog";
+import { GENETICS_CATALOG, searchGeneticsByName, type GeneticReferenceEntry } from "@/lib/genetics-catalog";
 import type { Locale } from "@/lib/types";
 
 type ManualCannabisFormProps = {
@@ -17,10 +17,10 @@ const seedTypeOptions: Array<{ label: string; value: SeedType }> = [
 
 export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
   const [seedType, setSeedType] = useState<SeedType>("feminized");
-  const [geneticsQuery, setGeneticsQuery] = useState("");
+  const [geneticsSearch, setGeneticsSearch] = useState("");
   const [selectedGenetic, setSelectedGenetic] = useState<GeneticReferenceEntry | null>(null);
   const reference = useMemo(() => getReferenceRow(seedType), [seedType]);
-  const geneticsResults = useMemo(() => searchGeneticsByName(geneticsQuery), [geneticsQuery]);
+  const geneticsResults = useMemo(() => searchGeneticsByName(geneticsSearch), [geneticsSearch]);
   const isSpanish = locale === "es";
 
   return (
@@ -30,15 +30,30 @@ export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
           <p className="text-sm font-black text-moss-950">Datos principales</p>
           <FormField label="Banco o catalogo" placeholder="Opcional" />
           <label className="grid gap-1 text-sm font-black text-moss-950">
-            Nombre de la genetica
+            Elegir referencia del catalogo
+            <select
+              className="form-control"
+              value={selectedGenetic?.id ?? ""}
+              onChange={(event) => {
+                const nextGenetic = GENETICS_CATALOG.find((genetic) => genetic.id === event.target.value) ?? null;
+                setSelectedGenetic(nextGenetic);
+              }}
+            >
+              <option value="">Sin referencia seleccionada</option>
+              {GENETICS_CATALOG.map((genetic) => (
+                <option key={genetic.id} value={genetic.id}>
+                  {genetic.name} - {formatGeneticType(genetic.type)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1 text-sm font-black text-moss-950">
+            Buscar referencia
             <input
               className="form-control"
-              placeholder="Escribi para buscar o cargar manual"
-              value={geneticsQuery}
-              onChange={(event) => {
-                setGeneticsQuery(event.target.value);
-                setSelectedGenetic(null);
-              }}
+              placeholder="Ej. Gorilla, AK, Auto"
+              value={geneticsSearch}
+              onChange={(event) => setGeneticsSearch(event.target.value)}
             />
           </label>
           {geneticsResults.length > 0 ? (
@@ -50,15 +65,16 @@ export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
                   type="button"
                   onClick={() => {
                     setSelectedGenetic(genetic);
-                    setGeneticsQuery(genetic.name);
+                    setGeneticsSearch("");
                   }}
                 >
                   {genetic.name}
-                  <span className="ml-2 text-xs font-bold text-stone-500">{genetic.type}</span>
+                  <span className="ml-2 text-xs font-bold text-stone-500">{formatGeneticType(genetic.type)}</span>
                 </button>
               ))}
             </div>
           ) : null}
+          <FormField label="Nombre de la genetica" placeholder="Carga manual del usuario" />
           <label className="grid gap-1 text-sm font-black text-moss-950">
             Registro legal
             <select className="form-control" defaultValue="Confirmado">
@@ -174,7 +190,7 @@ function GeneticsReferencePanel({
       <p className="mt-1 text-xs font-bold text-stone-600">{genetic.source}</p>
       <dl className="mt-3 grid gap-2">
         <ReferenceFact label="Cruza" value={genetic.cross} />
-        <ReferenceFact label="Tipo" value={genetic.type} />
+        <ReferenceFact label="Tipo" value={formatGeneticType(genetic.type)} />
         <ReferenceFact label="Floracion publicada" value={formatRange(genetic.flowering_weeks_range, "semanas")} />
         <ReferenceFact label="THC publicado" value={formatRange(genetic.thc_percent_range, "%")} />
       </dl>
@@ -194,6 +210,12 @@ function formatRange([min, max]: [number, number], unit: string) {
 function formatNotesLabel(label: "Sabor" | "Efecto", isSpanish: boolean) {
   if (isSpanish) return label;
   return label === "Sabor" ? "Flavor" : "Effect";
+}
+
+function formatGeneticType(type: GeneticReferenceEntry["type"]) {
+  if (type === "autoflowering") return "Automatica";
+  if (type === "faster_flowering") return "Faster flowering";
+  return "Feminizada";
 }
 
 function ReferenceFact({ label, value }: { label: string; value: string }) {
