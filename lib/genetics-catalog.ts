@@ -1,0 +1,456 @@
+/**
+ * genetics-catalog.ts
+ *
+ * Catálogo de REFERENCIA (solo lectura), igual en espíritu a
+ * cultivation-reference.ts. Contiene datos publicados por el
+ * fabricante (nombre, tipo, floración, THC, notas) para que el
+ * usuario los consulte como ayuda visual al cargar SU propia
+ * genética a mano en el formulario manual.
+ *
+ * IMPORTANTE — se mantiene el mismo límite ya acordado para el
+ * proyecto:
+ *   - Esto NO calcula fechas de cosecha.
+ *   - Esto NO se conecta a un motor que tome estos datos + una
+ *     fecha de siembra y devuelva un plan automático de riego,
+ *     luz, sustrato o cosecha.
+ *   - Es texto informativo que se muestra al lado de un formulario
+ *     que el usuario completa a mano (nombre, tipo, sus propias
+ *     fechas), igual que en cultivation-reference.ts.
+ */
+
+export type GeneticType = "feminized" | "autoflowering" | "faster_flowering";
+
+export interface GeneticReferenceEntry {
+  id: string;
+  name: string;
+  cross: string; // genética / cruza declarada por el fabricante
+  type: GeneticType;
+  /** Rango de semanas de floración (fotoperiódicas) o ciclo total (autos), como referencia */
+  flowering_weeks_range: [number, number];
+  thc_percent_range: [number, number];
+  effect_notes: string;
+  flavor_notes: string;
+  source: string; // referencia de origen del dato
+}
+
+export const GENETICS_CATALOG: GeneticReferenceEntry[] = [
+  // ---- FEMINIZED ----
+  {
+    id: "pineapple-larry-og-fem",
+    name: "Pineapple Larry OG",
+    cross: "Cinderella 99 x Sll OG",
+    type: "feminized",
+    flowering_weeks_range: [8, 9],
+    thc_percent_range: [22, 22],
+    effect_notes: "Euforia, felicidad, energía",
+    flavor_notes: "Piña, limón, dulce",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "rainbows-fem",
+    name: "Rainbows",
+    cross: "Zkittlez × Zkittlez",
+    type: "feminized",
+    flowering_weeks_range: [8, 8],
+    thc_percent_range: [24, 24],
+    effect_notes: "Eufórico estimulante, cerebral, duradero",
+    flavor_notes: "Cóctel de frutas, pomelo dulce",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "lebron-haze-fem",
+    name: "Lebron Haze",
+    cross: "(Haze × Haze) × Lemon Thai",
+    type: "feminized",
+    flowering_weeks_range: [7, 8],
+    thc_percent_range: [22, 22],
+    effect_notes: "Euforizante, creativo, cerebral, sativo",
+    flavor_notes: "Cóctel de frutas, pomelo dulce",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "double-cookies-fem",
+    name: "Double Cookies",
+    cross: "Do-Si-Dos × Cookies Forum Cut",
+    type: "feminized",
+    flowering_weeks_range: [7, 8],
+    thc_percent_range: [27, 27],
+    effect_notes: "Felicidad relajante",
+    flavor_notes: "Dulce, terroso, galleta, menta",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "orange-blossom-fem",
+    name: "Orange Blossom",
+    cross: "Cali orange × Skunk pre90",
+    type: "feminized",
+    flowering_weeks_range: [9, 10],
+    thc_percent_range: [20, 20],
+    effect_notes: "Felicidad, creatividad, euforia",
+    flavor_notes: "Mandarina, frutal, cítrico",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "blueberry-fem",
+    name: "Blueberry",
+    cross: "Blueberry S1",
+    type: "feminized",
+    flowering_weeks_range: [8, 9],
+    thc_percent_range: [22, 22],
+    effect_notes: "Fuerte, cerebral",
+    flavor_notes: "Frutos del bosque, arándano",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "moby-d-fem",
+    name: "Moby-D",
+    cross: "Jack Herer × White Widow",
+    type: "feminized",
+    flowering_weeks_range: [10, 12],
+    thc_percent_range: [19, 19],
+    effect_notes: "Euforizante",
+    flavor_notes: "Pino, limón, haze",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "critical-plus2-fem",
+    name: "Critical +2",
+    cross: "Big Bud × Skunk",
+    type: "feminized",
+    flowering_weeks_range: [9, 10],
+    thc_percent_range: [20, 20],
+    effect_notes: "Potente, sedante, cerebral",
+    flavor_notes: "Flores dulces",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "slh-fem",
+    name: "SLH",
+    cross: "Lemon Skunk × Super Silver Haze",
+    type: "feminized",
+    flowering_weeks_range: [9, 10],
+    thc_percent_range: [19, 19],
+    effect_notes: "Psicodélico, euforizante",
+    flavor_notes: "Pomelo, limón, incienso, pimienta",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "gorilla-glue-4-fem",
+    name: "Gorilla Glue #4",
+    cross: "Chem Sister × Sour Dubb × Chocolate Diesel",
+    type: "feminized",
+    flowering_weeks_range: [9, 10],
+    thc_percent_range: [21, 21],
+    effect_notes: "Euforizante, relajante",
+    flavor_notes: "Terroso, ácido, chocolate",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "gorilla-rainbow-fem",
+    name: "Gorilla Rainbow",
+    cross: "Gorilla Glue #4 x Rainbows",
+    type: "feminized",
+    flowering_weeks_range: [8, 9],
+    thc_percent_range: [20, 25],
+    effect_notes: "Fuerte, calmante, relajante",
+    flavor_notes: "Caramelo, afrutado, terroso",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "gorilla-white-fem",
+    name: "Gorilla White",
+    cross: "Gorilla Glue #4 x White Widow",
+    type: "feminized",
+    flowering_weeks_range: [8, 8],
+    thc_percent_range: [25, 25],
+    effect_notes: "Fuerte, relajante, psicoactivo",
+    flavor_notes: "Terroso, dulce, cítrico",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "gorilla-ghost-fem",
+    name: "Gorilla Ghost",
+    cross: "Gorilla Glue #4 x Ghost OG",
+    type: "feminized",
+    flowering_weeks_range: [8, 9],
+    thc_percent_range: [26, 29],
+    effect_notes: "Fuerte, relajante",
+    flavor_notes: "Floral, frutos del bosque, cítrico",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "gorilla-banana-fem",
+    name: "Gorilla Banana",
+    cross: "Gorilla Glue #4 x Punch de Banana",
+    type: "feminized",
+    flowering_weeks_range: [8, 8],
+    thc_percent_range: [22, 25],
+    effect_notes: "Sedante, somnífero",
+    flavor_notes: "Terroso, dulce, banana",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "nitro-haze-fem",
+    name: "Nitro Haze",
+    cross: "Lebron Haze x Black Dómina 98",
+    type: "feminized",
+    flowering_weeks_range: [9, 9],
+    thc_percent_range: [21, 21],
+    effect_notes: "Euforizante, equilibrado, cerebral",
+    flavor_notes: "Merengue de limón con toques de haze",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "skunk-fem",
+    name: "Skunk",
+    cross: "Skunk S1",
+    type: "feminized",
+    flowering_weeks_range: [7, 8],
+    thc_percent_range: [18, 24],
+    effect_notes: "Relajante, sedante",
+    flavor_notes: "Frutal, cítrico, queso",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "bubble-gum-fem",
+    name: "Bubble Gum",
+    cross: "Bubblegum S1",
+    type: "feminized",
+    flowering_weeks_range: [8, 9],
+    thc_percent_range: [20, 25],
+    effect_notes: "Fuerte, duradero, relajante",
+    flavor_notes: "Dulce, chicle de frutilla",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "northern-lights-fem",
+    name: "Northern Lights",
+    cross: "Northern Light S1",
+    type: "feminized",
+    flowering_weeks_range: [7, 8],
+    thc_percent_range: [18, 20],
+    effect_notes: "Equilibrado, relajante, sedante",
+    flavor_notes: "Terroso, notas frutales, pimienta",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "ak47-fem",
+    name: "AK 47",
+    cross: "Colombian x Mexican x Tai Afgan",
+    type: "feminized",
+    flowering_weeks_range: [8, 9],
+    thc_percent_range: [15, 20],
+    effect_notes: "Cerebral, eufórico, calmante",
+    flavor_notes: "Dulce, terroso, floral",
+    source: "Catálogo BSF 2024",
+  },
+
+  // ---- AUTOFLOWERING ---- (ciclo completo expresado en semanas aprox.)
+  {
+    id: "red-skunk-auto",
+    name: "Red Skunk Auto",
+    cross: "Skunk",
+    type: "autoflowering",
+    flowering_weeks_range: [9, 9],
+    thc_percent_range: [19, 19],
+    effect_notes: "Narcótico, sedante",
+    flavor_notes: "Frutos del bosque, dulce",
+    source: "Catálogo BSF 2024 (ciclo completo 60-65 días)",
+  },
+  {
+    id: "red-kush-auto",
+    name: "Red Kush Auto",
+    cross: "Hindu Kush",
+    type: "autoflowering",
+    flowering_weeks_range: [9, 9],
+    thc_percent_range: [18, 18],
+    effect_notes: "Relajante, sedante",
+    flavor_notes: "Afrutado, terroso",
+    source: "Catálogo BSF 2024 (ciclo completo 60-65 días)",
+  },
+  {
+    id: "red-critical-auto",
+    name: "Red Critical Auto",
+    cross: "Gorilla Glue #4",
+    type: "autoflowering",
+    flowering_weeks_range: [9, 9],
+    thc_percent_range: [20, 20],
+    effect_notes: "Potente, sedante, cerebral",
+    flavor_notes: "Flores dulces",
+    source: "Catálogo BSF 2024 (ciclo completo 60-65 días)",
+  },
+  {
+    id: "amnesia-auto",
+    name: "Amnesia Auto",
+    cross: "Amnesia Auto × Macho Seleccionado Auto",
+    type: "autoflowering",
+    flowering_weeks_range: [11, 13],
+    thc_percent_range: [19, 19],
+    effect_notes: "Potente, físico, activo",
+    flavor_notes: "Pino, incienso, haze",
+    source: "Catálogo BSF 2024 (ciclo completo 75-90 días)",
+  },
+  {
+    id: "ak-auto",
+    name: "AK Auto",
+    cross: "AK 47 × Macho Seleccionado Auto",
+    type: "autoflowering",
+    flowering_weeks_range: [10, 10],
+    thc_percent_range: [18, 18],
+    effect_notes: "Subidón cerebral, intenso",
+    flavor_notes: "Dulce, cítrico, pino",
+    source: "Catálogo BSF 2024 (ciclo completo 70 días)",
+  },
+  {
+    id: "lemon-haze-auto",
+    name: "Lemon Haze Auto",
+    cross: "Jack Herer Auto × Lemon Haze",
+    type: "autoflowering",
+    flowering_weeks_range: [10, 10],
+    thc_percent_range: [18, 18],
+    effect_notes: "Subidón cerebral, activo",
+    flavor_notes: "Limón, haze, pino",
+    source: "Catálogo BSF 2024 (ciclo completo 75 días)",
+  },
+  {
+    id: "og-kush-auto",
+    name: "OG Kush Auto",
+    cross: "OG Kush",
+    type: "autoflowering",
+    flowering_weeks_range: [10, 11],
+    thc_percent_range: [18, 18],
+    effect_notes: "Potente, físico, mental",
+    flavor_notes: "Tierra, pimienta, dulce",
+    source: "Catálogo BSF 2024 (ciclo completo 70-75 días)",
+  },
+  {
+    id: "sour-diesel-auto",
+    name: "Sour Diesel Auto",
+    cross: "Sour Diesel",
+    type: "autoflowering",
+    flowering_weeks_range: [10, 10],
+    thc_percent_range: [22, 22],
+    effect_notes: "Físico, mental, equilibrado",
+    flavor_notes: "Mandarina, petróleo, madera",
+    source: "Catálogo BSF 2024 (ciclo completo 70 días)",
+  },
+  {
+    id: "gorilla-glue-auto",
+    name: "Gorilla Glue Auto",
+    cross: "Gorilla Glue Auto",
+    type: "autoflowering",
+    flowering_weeks_range: [9, 9],
+    thc_percent_range: [21, 21],
+    effect_notes: "Equilibrado, euforizante, relajado",
+    flavor_notes: "Dulce, tierra, ponche de frutas",
+    source: "Catálogo BSF 2024 (ciclo completo 65 días)",
+  },
+  {
+    id: "blueberry-auto",
+    name: "Blueberry Auto",
+    cross: "Blueberry Auto",
+    type: "autoflowering",
+    flowering_weeks_range: [10, 11],
+    thc_percent_range: [20, 20],
+    effect_notes: "Subidón cerebral, relajante",
+    flavor_notes: "Frutos del bosque, arándano",
+    source: "Catálogo BSF 2024 (ciclo completo 70-75 días)",
+  },
+  {
+    id: "orange-blossom-auto",
+    name: "Orange Blossom Auto",
+    cross: "Orange Blossom × Orange Blossom Auto 4ta gen",
+    type: "autoflowering",
+    flowering_weeks_range: [11, 11],
+    thc_percent_range: [20, 20],
+    effect_notes: "Felicidad, energizante",
+    flavor_notes: "Mandarina, cítrico, frutal",
+    source: "Catálogo BSF 2024 (ciclo completo 75-80 días)",
+  },
+  {
+    id: "pineapple-larry-og-auto",
+    name: "Pineapple Larry OG Auto",
+    cross: "Pineapple Larry OG x Pineapple Auto 4ta gen",
+    type: "autoflowering",
+    flowering_weeks_range: [10, 11],
+    thc_percent_range: [23, 23],
+    effect_notes: "Estimulante, enérgico",
+    flavor_notes: "Dulce, madera, piña madura, limón",
+    source: "Catálogo BSF 2024 (ciclo completo 70-75 días)",
+  },
+  {
+    id: "double-cookies-auto",
+    name: "Double Cookies Auto",
+    cross: "Do-Si-Dos X Girl Scout Cookies Auto",
+    type: "autoflowering",
+    flowering_weeks_range: [8, 9],
+    thc_percent_range: [22, 22],
+    effect_notes: "Sedante, relajante, creativo",
+    flavor_notes: "Menta dulce, lima fresca, pino",
+    source: "Catálogo BSF 2024 (ciclo completo 55-60 días)",
+  },
+
+  // ---- FASTER FLOWERING (fotoperiódicas de ciclo corto) ----
+  {
+    id: "obg-kush-faster",
+    name: "OBG Kush",
+    cross: "OG Kush",
+    type: "faster_flowering",
+    flowering_weeks_range: [6, 6],
+    thc_percent_range: [22, 22],
+    effect_notes: "Sedante, relajante",
+    flavor_notes: "Dulce, terroso, picante",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "green-tiger-faster",
+    name: "Green Tiger",
+    cross: "(Early Skunk × Skunk) × Skunk Pre90",
+    type: "faster_flowering",
+    flowering_weeks_range: [6, 6],
+    thc_percent_range: [22, 22],
+    effect_notes: "Relajante, creativo",
+    flavor_notes: "Limón, cedro",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "gorilla-glue-faster",
+    name: "Gorilla Glue Faster",
+    cross: "Gorilla Glue Faster",
+    type: "faster_flowering",
+    flowering_weeks_range: [6, 6],
+    thc_percent_range: [24, 24],
+    effect_notes: "Narcótico, eufórico",
+    flavor_notes: "Tierra húmeda, chocolate",
+    source: "Catálogo BSF 2024",
+  },
+  {
+    id: "el-gaucho-faster",
+    name: "El Gaucho",
+    cross: "Sierra Madre x Blue Mountain",
+    type: "faster_flowering",
+    flowering_weeks_range: [6, 6],
+    thc_percent_range: [22, 22],
+    effect_notes: "Relajante",
+    flavor_notes: "Dulce, afrutado",
+    source: "Catálogo BSF 2024",
+  },
+];
+
+/** Helper de lectura — NO calcula fechas, solo devuelve el dato de referencia. */
+export function getGeneticReference(id: string): GeneticReferenceEntry | undefined {
+  return GENETICS_CATALOG.find((g) => g.id === id);
+}
+
+export function searchGeneticsByName(query: string): GeneticReferenceEntry[] {
+  const q = query.trim().toLowerCase();
+
+  if (q.length < 2) {
+    return [];
+  }
+
+  return GENETICS_CATALOG.filter((g) => {
+    const searchableText = [g.name, g.cross, g.type, g.source].join(" ").toLowerCase();
+    return searchableText.includes(q);
+  }).slice(0, 8);
+}
