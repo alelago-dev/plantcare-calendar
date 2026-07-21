@@ -134,6 +134,65 @@ textarea {
     padding: 0.7rem 0.78rem;
   }
 
+  .seed-tabs {
+    display: inline-flex;
+    max-width: 100%;
+    gap: 0.25rem;
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.25rem;
+  }
+
+  .seed-tab {
+    border-radius: 6px;
+    padding: 0.55rem 0.8rem;
+    color: #52604d;
+    font-size: 0.86rem;
+    font-weight: 950;
+    white-space: nowrap;
+  }
+
+  .seed-tab.active {
+    background: #23543e;
+    color: #ffffff;
+  }
+
+  .mode-badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    padding: 0.34rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .mode-badge.automatic {
+    background: #e8f3df;
+    color: #23543e;
+  }
+
+  .mode-badge.manual {
+    background: #eef0ec;
+    color: #52604d;
+  }
+
+  .reference-details {
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    background: rgba(255, 255, 255, 0.72);
+    padding: 0.85rem;
+  }
+
+  .reference-details summary {
+    cursor: pointer;
+    font-size: 0.86rem;
+    font-weight: 950;
+    color: #162015;
+  }
+
   .plant-row {
     padding: 1rem 0;
   }

@@ -1,6 +1,5 @@
 import type { CalendarDay, CareEntry, Dictionary, GrowSpace, Locale, Plant, Task } from "@/lib/types";
-import { HorticultureCalculator } from "@/components/horticulture-calculator";
-import { ManualCannabisForm } from "@/components/manual-cannabis-form";
+import { SeedsSection } from "@/components/seeds-section";
 import { seedCatalog } from "@/lib/seed-catalog";
 import { getWeatherReadiness } from "@/lib/weather";
 
@@ -137,43 +136,7 @@ export function AppShell({
         </section>
       </section>
 
-      <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8" id="seeds">
-        <SectionHeader eyebrow="Semillas" title="Registro y referencia" />
-        <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_0.9fr]">
-          <section className="surface p-4 sm:p-5" aria-labelledby="manual-seed-title">
-            <h3 className="text-lg font-black text-moss-950" id="manual-seed-title">
-              Carga manual legal
-            </h3>
-            <p className="mt-1 text-sm leading-6 text-stone-700">
-              Para cannabis o cultivos regulados, la app guarda lo que el usuario declara. Las referencias son solo de
-              lectura.
-            </p>
-            <div className="mt-4">
-              <ManualCannabisForm locale={locale} />
-            </div>
-          </section>
-
-          <div className="grid gap-5">
-            <HorticultureCalculator />
-            <section className="surface p-4 sm:p-5" aria-labelledby="seed-bank-title">
-              <SectionHeader eyebrow="Catalogo" title="Tipos disponibles" />
-              <div className="mt-4 grid gap-2">
-                {seedCatalog.slice(0, 7).map((seed) => (
-                  <div className="simple-list-row" key={seed.id}>
-                    <div>
-                      <p className="font-black text-moss-950">{seed.crop}</p>
-                      <p className="text-sm font-semibold text-stone-600">{seed.name}</p>
-                    </div>
-                    <span className={seed.regulated ? "pill pill-amber" : "pill pill-green"}>
-                      {seed.regulated ? "Manual" : "Auto"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        </div>
-      </section>
+      <SeedsSection locale={locale} />
 
       <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8" id="spaces">
         <SectionHeader eyebrow="Cultivos" title="Espacios y plantas" />

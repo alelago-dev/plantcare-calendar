@@ -32,7 +32,7 @@ export function HorticultureCalculator() {
       <section className="surface p-4 sm:p-5" aria-labelledby="calculator-title">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <SectionHeader eyebrow="Calculadora" title="Cultivo horticola" />
-          <span className="pill pill-amber">Manual</span>
+          <span className="mode-badge manual">Manual</span>
         </div>
         <div className="seed-result mt-5 border-amber-700/20 bg-amber-50/72">
           <p className="text-sm font-black text-moss-950">{plan.seedLabel}</p>
@@ -46,7 +46,7 @@ export function HorticultureCalculator() {
     <section className="surface p-4 sm:p-5" aria-labelledby="calculator-title">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <SectionHeader eyebrow="Calculadora" title="Cultivo horticola" />
-        <span className="pill pill-green">No regulado</span>
+        <span className="mode-badge automatic">Automatico</span>
       </div>
 
       <div className="mt-5 grid gap-3 md:grid-cols-2">

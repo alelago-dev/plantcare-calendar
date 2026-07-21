@@ -1,13 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { getReferenceRow, type SeedType } from "@/lib/cultivation-reference";
-import { GENETICS_CATALOG, searchGeneticsByName, type GeneticReferenceEntry } from "@/lib/genetics-catalog";
-import type { Locale } from "@/lib/types";
-
-type ManualCannabisFormProps = {
-  locale: Locale;
-};
+import type { ReactNode } from "react";
+import { useState } from "react";
+import type { SeedType } from "@/lib/cultivation-reference";
 
 const seedTypeOptions: Array<{ label: string; value: SeedType }> = [
   { label: "Feminizada", value: "feminized" },
@@ -15,118 +10,41 @@ const seedTypeOptions: Array<{ label: string; value: SeedType }> = [
   { label: "Automatica", value: "autoflowering" }
 ];
 
-export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
+export function ManualCannabisForm() {
   const [seedType, setSeedType] = useState<SeedType>("feminized");
-  const [geneticsSearch, setGeneticsSearch] = useState("");
-  const [selectedGenetic, setSelectedGenetic] = useState<GeneticReferenceEntry | null>(null);
-  const reference = useMemo(() => getReferenceRow(seedType), [seedType]);
-  const geneticsResults = useMemo(() => searchGeneticsByName(geneticsSearch), [geneticsSearch]);
-  const isSpanish = locale === "es";
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
-        <div className="grid gap-3">
-          <p className="text-sm font-black text-moss-950">Datos principales</p>
-          <FormField label="Banco o catalogo" placeholder="Opcional" />
-          <label className="grid gap-1 text-sm font-black text-moss-950">
-            Elegir referencia del catalogo
-            <select
-              className="form-control"
-              value={selectedGenetic?.id ?? ""}
-              onChange={(event) => {
-                const nextGenetic = GENETICS_CATALOG.find((genetic) => genetic.id === event.target.value) ?? null;
-                setSelectedGenetic(nextGenetic);
-              }}
-            >
-              <option value="">Sin referencia seleccionada</option>
-              {GENETICS_CATALOG.map((genetic) => (
-                <option key={genetic.id} value={genetic.id}>
-                  {genetic.name} - {formatGeneticType(genetic.type)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-1 text-sm font-black text-moss-950">
-            Buscar referencia
-            <input
-              className="form-control"
-              placeholder="Ej. Gorilla, AK, Auto"
-              value={geneticsSearch}
-              onChange={(event) => setGeneticsSearch(event.target.value)}
-            />
-          </label>
-          {geneticsResults.length > 0 ? (
-            <div className="grid max-h-56 gap-1 overflow-auto rounded-lg border border-moss-950/10 bg-white/80 p-2">
-              {geneticsResults.map((genetic) => (
-                <button
-                  className="rounded-md px-2.5 py-2 text-left text-sm font-black text-moss-950 transition hover:bg-mint-100"
-                  key={genetic.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedGenetic(genetic);
-                    setGeneticsSearch("");
-                  }}
-                >
-                  {genetic.name}
-                  <span className="ml-2 text-xs font-bold text-stone-500">{formatGeneticType(genetic.type)}</span>
-                </button>
-              ))}
-            </div>
-          ) : null}
-          <FormField label="Nombre de la genetica" placeholder="Carga manual del usuario" />
-          <label className="grid gap-1 text-sm font-black text-moss-950">
-            Registro legal
-            <select className="form-control" defaultValue="Confirmado">
-              <option>Confirmado</option>
-              <option>Pendiente de verificar</option>
-              <option>No aplica</option>
-            </select>
-          </label>
-          <label className="grid gap-1 text-sm font-black text-moss-950">
-            Tipo declarado
-            <select
-              className="form-control"
-              value={seedType}
-              onChange={(event) => setSeedType(event.target.value as SeedType)}
-            >
-              {seedTypeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <FormField label="Dias a flora" placeholder="Carga manual, ej. 30 dias" />
-          <FormField label="Semanas de floracion" placeholder="Carga manual, ej. 9 semanas" />
-        </div>
+      <FormGroup title="Identificacion">
+        <FormField label="Banco o catalogo" placeholder="Opcional" />
+        <FormField label="Nombre de la genetica" placeholder="Carga manual del usuario" />
+        <label className="grid gap-1 text-sm font-black text-moss-950">
+          Registro legal
+          <select className="form-control" defaultValue="Confirmado">
+            <option>Confirmado</option>
+            <option>Pendiente de verificar</option>
+            <option>No aplica</option>
+          </select>
+        </label>
+        <label className="grid gap-1 text-sm font-black text-moss-950">
+          Tipo declarado
+          <select
+            className="form-control"
+            value={seedType}
+            onChange={(event) => setSeedType(event.target.value as SeedType)}
+          >
+            {seedTypeOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </FormGroup>
 
-        {reference ? (
-          <div className="grid gap-3">
-            <aside className="rounded-lg border border-moss-950/10 bg-white/76 p-3 text-sm" aria-label="Referencia informativa">
-              <p className="eyebrow text-emerald-800">Referencia estatica</p>
-              <h3 className="mt-1 font-black text-moss-950">{isSpanish ? reference.label_es : reference.label_en}</h3>
-              <dl className="mt-3 grid gap-2">
-                <ReferenceFact label="Dias a flora" value={reference.days_to_flower_range} />
-                <ReferenceFact label="Floracion" value={reference.flowering_weeks_range} />
-                <ReferenceFact label="Maceta" value={reference.pot_liters_range} />
-              </dl>
-              <p className="mt-3 text-xs font-bold leading-5 text-stone-700">
-                {isSpanish ? reference.light_notes_es : reference.light_notes_en}
-              </p>
-              <p className="mt-2 text-xs font-bold leading-5 text-stone-700">
-                {isSpanish ? reference.watering_notes_es : reference.watering_notes_en}
-              </p>
-              <p className="mt-3 rounded-md bg-amber-50 px-2.5 py-2 text-xs font-black leading-5 text-amber-900">
-                Solo ayuda visual: no completa ni calcula campos.
-              </p>
-            </aside>
-            <GeneticsReferencePanel genetic={selectedGenetic} isSpanish={isSpanish} />
-          </div>
-        ) : null}
-      </div>
-
-      <div className="grid gap-3 border-t border-moss-950/10 pt-4 sm:grid-cols-2">
+      <FormGroup title="Datos de cultivo">
+        <FormField label="Dias a flora" placeholder="Carga manual, ej. 30 dias" />
+        <FormField label="Semanas de floracion" placeholder="Carga manual, ej. 9 semanas" />
         <label className="grid gap-1 text-sm font-black text-moss-950">
           Tipo de espacio
           <select className="form-control" defaultValue="Interior">
@@ -146,16 +64,15 @@ export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
           </select>
         </label>
         <FormField label="Maceta en litros" placeholder="Ej. 10 L" />
-      </div>
-      <details className="rounded-lg border border-moss-950/10 bg-white/72 p-3">
-        <summary className="cursor-pointer text-sm font-black text-moss-950">Fechas y recordatorios manuales</summary>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      </FormGroup>
+
+      <FormGroup title="Fechas y recordatorios">
         <FormField label="Proxima revision de humedad" placeholder="Fecha definida por el usuario" />
         <FormField label="Cambio de etapa / flora" placeholder="Fecha definida por el usuario" />
         <FormField label="Secado de ramas" placeholder="Fecha definida por el usuario" />
         <FormField label="Mantenimiento" placeholder="Fecha definida por el usuario" />
-        </div>
-      </details>
+      </FormGroup>
+
       <p className="text-xs font-bold leading-5 text-stone-600">
         Estos campos sirven para agenda y recordatorios definidos por el usuario. Evita guardar numeros de registro,
         domicilios exactos o datos medicos en esta demo publica.
@@ -164,66 +81,12 @@ export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
   );
 }
 
-function GeneticsReferencePanel({
-  genetic,
-  isSpanish
-}: {
-  genetic: GeneticReferenceEntry | null;
-  isSpanish: boolean;
-}) {
-  if (!genetic) {
-    return (
-      <aside className="rounded-lg border border-moss-950/10 bg-white/64 p-3 text-sm" aria-label="Referencia de genetica">
-        <p className="eyebrow text-emerald-800">Catalogo informativo</p>
-        <p className="mt-2 text-xs font-bold leading-5 text-stone-700">
-          Busca una genetica por nombre para ver cruza, floracion publicada, THC y notas. No se copian datos al plan
-          manual.
-        </p>
-      </aside>
-    );
-  }
-
+function FormGroup({ children, title }: { children: ReactNode; title: string }) {
   return (
-    <aside className="rounded-lg border border-moss-950/10 bg-white/76 p-3 text-sm" aria-label="Referencia de genetica">
-      <p className="eyebrow text-emerald-800">Catalogo informativo</p>
-      <h3 className="mt-1 font-black text-moss-950">{genetic.name}</h3>
-      <p className="mt-1 text-xs font-bold text-stone-600">{genetic.source}</p>
-      <dl className="mt-3 grid gap-2">
-        <ReferenceFact label="Cruza" value={genetic.cross} />
-        <ReferenceFact label="Tipo" value={formatGeneticType(genetic.type)} />
-        <ReferenceFact label="Floracion publicada" value={formatRange(genetic.flowering_weeks_range, "semanas")} />
-        <ReferenceFact label="THC publicado" value={formatRange(genetic.thc_percent_range, "%")} />
-      </dl>
-      <p className="mt-3 text-xs font-bold leading-5 text-stone-700">{formatNotesLabel("Sabor", isSpanish)}: {genetic.flavor_notes}</p>
-      <p className="mt-2 text-xs font-bold leading-5 text-stone-700">{formatNotesLabel("Efecto", isSpanish)}: {genetic.effect_notes}</p>
-      <p className="mt-3 rounded-md bg-amber-50 px-2.5 py-2 text-xs font-black leading-5 text-amber-900">
-        Solo lectura: no calcula fechas ni completa valores.
-      </p>
-    </aside>
-  );
-}
-
-function formatRange([min, max]: [number, number], unit: string) {
-  return min === max ? `${min} ${unit}` : `${min}-${max} ${unit}`;
-}
-
-function formatNotesLabel(label: "Sabor" | "Efecto", isSpanish: boolean) {
-  if (isSpanish) return label;
-  return label === "Sabor" ? "Flavor" : "Effect";
-}
-
-function formatGeneticType(type: GeneticReferenceEntry["type"]) {
-  if (type === "autoflowering") return "Automatica";
-  if (type === "faster_flowering") return "Faster flowering";
-  return "Feminizada";
-}
-
-function ReferenceFact({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-md border border-moss-950/10 bg-paper/80 px-2.5 py-2">
-      <dt className="text-[11px] font-black uppercase text-stone-500">{label}</dt>
-      <dd className="mt-1 font-black text-moss-950">{value}</dd>
-    </div>
+    <section className="rounded-lg border border-moss-950/10 bg-white/70 p-3">
+      <h3 className="text-xs font-black uppercase text-stone-500">{title}</h3>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">{children}</div>
+    </section>
   );
 }
 
