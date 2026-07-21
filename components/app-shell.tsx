@@ -1,5 +1,6 @@
 import type { CalendarDay, CareEntry, Dictionary, GrowSpace, Locale, Plant, Task } from "@/lib/types";
 import { HorticultureCalculator } from "@/components/horticulture-calculator";
+import { ManualCannabisForm } from "@/components/manual-cannabis-form";
 import { getRecommendedSeeds, seedCatalog, seedClimateOptions } from "@/lib/seed-catalog";
 import { getWeatherReadiness } from "@/lib/weather";
 
@@ -198,64 +199,7 @@ export function AppShell({
                 clima, cosecha ni rendimiento; esos datos quedan como carga manual del usuario.
               </p>
             </div>
-            <div className="seed-result border-emerald-800/20 bg-emerald-50/80">
-              <p className="text-sm font-black text-moss-950">Plan manual legal</p>
-              <div className="mt-3 grid gap-3">
-                <FormField label="Banco o catalogo" placeholder="Ej. banco legal o catalogo propio" />
-                <FormField label="Nombre de la genetica" placeholder="Ej. nombre comercial declarado" />
-                <label className="grid gap-1 text-sm font-black text-moss-950">
-                  Registro legal
-                  <select className="form-control" defaultValue="Confirmado">
-                    <option>Confirmado</option>
-                    <option>Pendiente de verificar</option>
-                    <option>No aplica</option>
-                  </select>
-                </label>
-                <label className="grid gap-1 text-sm font-black text-moss-950">
-                  Tipo declarado
-                  <select className="form-control" defaultValue="Feminizada">
-                    <option>Regular</option>
-                    <option>Feminizada</option>
-                    <option>Automatica</option>
-                    <option>CBD / medicinal</option>
-                    <option>Canamo industrial</option>
-                    <option>Otra</option>
-                  </select>
-                </label>
-                <FormField label="Dias publicados por el banco" placeholder="Carga manual, ej. 70 dias" />
-              </div>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <label className="grid gap-1 text-sm font-black text-moss-950">
-                  Tipo de espacio
-                  <select className="form-control" defaultValue="Interior">
-                    <option>Interior</option>
-                    <option>Exterior</option>
-                    <option>Invernadero</option>
-                  </select>
-                </label>
-                <FormField label="Tamano indoor" placeholder="Ej. 80 x 80 cm" />
-                <label className="grid gap-1 text-sm font-black text-moss-950">
-                  Tipo de luz
-                  <select className="form-control" defaultValue="LED">
-                    <option>LED</option>
-                    <option>Sodio</option>
-                    <option>Mixta</option>
-                    <option>Luz natural</option>
-                  </select>
-                </label>
-                <FormField label="Maceta en litros" placeholder="Ej. 10 L" />
-              </div>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                <FormField label="Proxima revision de humedad" placeholder="Fecha definida por el usuario" />
-                <FormField label="Cambio de etapa / flora" placeholder="Fecha definida por el usuario" />
-                <FormField label="Secado de ramas" placeholder="Fecha definida por el usuario" />
-                <FormField label="Mantenimiento" placeholder="Fecha definida por el usuario" />
-              </div>
-              <p className="mt-3 text-xs font-bold leading-5 text-stone-600">
-                Estos campos sirven para agenda y recordatorios definidos por el usuario. Evita guardar numeros de
-                registro, domicilios exactos o datos medicos en esta demo publica.
-              </p>
-            </div>
+            <ManualCannabisForm locale={locale} />
           </div>
         </section>
 
