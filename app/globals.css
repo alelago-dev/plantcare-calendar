@@ -330,6 +330,190 @@ textarea {
     background: linear-gradient(145deg, #ffffff, #dff1f1);
   }
 
+  .grow-command {
+    display: grid;
+    gap: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at 12% 20%, rgba(226, 180, 87, 0.3), transparent 28%),
+      radial-gradient(circle at 86% 10%, rgba(119, 176, 126, 0.26), transparent 32%),
+      linear-gradient(135deg, #102416, #23543e 52%, #24766f);
+    padding: 1rem;
+    color: #ffffff;
+    box-shadow: 0 24px 56px rgba(28, 54, 38, 0.18);
+  }
+
+  @media (min-width: 1024px) {
+    .grow-command {
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      padding: 1.2rem;
+    }
+  }
+
+  .grow-command-copy h2 {
+    margin-top: 0.35rem;
+    max-width: 520px;
+    font-size: 1.75rem;
+    font-weight: 950;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+
+  @media (min-width: 768px) {
+    .grow-command-copy h2 {
+      font-size: 2.35rem;
+    }
+  }
+
+  .grow-command-copy p:not(.eyebrow) {
+    margin-top: 0.8rem;
+    max-width: 560px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.65;
+  }
+
+  .grow-command-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1rem;
+  }
+
+  .grow-command-badges span {
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.14);
+    padding: 0.42rem 0.58rem;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .grow-command-board {
+    display: grid;
+    gap: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.8rem;
+    backdrop-filter: blur(12px);
+  }
+
+  .grow-phase-rail {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .grow-phase-step {
+    display: grid;
+    gap: 0.28rem;
+    justify-items: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.13);
+    padding: 0.65rem 0.4rem;
+    text-align: center;
+  }
+
+  .grow-phase-step strong {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .grow-phase-step small {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.66rem;
+    font-weight: 950;
+    line-height: 1.1;
+  }
+
+  .grow-phase-dot {
+    height: 12px;
+    width: 12px;
+    border-radius: 999px;
+    background: #9fc7b8;
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.1);
+  }
+
+  .grow-phase-dot.sprout {
+    background: #d7dfcf;
+  }
+
+  .grow-phase-dot.leaf {
+    background: #77b07e;
+  }
+
+  .grow-phase-dot.flower {
+    background: #e2b457;
+  }
+
+  .grow-phase-dot.harvest {
+    background: #d48a45;
+  }
+
+  .grow-command-grid {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  @media (min-width: 768px) {
+    .grow-command-grid {
+      grid-template-columns: 1.15fr 1fr 0.85fr;
+    }
+  }
+
+  .grow-command-card {
+    min-height: 132px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.85rem;
+    color: #162015;
+  }
+
+  .grow-command-card.accent {
+    background:
+      linear-gradient(135deg, rgba(22, 32, 21, 0.72), rgba(35, 84, 62, 0.62)),
+      rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+  }
+
+  .grow-mini-plant,
+  .grow-event-row {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.62rem;
+  }
+
+  .grow-mini-plant strong,
+  .grow-event-row strong {
+    display: block;
+    overflow: hidden;
+    color: inherit;
+    font-size: 0.84rem;
+    font-weight: 950;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .grow-mini-plant small,
+  .grow-event-row small {
+    display: block;
+    margin-top: 0.12rem;
+    color: currentColor;
+    font-size: 0.72rem;
+    font-weight: 750;
+    opacity: 0.72;
+  }
+
   .eyebrow {
     font-size: 0.7rem;
     font-weight: 900;

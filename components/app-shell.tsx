@@ -365,6 +365,10 @@ function TodaySection({
         </div>
       </section>
 
+      <section className="mx-auto max-w-7xl px-4 pb-5 sm:px-6 lg:px-8">
+        <GrowCommandPanel calendarEvents={calendarEvents} plants={plants} weather={weather} />
+      </section>
+
       <section className="mx-auto grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
         <section className="surface p-4 sm:p-5" aria-labelledby="today-title">
           <SectionHeader eyebrow="Panel principal" title="Tareas de hoy" />
@@ -413,6 +417,99 @@ function TodaySection({
         </div>
       </section>
     </>
+  );
+}
+
+function GrowCommandPanel({
+  calendarEvents,
+  plants,
+  weather
+}: {
+  calendarEvents: CalendarEvent[];
+  plants: Plant[];
+  weather: ReturnType<typeof getWeatherReadiness>;
+}) {
+  const todayIso = getTodayIso();
+  const upcomingEvents = calendarEvents
+    .filter((event) => event.startDate >= todayIso)
+    .sort((first, second) => first.startDate.localeCompare(second.startDate))
+    .slice(0, 3);
+  const stages = [
+    { id: "sprout", label: "Semilla" },
+    { id: "leaf", label: "Vegetativo" },
+    { id: "flower", label: "Floracion" },
+    { id: "harvest", label: "Cosecha" }
+  ];
+
+  return (
+    <section className="grow-command" aria-labelledby="grow-command-title">
+      <div className="grow-command-copy">
+        <p className="eyebrow text-mint-50/80">Vista tipo grow tracker</p>
+        <h2 id="grow-command-title">Tu cultivo, de un vistazo</h2>
+        <p>
+          Plantas, etapas declaradas, calendario y registro visual en una sola pantalla. Para cultivos regulados, esta
+          vista solo ordena datos manuales.
+        </p>
+        <div className="grow-command-badges">
+          <span>Registro manual</span>
+          <span>Sin ubicacion exacta</span>
+          <span>Demo offline</span>
+        </div>
+      </div>
+      <div className="grow-command-board">
+        <div className="grow-phase-rail" aria-label="Etapas declaradas">
+          {stages.map((stage) => {
+            const stageCount = plants.filter((plant) => getPlantStage(plant.stage) === stage.id).length;
+
+            return (
+              <div className="grow-phase-step" key={stage.id}>
+                <span className={`grow-phase-dot ${stage.id}`} />
+                <strong>{stageCount}</strong>
+                <small>{stage.label}</small>
+              </div>
+            );
+          })}
+        </div>
+        <div className="grow-command-grid">
+          <div className="grow-command-card accent">
+            <p className="text-[11px] font-black uppercase text-mint-50/75">Plantas activas</p>
+            <div className="mt-3 grid gap-2">
+              {plants.slice(0, 3).map((plant) => (
+                <div className="grow-mini-plant" key={plant.id}>
+                  <PlantAvatar plant={plant} />
+                  <span>
+                    <strong>{plant.name}</strong>
+                    <small>{plant.stage}</small>
+                  </span>
+                </div>
+              ))}
+              {plants.length === 0 ? <p className="text-sm font-bold text-mint-50/80">Todavia no hay cultivos cargados.</p> : null}
+            </div>
+          </div>
+          <div className="grow-command-card">
+            <p className="text-[11px] font-black uppercase text-stone-500">Proximos eventos</p>
+            <div className="mt-3 grid gap-2">
+              {upcomingEvents.map((event) => (
+                <div className="grow-event-row" key={event.id}>
+                  <span className={`event-legend ${getEventClass(event.kind)}`}>{getEventKindLabel(event.kind)}</span>
+                  <span>
+                    <strong>{event.title}</strong>
+                    <small>{event.startDate}</small>
+                  </span>
+                </div>
+              ))}
+              {upcomingEvents.length === 0 ? <p className="text-sm font-bold text-stone-600">Sin eventos manuales proximos.</p> : null}
+            </div>
+          </div>
+          <div className="grow-command-card">
+            <p className="text-[11px] font-black uppercase text-stone-500">Clima demo</p>
+            <strong className="mt-2 block text-moss-950">{weather.region}</strong>
+            <p className="mt-1 text-sm font-bold text-stone-600">{weather.preview[0]?.value ?? "Sin dato"} / {weather.preview[1]?.value ?? "Sin dato"}</p>
+            <span className="mt-3 inline-flex pill pill-blue">Conectar API luego</span>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
