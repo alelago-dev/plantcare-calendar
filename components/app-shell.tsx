@@ -273,7 +273,9 @@ export function AppShell({
           onCreateManualEvents={handleAddManualEvents}
         />
       ) : null}
-      {currentSection === "spaces" ? <SpacesSection plants={plantState} spaces={spaces} /> : null}
+      {currentSection === "spaces" ? (
+        <SpacesSection calendarEvents={eventState} entries={entries} plants={plantState} spaces={spaces} />
+      ) : null}
       {currentSection === "calendar" ? (
         <CalendarSection
           events={eventState}
@@ -391,9 +393,72 @@ function TodaySection({
       </section>
 
       <section className="mx-auto mt-5 max-w-7xl px-4 sm:px-6 lg:px-8">
-        <SeasonInsights calendarEvents={calendarEvents} careScore={careScore} plants={plants} tasks={tasks} />
+        <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
+          <PlantCareCoach agendaItems={agendaItems} plants={plants} />
+          <SeasonInsights calendarEvents={calendarEvents} careScore={careScore} plants={plants} tasks={tasks} />
+        </div>
       </section>
     </>
+  );
+}
+
+function PlantCareCoach({ agendaItems, plants }: { agendaItems: AgendaItem[]; plants: Plant[] }) {
+  const [checkedSignals, setCheckedSignals] = useStoredState<string[]>("plantcare-quick-checks", []);
+  const topPlant = plants[0];
+  const openItems = agendaItems.filter((item) => item.status === "open");
+  const signals = [
+    { id: "leaves", label: "Hojas", hint: "color, manchas o puntas" },
+    { id: "substrate", label: "Sustrato", hint: "humedad al tacto" },
+    { id: "pests", label: "Plagas", hint: "revisión visual" },
+    { id: "light", label: "Luz", hint: "ubicación declarada" },
+    { id: "photo", label: "Foto", hint: "comparar evolución" }
+  ];
+
+  function toggleSignal(signalId: string) {
+    setCheckedSignals((currentSignals) => {
+      const nextSignals = currentSignals.includes(signalId)
+        ? currentSignals.filter((id) => id !== signalId)
+        : [...currentSignals, signalId];
+      persistStoredState("plantcare-quick-checks", nextSignals);
+      return nextSignals;
+    });
+  }
+
+  return (
+    <section className="coach-panel p-4 sm:p-5" aria-labelledby="coach-title">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <SectionHeader eyebrow="Chequeo rapido" title="Estado de tus plantas" />
+        <span className="pill pill-blue">Manual</span>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-stone-700">
+        Inspirado en las mejores apps de plantas: una rutina corta para observar, registrar y decidir vos. No diagnostica
+        ni calcula automaticamente.
+      </p>
+      <div className="coach-focus mt-4">
+        <div className="flex items-center gap-3">
+          {topPlant ? <PlantAvatar plant={topPlant} /> : <span className="plant-avatar" aria-hidden="true" />}
+          <div>
+            <p className="text-xs font-black uppercase text-stone-500">Foco sugerido</p>
+            <p className="font-black text-moss-950">{openItems[0]?.title ?? "Registrar observacion"}</p>
+            <p className="text-sm text-stone-600">{topPlant?.name ?? "Crear una planta para comenzar"}</p>
+          </div>
+        </div>
+      </div>
+      <div className="coach-grid mt-4">
+        {signals.map((signal) => (
+          <button
+            className={checkedSignals.includes(signal.id) ? "coach-check active" : "coach-check"}
+            key={signal.id}
+            onClick={() => toggleSignal(signal.id)}
+            type="button"
+          >
+            <span>{checkedSignals.includes(signal.id) ? "OK" : ""}</span>
+            <strong>{signal.label}</strong>
+            <small>{signal.hint}</small>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -508,7 +573,17 @@ function OnboardingFlow({ onClose, todayHref }: { onClose: () => void; todayHref
   );
 }
 
-function SpacesSection({ plants, spaces }: { plants: Plant[]; spaces: GrowSpace[] }) {
+function SpacesSection({
+  calendarEvents,
+  entries,
+  plants,
+  spaces
+}: {
+  calendarEvents: CalendarEvent[];
+  entries: CareEntry[];
+  plants: Plant[];
+  spaces: GrowSpace[];
+}) {
   const [query, setQuery] = useState("");
   const normalizedQuery = query.trim().toLowerCase();
   const visibleSpaces = spaces
@@ -569,6 +644,7 @@ function SpacesSection({ plants, spaces }: { plants: Plant[]; spaces: GrowSpace[
                       <PlantFact label="Modo" value={plant.mode} />
                     </dl>
                     <PlantStageProgress plant={plant} />
+                    <PlantUtilityPanel calendarEvents={calendarEvents} entries={entries} plant={plant} />
                   </details>
                 ))}
             </div>
@@ -1010,6 +1086,45 @@ function PlantStageProgress({ plant }: { plant: Plant }) {
   );
 }
 
+function PlantUtilityPanel({
+  calendarEvents,
+  entries,
+  plant
+}: {
+  calendarEvents: CalendarEvent[];
+  entries: CareEntry[];
+  plant: Plant;
+}) {
+  const todayIso = getTodayIso();
+  const nextEvent = getNextDeclaredEvent(plant.id, calendarEvents, todayIso);
+  const lastEntry = getLastCareEntry(plant.id, entries);
+
+  return (
+    <div className="plant-utility-panel">
+      <div className="plant-utility-card featured">
+        <p className="text-[11px] font-black uppercase text-stone-500">Proxima accion declarada</p>
+        <p className="mt-1 font-black text-moss-950">{nextEvent?.title ?? "Sin eventos proximos"}</p>
+        <p className="mt-1 text-sm text-stone-600">
+          {nextEvent ? `${nextEvent.startDate} - ${getDaysUntilLabel(nextEvent.startDate, todayIso)}` : "Creala desde Semillas o Calendario"}
+        </p>
+      </div>
+      <div className="plant-utility-card">
+        <p className="text-[11px] font-black uppercase text-stone-500">Ultimo registro</p>
+        <p className="mt-1 font-black text-moss-950">{lastEntry?.title ?? "Sin entradas todavia"}</p>
+        <p className="mt-1 text-sm text-stone-600">{lastEntry?.createdAt ?? "Usa Diario para agregar fotos y notas"}</p>
+      </div>
+      <div className="plant-utility-card">
+        <p className="text-[11px] font-black uppercase text-stone-500">Ambiente declarado</p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <span className="plant-signal">{plant.mode}</span>
+          <span className="plant-signal">{plant.lighting}</span>
+          <span className="plant-signal">{plant.pot}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PlantFact({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -1157,6 +1272,27 @@ function eventKindToTaskCategory(kind: CalendarEventOccurrence["kind"]): Task["c
   if (kind === "cleaning") return "Mantenimiento";
   if (kind === "photo") return "Registro";
   return "Observacion";
+}
+
+function getNextDeclaredEvent(plantId: string, events: CalendarEvent[], todayIso: string) {
+  return events
+    .filter((event) => event.plantId === plantId && event.startDate >= todayIso)
+    .sort((first, second) => first.startDate.localeCompare(second.startDate))[0];
+}
+
+function getLastCareEntry(plantId: string, entries: CareEntry[]) {
+  return entries
+    .filter((entry) => entry.plantId === plantId)
+    .sort((first, second) => second.createdAt.localeCompare(first.createdAt))[0];
+}
+
+function getDaysUntilLabel(targetIso: string, todayIso: string) {
+  const diff = new Date(`${targetIso}T00:00:00`).getTime() - new Date(`${todayIso}T00:00:00`).getTime();
+  const days = Math.ceil(diff / 86_400_000);
+
+  if (days === 0) return "hoy";
+  if (days === 1) return "manana";
+  return `en ${days} dias`;
 }
 
 function formatDisplayDate(isoDate: string) {
