@@ -74,7 +74,13 @@ const recurrenceEndOptions = [
 ];
 const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
 
-export function ManualCannabisForm({ onCreateEvents }: { onCreateEvents: (events: CalendarEvent[]) => void }) {
+export function ManualCannabisForm({
+  calendarHref,
+  onCreateEvents
+}: {
+  calendarHref: string;
+  onCreateEvents: (events: CalendarEvent[]) => void;
+}) {
   const [seedType, setSeedType] = useState<SeedType>("feminized");
   const [geneticName, setGeneticName] = useState("No seleccionada");
   const [moistureReminder, setMoistureReminder] = useState("0");
@@ -84,6 +90,7 @@ export function ManualCannabisForm({ onCreateEvents }: { onCreateEvents: (events
   const [recurrenceDays, setRecurrenceDays] = useState("0");
   const [recurrenceEnd, setRecurrenceEnd] = useState("none");
   const [statusMessage, setStatusMessage] = useState("");
+  const [showCalendarLink, setShowCalendarLink] = useState(false);
 
   function handleCreateEvents() {
     const definitions: Array<{
@@ -148,11 +155,16 @@ export function ManualCannabisForm({ onCreateEvents }: { onCreateEvents: (events
 
     if (nextEvents.length === 0) {
       setStatusMessage("No hay fechas manuales seleccionadas para crear eventos.");
+      setShowCalendarLink(false);
       return;
     }
 
     onCreateEvents(nextEvents);
-    setStatusMessage(`${nextEvents.length} evento(s) manual(es) agregados al calendario.`);
+    setStatusMessage(`${nextEvents.length} evento(s) manual(es) agregados. Abriendo calendario...`);
+    setShowCalendarLink(true);
+    window.setTimeout(() => {
+      window.location.href = calendarHref;
+    }, 180);
   }
 
   return (
@@ -205,6 +217,11 @@ export function ManualCannabisForm({ onCreateEvents }: { onCreateEvents: (events
           Crear eventos manuales
         </button>
         {statusMessage ? <span className="text-sm font-bold text-stone-600">{statusMessage}</span> : null}
+        {showCalendarLink ? (
+          <a className="secondary-button" href={calendarHref}>
+            Ver calendario
+          </a>
+        ) : null}
       </div>
 
       <p className="text-xs font-bold leading-5 text-stone-600">

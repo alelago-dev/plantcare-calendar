@@ -18,6 +18,7 @@ import { seedCatalog } from "@/lib/seed-catalog";
 import type { CalendarEvent, Locale } from "@/lib/types";
 
 type SeedsSectionProps = {
+  calendarHref: string;
   locale: Locale;
   onCreateManualEvents: (events: CalendarEvent[]) => void;
 };
@@ -33,7 +34,7 @@ const tabs: Array<{ id: SeedTab; label: string }> = [
 const regulatedSeedOptions = seedCatalog.filter((seed) => seed.regulated);
 const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
 
-export function SeedsSection({ locale, onCreateManualEvents }: SeedsSectionProps) {
+export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: SeedsSectionProps) {
   const [activeTab, setActiveTab] = useState<SeedTab>("manual");
 
   return (
@@ -77,7 +78,7 @@ export function SeedsSection({ locale, onCreateManualEvents }: SeedsSectionProps
                 <ModeBadge mode="manual" />
               </div>
               <div className="mt-4">
-                <ManualCannabisForm onCreateEvents={onCreateManualEvents} />
+                <ManualCannabisForm calendarHref={calendarHref} onCreateEvents={onCreateManualEvents} />
               </div>
             </section>
           ) : null}

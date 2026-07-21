@@ -123,7 +123,7 @@ export function AppShell({
     setEventState(nextEvents);
     persistStoredState(storageKeys.plants, nextPlants);
     persistStoredState(storageKeys.events, nextEvents);
-    goToCalendar(events[0]?.startDate ?? todayIso, locale);
+    persistCalendarDate(events[0]?.startDate ?? todayIso);
   }
 
   function handleCreateQuickPlant(input: QuickPlantInput) {
@@ -233,7 +233,13 @@ export function AppShell({
         />
       ) : null}
 
-      {currentSection === "seeds" ? <SeedsSection locale={locale} onCreateManualEvents={handleAddManualEvents} /> : null}
+      {currentSection === "seeds" ? (
+        <SeedsSection
+          calendarHref={getSectionHref(locale, "calendar")}
+          locale={locale}
+          onCreateManualEvents={handleAddManualEvents}
+        />
+      ) : null}
       {currentSection === "spaces" ? <SpacesSection plants={plantState} spaces={spaces} /> : null}
       {currentSection === "calendar" ? (
         <CalendarSection
@@ -959,7 +965,7 @@ function useStoredState<T>(key: string, initialState: T) {
 }
 
 function goToCalendar(selectedDate: string, locale: Locale) {
-  window.localStorage.setItem(storageKeys.calendarDate, selectedDate);
+  persistCalendarDate(selectedDate);
   window.location.assign(getSectionHref(locale, "calendar"));
 }
 
@@ -974,5 +980,11 @@ function getStoredCalendarDate(fallbackDate: string) {
 function persistStoredState<T>(key: string, value: T) {
   if (typeof window !== "undefined") {
     window.localStorage.setItem(key, JSON.stringify(value));
+  }
+}
+
+function persistCalendarDate(selectedDate: string) {
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(storageKeys.calendarDate, selectedDate);
   }
 }
