@@ -1,7 +1,7 @@
 import type { CalendarDay, CareEntry, Dictionary, GrowSpace, Locale, Plant, Task } from "@/lib/types";
 import { HorticultureCalculator } from "@/components/horticulture-calculator";
 import { ManualCannabisForm } from "@/components/manual-cannabis-form";
-import { getRecommendedSeeds, seedCatalog, seedClimateOptions } from "@/lib/seed-catalog";
+import { seedCatalog } from "@/lib/seed-catalog";
 import { getWeatherReadiness } from "@/lib/weather";
 
 type AppShellProps = {
@@ -37,10 +37,6 @@ export function AppShell({
   const weather = getWeatherReadiness(spaces[0]?.region ?? "Region sin definir");
   const completedTasks = tasks.filter((task) => task.status === "done").length;
   const openTasks = tasks.length - completedTasks;
-  const outdoorPlants = plants.filter((plant) => plant.mode === "Exterior").length;
-  const selectedClimate = "Templado";
-  const recommendedSeeds = getRecommendedSeeds(selectedClimate);
-  const regulatedSeedOptions = seedCatalog.filter((seed) => seed.regulated);
 
   return (
     <main className="min-h-screen pb-28 text-moss-950 lg:pb-0">
@@ -75,50 +71,21 @@ export function AppShell({
         </div>
       </header>
 
-      <section className="hero-shell mx-auto grid max-w-7xl gap-5 px-4 pb-7 pt-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:pb-9 lg:pt-7">
-        <div className="hero-card">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="eyebrow text-mint-100">{dictionary.hero.kicker}</p>
-              <h1 className="mt-3 max-w-2xl text-3xl font-black leading-[1.04] tracking-tight text-white sm:text-4xl lg:text-[2.65rem]">
-                {dictionary.hero.title}
-              </h1>
-              <p className="hero-copy mt-4 max-w-xl text-sm leading-6 sm:text-base">{dictionary.hero.body}</p>
-            </div>
-            <span className="rounded-md border border-white/18 bg-white/12 px-3 py-2 text-sm font-black text-mint-50">
-              {locale.toUpperCase()}
-            </span>
+      <section className="mx-auto max-w-7xl px-4 pb-5 pt-4 sm:px-6 lg:px-8 lg:pt-6">
+        <div className="intro-panel">
+          <div className="min-w-0">
+            <p className="eyebrow text-emerald-800">{dictionary.hero.kicker}</p>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-moss-950 sm:text-3xl">
+              PlantCare Calendar
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-700">{dictionary.hero.body}</p>
           </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            <Metric label="Cultivos" value={plants.length.toString()} tone="light" />
-            <Metric label="Pendientes" value={openTasks.toString()} tone="light" />
-            <Metric label="Cuidado" value={`${careScore}%`} tone="light" />
+          <div className="summary-grid">
+            <MiniStat label="Cultivos" value={plants.length.toString()} />
+            <MiniStat label="Pendientes" value={openTasks.toString()} />
+            <MiniStat label="Cuidado" value={`${careScore}%`} />
           </div>
         </div>
-
-        <section className="grow-visual-card" aria-labelledby="grow-preview-title">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="eyebrow text-emerald-800">Grow log</p>
-              <h2 className="mt-2 text-xl font-black tracking-tight text-moss-950 sm:text-2xl" id="grow-preview-title">
-                Vista diaria compacta
-              </h2>
-            </div>
-            <span className="rounded-md bg-amber-100 px-3 py-2 text-xs font-black text-amber-900">Hoy</span>
-          </div>
-
-          <div className="mt-5 grid gap-3">
-            <VisualPlantCard title="Patio norte" subtitle="Tomate Roma" value="62%" label="humedad" />
-            <VisualPlantCard title="Balcon luminoso" subtitle="Lavanda" value="18 C" label="clima" />
-          </div>
-
-          <div className="mt-5 grid grid-cols-3 gap-3">
-            <MiniStat label="Exterior" value={outdoorPlants.toString()} />
-            <MiniStat label="Fotos" value="2" />
-            <MiniStat label="Alertas" value="0" />
-          </div>
-        </section>
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8" id="today">
@@ -170,91 +137,41 @@ export function AppShell({
         </section>
       </section>
 
-      <section className="mx-auto mt-7 grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8" id="seeds">
-        <section className="surface p-4 sm:p-5" aria-labelledby="seed-selector-title">
-          <SectionHeader eyebrow="Semillas" title="Selector de tipo" />
-          <div className="mt-5 grid gap-3">
-            <label className="grid gap-1 text-sm font-black text-moss-950">
-              Tipo de semilla
-              <select className="form-control" defaultValue="cannabis-photoperiod-feminized">
-                {seedCatalog.map((seed) => (
-                  <option key={seed.id} value={seed.id}>
-                    {seed.crop} - {seed.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid gap-1 text-sm font-black text-moss-950">
-              Clima del lugar
-              <select className="form-control" defaultValue={selectedClimate}>
-                {seedClimateOptions.map((climate) => (
-                  <option key={climate}>{climate}</option>
-                ))}
-              </select>
-            </label>
-            <div className="seed-result">
-              <p className="text-sm font-black text-moss-950">Resultado demo</p>
-              <p className="mt-1 text-sm leading-6 text-stone-700">
-                El selector permite registrar categorias de cannabis legal y otras semillas. Para cannabis no calcula
-                clima, cosecha ni rendimiento; esos datos quedan como carga manual del usuario.
-              </p>
+      <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8" id="seeds">
+        <SectionHeader eyebrow="Semillas" title="Registro y referencia" />
+        <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_0.9fr]">
+          <section className="surface p-4 sm:p-5" aria-labelledby="manual-seed-title">
+            <h3 className="text-lg font-black text-moss-950" id="manual-seed-title">
+              Carga manual legal
+            </h3>
+            <p className="mt-1 text-sm leading-6 text-stone-700">
+              Para cannabis o cultivos regulados, la app guarda lo que el usuario declara. Las referencias son solo de
+              lectura.
+            </p>
+            <div className="mt-4">
+              <ManualCannabisForm locale={locale} />
             </div>
-            <ManualCannabisForm locale={locale} />
-          </div>
-        </section>
-
-        <div className="grid gap-5">
-          <HorticultureCalculator />
-          <section className="surface p-4 sm:p-5" aria-labelledby="seed-bank-title">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <SectionHeader eyebrow="Banco demo" title="Categorias de semillas" />
-            <span className="pill pill-blue">Uso legal</span>
-          </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {regulatedSeedOptions.map((seed) => (
-              <article className="seed-card border-amber-700/20 bg-amber-50/72" key={seed.id}>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-black text-moss-950">
-                      {seed.crop} {seed.name}
-                    </h3>
-                    <p className="mt-1 text-sm font-semibold text-stone-600">{seed.seedType}</p>
-                  </div>
-                  <span className="pill pill-amber">Manual</span>
-                </div>
-                <p className="mt-3 text-sm leading-6 text-stone-700">{seed.careNote}</p>
-              </article>
-            ))}
-            {recommendedSeeds.slice(0, 4).map((seed) => (
-              <article className="seed-card" key={seed.id}>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-black text-moss-950">
-                      {seed.crop} {seed.name}
-                    </h3>
-                    <p className="mt-1 text-sm font-semibold text-stone-600">{seed.seedType}</p>
-                  </div>
-                  <span className="pill pill-green">{seed.daysToHarvest}</span>
-                </div>
-                <p className="mt-3 text-sm leading-6 text-stone-700">{seed.careNote}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {seed.climates.map((climate) => (
-                    <span className="pill pill-soft text-xs font-black" key={climate}>
-                      {climate}
-                    </span>
-                  ))}
-                </div>
-              </article>
-            ))}
-            <article className="seed-card border-amber-700/20 bg-amber-50/72">
-              <h3 className="font-black text-moss-950">Variedades especificas</h3>
-              <p className="mt-2 text-sm leading-6 text-stone-700">
-                No existe una lista cerrada de todas las geneticas posibles. Para cubrir bancos y nombres comerciales,
-                usa la opcion &quot;Otra genetica / banco propio&quot; y completa el nombre en notas.
-              </p>
-            </article>
-          </div>
           </section>
+
+          <div className="grid gap-5">
+            <HorticultureCalculator />
+            <section className="surface p-4 sm:p-5" aria-labelledby="seed-bank-title">
+              <SectionHeader eyebrow="Catalogo" title="Tipos disponibles" />
+              <div className="mt-4 grid gap-2">
+                {seedCatalog.slice(0, 7).map((seed) => (
+                  <div className="simple-list-row" key={seed.id}>
+                    <div>
+                      <p className="font-black text-moss-950">{seed.crop}</p>
+                      <p className="text-sm font-semibold text-stone-600">{seed.name}</p>
+                    </div>
+                    <span className={seed.regulated ? "pill pill-amber" : "pill pill-green"}>
+                      {seed.regulated ? "Manual" : "Auto"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
         </div>
       </section>
 
@@ -434,36 +351,11 @@ export function AppShell({
   );
 }
 
-function Metric({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "light" }) {
-  return (
-    <div className={tone === "light" ? "metric-card light" : "metric-card"}>
-      <p className="text-2xl font-black tracking-tight">{value}</p>
-      <p className="mt-1 text-sm font-bold">{label}</p>
-    </div>
-  );
-}
-
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-moss-950/10 bg-white/72 p-3">
       <p className="text-2xl font-black tracking-tight text-moss-950">{value}</p>
       <p className="mt-1 text-xs font-black uppercase text-stone-500">{label}</p>
-    </div>
-  );
-}
-
-function VisualPlantCard({ title, subtitle, value, label }: { title: string; subtitle: string; value: string; label: string }) {
-  return (
-    <div className="visual-plant-row">
-      <div className="plant-swatch" aria-hidden="true" />
-      <div className="min-w-0 flex-1">
-        <p className="font-black text-moss-950">{title}</p>
-        <p className="text-sm font-semibold text-stone-600">{subtitle}</p>
-      </div>
-      <div className="text-right">
-        <p className="text-lg font-black text-moss-950">{value}</p>
-        <p className="text-xs font-black uppercase text-stone-500">{label}</p>
-      </div>
     </div>
   );
 }

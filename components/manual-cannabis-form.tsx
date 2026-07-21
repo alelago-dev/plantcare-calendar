@@ -24,16 +24,16 @@ export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
   const isSpanish = locale === "es";
 
   return (
-    <div className="seed-result border-emerald-800/20 bg-emerald-50/80">
-      <p className="text-sm font-black text-moss-950">Plan manual legal</p>
-      <div className="mt-3 grid gap-4 xl:grid-cols-[1fr_0.85fr]">
+    <div className="grid gap-4">
+      <div className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
         <div className="grid gap-3">
-          <FormField label="Banco o catalogo" placeholder="Ej. banco legal o catalogo propio" />
+          <p className="text-sm font-black text-moss-950">Datos principales</p>
+          <FormField label="Banco o catalogo" placeholder="Opcional" />
           <label className="grid gap-1 text-sm font-black text-moss-950">
             Nombre de la genetica
             <input
               className="form-control"
-              placeholder="Ej. nombre comercial declarado"
+              placeholder="Escribi para buscar o cargar manual"
               value={geneticsQuery}
               onChange={(event) => {
                 setGeneticsQuery(event.target.value);
@@ -42,7 +42,7 @@ export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
             />
           </label>
           {geneticsResults.length > 0 ? (
-            <div className="grid gap-2 rounded-lg border border-moss-950/10 bg-white/70 p-2">
+            <div className="grid max-h-56 gap-1 overflow-auto rounded-lg border border-moss-950/10 bg-white/80 p-2">
               {geneticsResults.map((genetic) => (
                 <button
                   className="rounded-md px-2.5 py-2 text-left text-sm font-black text-moss-950 transition hover:bg-mint-100"
@@ -110,7 +110,7 @@ export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
         ) : null}
       </div>
 
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 border-t border-moss-950/10 pt-4 sm:grid-cols-2">
         <label className="grid gap-1 text-sm font-black text-moss-950">
           Tipo de espacio
           <select className="form-control" defaultValue="Interior">
@@ -131,13 +131,16 @@ export function ManualCannabisForm({ locale }: ManualCannabisFormProps) {
         </label>
         <FormField label="Maceta en litros" placeholder="Ej. 10 L" />
       </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <details className="rounded-lg border border-moss-950/10 bg-white/72 p-3">
+        <summary className="cursor-pointer text-sm font-black text-moss-950">Fechas y recordatorios manuales</summary>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <FormField label="Proxima revision de humedad" placeholder="Fecha definida por el usuario" />
         <FormField label="Cambio de etapa / flora" placeholder="Fecha definida por el usuario" />
         <FormField label="Secado de ramas" placeholder="Fecha definida por el usuario" />
         <FormField label="Mantenimiento" placeholder="Fecha definida por el usuario" />
-      </div>
-      <p className="mt-3 text-xs font-bold leading-5 text-stone-600">
+        </div>
+      </details>
+      <p className="text-xs font-bold leading-5 text-stone-600">
         Estos campos sirven para agenda y recordatorios definidos por el usuario. Evita guardar numeros de registro,
         domicilios exactos o datos medicos en esta demo publica.
       </p>

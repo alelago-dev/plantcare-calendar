@@ -19,9 +19,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    linear-gradient(180deg, rgba(231, 242, 232, 0.82), rgba(245, 247, 239, 0) 420px),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
   font-feature-settings: "ss01" on, "cv01" on;
   font-size: 15px;
@@ -65,55 +63,35 @@ textarea {
     box-shadow: 0 0 0 4px rgba(45, 111, 82, 0.12);
   }
 
-  .hero-shell {
-    position: relative;
-  }
-
-  .hero-card {
-    overflow: hidden;
-    position: relative;
-    border-radius: 8px;
-    background:
-      linear-gradient(135deg, rgba(24, 58, 43, 0.97), rgba(46, 99, 73, 0.94)),
-      #183a2b;
-    padding: 1rem;
-    box-shadow: 0 14px 42px rgba(21, 49, 34, 0.16);
-  }
-
-  @media (min-width: 640px) {
-    .hero-card {
-      padding: 1.45rem;
-    }
-  }
-
-  .hero-card::after {
-    content: none;
-  }
-
-  .hero-copy {
-    color: rgba(247, 252, 243, 0.9);
-  }
-
-  .grow-visual-card,
   .surface {
     border: 1px solid rgba(22, 32, 21, 0.1);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.82);
-    box-shadow: 0 10px 32px rgba(28, 54, 38, 0.08);
-    backdrop-filter: blur(14px);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 22px rgba(28, 54, 38, 0.06);
   }
 
-  .grow-visual-card {
-    position: relative;
-    overflow: hidden;
+  .intro-panel {
+    display: grid;
+    gap: 1rem;
+    align-items: center;
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    border-radius: 8px;
+    background: #ffffff;
     padding: 1rem;
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(238, 245, 232, 0.86)),
-      #ffffff;
+    box-shadow: 0 8px 22px rgba(28, 54, 38, 0.06);
   }
 
-  .grow-visual-card::before {
-    content: none;
+  @media (min-width: 768px) {
+    .intro-panel {
+      grid-template-columns: 1fr auto;
+      padding: 1.25rem;
+    }
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(82px, 1fr));
+    gap: 0.6rem;
   }
 
   .eyebrow {
@@ -122,23 +100,6 @@ textarea {
     text-transform: uppercase;
   }
 
-  .metric-card {
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.72);
-    padding: 0.78rem;
-    color: #162015;
-  }
-
-  .metric-card.light {
-    background: rgba(255, 255, 255, 0.14);
-    color: #ffffff;
-  }
-
-  .metric-card.light p:last-child {
-    color: rgba(238, 250, 232, 0.82);
-  }
-
-  .visual-plant-row,
   .task-row,
   .plant-row,
   .journal-row {
@@ -146,7 +107,6 @@ textarea {
     gap: 0.875rem;
   }
 
-  .visual-plant-row,
   .task-row,
   .journal-row,
   .seed-card,
@@ -163,6 +123,17 @@ textarea {
     display: block;
   }
 
+  .simple-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.08);
+    background: rgba(248, 250, 244, 0.86);
+    padding: 0.7rem 0.78rem;
+  }
+
   .plant-row {
     padding: 1rem 0;
   }
@@ -175,20 +146,11 @@ textarea {
     padding-bottom: 0;
   }
 
-  .plant-swatch,
   .plant-avatar,
   .photo-thumb,
   .task-check {
     flex: 0 0 auto;
     border-radius: 8px;
-  }
-
-  .plant-swatch {
-    height: 40px;
-    width: 40px;
-    background:
-      linear-gradient(135deg, rgba(45, 111, 82, 0.95), rgba(134, 172, 90, 0.88)),
-      #2d6f52;
   }
 
   .plant-avatar {
