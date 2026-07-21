@@ -70,6 +70,105 @@ textarea {
     box-shadow: 0 8px 22px rgba(28, 54, 38, 0.06);
   }
 
+  .info-card {
+    border: 1px solid rgba(22, 32, 21, 0.08);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.68);
+  }
+
+  .desktop-nav-item {
+    border-radius: 6px;
+    padding: 0.55rem 0.75rem;
+    color: #52604d;
+    font-size: 0.9rem;
+    font-weight: 800;
+    transition:
+      background 160ms ease,
+      color 160ms ease;
+  }
+
+  .desktop-nav-item.active {
+    background: #23543e;
+    color: #ffffff;
+  }
+
+  .mobile-tab-bar {
+    position: fixed;
+    inset-inline: 0.75rem;
+    bottom: 0.75rem;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.15rem;
+    border: 1px solid rgba(22, 32, 21, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 0.28rem;
+    box-shadow: 0 12px 28px rgba(28, 54, 38, 0.16);
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-tab-bar {
+      display: none;
+    }
+  }
+
+  .mobile-tab {
+    display: grid;
+    min-width: 0;
+    gap: 0.18rem;
+    justify-items: center;
+    border-radius: 6px;
+    padding: 0.45rem 0.2rem;
+    color: #52604d;
+    font-size: 0.66rem;
+    font-weight: 950;
+  }
+
+  .mobile-tab.active {
+    background: #e8f3df;
+    color: #23543e;
+  }
+
+  .nav-icon {
+    display: grid;
+    height: 22px;
+    width: 22px;
+    place-items: center;
+    border-radius: 6px;
+    background: rgba(35, 84, 62, 0.08);
+    font-size: 0.72rem;
+    font-weight: 950;
+  }
+
+  .legal-popover {
+    position: relative;
+  }
+
+  .legal-popover summary {
+    cursor: pointer;
+    list-style: none;
+    border-radius: 8px;
+    border: 1px solid rgba(35, 84, 62, 0.24);
+    background: #ffffff;
+    padding: 0.62rem 0.75rem;
+    color: #162015;
+    font-size: 0.82rem;
+    font-weight: 950;
+  }
+
+  .legal-popover-panel {
+    position: absolute;
+    top: calc(100% + 0.45rem);
+    right: 0;
+    width: min(78vw, 320px);
+    border: 1px solid rgba(22, 32, 21, 0.12);
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 1rem;
+    box-shadow: 0 16px 34px rgba(28, 54, 38, 0.16);
+  }
+
   .intro-panel {
     display: grid;
     gap: 1rem;
@@ -94,6 +193,19 @@ textarea {
     gap: 0.6rem;
   }
 
+  .metric-card {
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+    padding: 0.85rem;
+  }
+
+  .metric-card.featured {
+    border-color: rgba(121, 82, 15, 0.28);
+    background: #fff8e7;
+    box-shadow: inset 0 0 0 1px rgba(121, 82, 15, 0.08);
+  }
+
   .eyebrow {
     font-size: 0.7rem;
     font-weight: 900;
@@ -116,6 +228,12 @@ textarea {
     border: 1px solid rgba(22, 32, 21, 0.08);
     background: rgba(255, 255, 255, 0.7);
     padding: 0.78rem;
+  }
+
+  .task-priority {
+    border-color: rgba(121, 82, 15, 0.36);
+    background: #fff8e7;
+    box-shadow: inset 4px 0 0 #e2b457;
   }
 
   .seed-card,
@@ -195,6 +313,25 @@ textarea {
 
   .plant-row {
     padding: 1rem 0;
+  }
+
+  .plant-row-details {
+    scroll-margin-top: 96px;
+    padding: 1rem 0;
+  }
+
+  .plant-row-details:target {
+    border-radius: 8px;
+    background: #fff8e7;
+    box-shadow: inset 4px 0 0 #e2b457;
+  }
+
+  .plant-row-details summary {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.875rem;
+    list-style: none;
   }
 
   .plant-row:first-child {
@@ -281,13 +418,90 @@ textarea {
     border: 1px solid rgba(22, 32, 21, 0.08);
     background: #eef6e8;
     padding: 0.5rem;
+    text-align: left;
     color: #162015;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .day-cell:hover,
+  .day-cell.selected {
+    border-color: rgba(35, 84, 62, 0.38);
+    box-shadow: inset 0 0 0 1px rgba(35, 84, 62, 0.16);
   }
 
   .day-cell.muted {
     border-color: transparent;
     background: #f1f2ec;
     color: #8a9284;
+  }
+
+  .calendar-event,
+  .event-legend {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    padding: 0.28rem 0.45rem;
+    font-size: 0.68rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .calendar-event {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .event-water {
+    background: #dff1f1;
+    color: #1c5f58;
+  }
+
+  .event-photo {
+    background: #e8f3df;
+    color: #23543e;
+  }
+
+  .event-clean {
+    background: #fff0c8;
+    color: #79520f;
+  }
+
+  .event-review {
+    background: #f0f3ea;
+    color: #52604d;
+  }
+
+  .view-toggle {
+    display: inline-flex;
+    gap: 0.25rem;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    background: #ffffff;
+    padding: 0.25rem;
+  }
+
+  .view-toggle button {
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    color: #52604d;
+    font-size: 0.82rem;
+    font-weight: 950;
+  }
+
+  .view-toggle button.active {
+    background: #23543e;
+    color: #ffffff;
+  }
+
+  .calendar-detail-card {
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    background: rgba(255, 255, 255, 0.76);
+    padding: 0.85rem;
   }
 
   .pill {
@@ -321,10 +535,49 @@ textarea {
   .form-control {
     min-height: 40px;
     border-radius: 8px;
-    border: 1px solid rgba(22, 32, 21, 0.14);
-    background: #f8faf4;
+    border: 1.5px solid rgba(35, 84, 62, 0.28);
+    background: #ffffff;
     padding: 0.55rem 0.7rem;
     color: #162015;
+  }
+
+  .copy-value-button {
+    flex: 0 0 auto;
+    border-radius: 6px;
+    border: 1px solid rgba(35, 84, 62, 0.24);
+    background: #ffffff;
+    padding: 0.28rem 0.44rem;
+    color: #23543e;
+    font-size: 0.68rem;
+    font-weight: 950;
+    line-height: 1;
+    transition:
+      background 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .copy-value-button:hover {
+    border-color: rgba(35, 84, 62, 0.42);
+    background: #e8f3df;
+  }
+
+  .copy-value-button:active {
+    color: #162015;
+  }
+
+  .quick-plant-mobile {
+    display: none;
+  }
+
+  @media (max-width: 639px) {
+    .quick-plant-desktop {
+      display: none;
+    }
+
+    .quick-plant-mobile {
+      display: grid;
+    }
   }
 
   .primary-button,

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { HorticultureCalculator } from "@/components/horticulture-calculator";
 import { ManualCannabisForm } from "@/components/manual-cannabis-form";
+import { CopyValueButton } from "@/components/copy-button";
 import {
   CULTIVATION_REFERENCE,
   type CultivationReferenceRow
@@ -14,10 +15,11 @@ import {
   type GeneticReferenceEntry
 } from "@/lib/genetics-catalog";
 import { seedCatalog } from "@/lib/seed-catalog";
-import type { Locale } from "@/lib/types";
+import type { CalendarEvent, Locale } from "@/lib/types";
 
 type SeedsSectionProps = {
   locale: Locale;
+  onCreateManualEvents: (events: CalendarEvent[]) => void;
 };
 
 type SeedTab = "manual" | "horticultural" | "reference";
@@ -30,7 +32,7 @@ const tabs: Array<{ id: SeedTab; label: string }> = [
 
 const regulatedSeedOptions = seedCatalog.filter((seed) => seed.regulated);
 
-export function SeedsSection({ locale }: SeedsSectionProps) {
+export function SeedsSection({ locale, onCreateManualEvents }: SeedsSectionProps) {
   const [activeTab, setActiveTab] = useState<SeedTab>("manual");
 
   return (
@@ -74,7 +76,7 @@ export function SeedsSection({ locale }: SeedsSectionProps) {
                 <ModeBadge mode="manual" />
               </div>
               <div className="mt-4">
-                <ManualCannabisForm />
+                <ManualCannabisForm onCreateEvents={onCreateManualEvents} />
               </div>
             </section>
           ) : null}
@@ -93,6 +95,7 @@ function ReferenceTab({ locale }: { locale: Locale }) {
   const [geneticsSearch, setGeneticsSearch] = useState("");
   const [selectedGenetic, setSelectedGenetic] = useState<GeneticReferenceEntry | null>(null);
   const geneticsResults = useMemo(() => searchGeneticsByName(geneticsSearch), [geneticsSearch]);
+  const showGeneticsResults = geneticsResults.length > 0 && geneticsSearch !== selectedGenetic?.name;
   const selectedSeed = regulatedSeedOptions.find((seed) => seed.id === seedId);
   const isSpanish = locale === "es";
 
@@ -118,11 +121,31 @@ function ReferenceTab({ locale }: { locale: Locale }) {
 
           {selectedSeed ? (
             <div className="rounded-lg border border-moss-950/10 bg-paper/80 p-3">
-              <p className="font-black text-moss-950">{selectedSeed.name}</p>
-              <p className="mt-1 text-sm font-semibold text-stone-600">{selectedSeed.seedType}</p>
-              <p className="mt-2 text-sm leading-6 text-stone-700">{selectedSeed.careNote}</p>
+              <ReferenceLine label="Tipo" value={selectedSeed.name} />
+              <ReferenceLine label="Variante" value={selectedSeed.seedType} />
+              <ReferenceLine label="Nota" value={selectedSeed.careNote} />
             </div>
           ) : null}
+
+          <label className="grid gap-1 text-sm font-black text-moss-950">
+            Elegir genetica
+            <select
+              className="form-control"
+              value={selectedGenetic?.id ?? ""}
+              onChange={(event) => {
+                const nextGenetic = GENETICS_CATALOG.find((genetic) => genetic.id === event.target.value) ?? null;
+                setSelectedGenetic(nextGenetic);
+                setGeneticsSearch(nextGenetic?.name ?? "");
+              }}
+            >
+              <option value="">Sin genetica seleccionada</option>
+              {GENETICS_CATALOG.map((genetic) => (
+                <option key={genetic.id} value={genetic.id}>
+                  {genetic.name} - {formatGeneticType(genetic.type)}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <label className="grid gap-1 text-sm font-black text-moss-950">
             Buscar genetica
@@ -134,7 +157,7 @@ function ReferenceTab({ locale }: { locale: Locale }) {
             />
           </label>
 
-          {geneticsResults.length > 0 ? (
+          {showGeneticsResults ? (
             <div className="grid max-h-64 gap-1 overflow-auto rounded-lg border border-moss-950/10 bg-white/80 p-2">
               {geneticsResults.map((genetic) => (
                 <button
@@ -143,7 +166,7 @@ function ReferenceTab({ locale }: { locale: Locale }) {
                   type="button"
                   onClick={() => {
                     setSelectedGenetic(genetic);
-                    setGeneticsSearch("");
+                    setGeneticsSearch(genetic.name);
                   }}
                 >
                   {genetic.name}
@@ -183,12 +206,10 @@ function CultivationReferenceCard({ isSpanish, row }: { isSpanish: boolean; row:
         <ReferenceFact label="Floracion" value={row.flowering_weeks_range} />
         <ReferenceFact label="Maceta" value={row.pot_liters_range} />
       </dl>
-      <p className="mt-3 text-xs font-bold leading-5 text-stone-700">
-        {isSpanish ? row.light_notes_es : row.light_notes_en}
-      </p>
-      <p className="mt-2 text-xs font-bold leading-5 text-stone-700">
-        {isSpanish ? row.watering_notes_es : row.watering_notes_en}
-      </p>
+      <div className="mt-3 grid gap-2">
+        <ReferenceTextBlock label="Luz" value={isSpanish ? row.light_notes_es : row.light_notes_en} />
+        <ReferenceTextBlock label="Riego" value={isSpanish ? row.watering_notes_es : row.watering_notes_en} />
+      </div>
     </article>
   );
 }
@@ -205,15 +226,19 @@ function GeneticsReferencePanel({ genetic }: { genetic: GeneticReferenceEntry | 
   return (
     <article className="mt-3 rounded-lg border border-moss-950/10 bg-white/76 p-3 text-sm">
       <h4 className="font-black text-moss-950">{genetic.name}</h4>
-      <p className="mt-1 text-xs font-bold text-stone-600">{genetic.source}</p>
+      <div className="mt-2">
+        <ReferenceLine label="Fuente" value={genetic.source} />
+      </div>
       <dl className="mt-3 grid gap-2 sm:grid-cols-2">
         <ReferenceFact label="Cruza" value={genetic.cross} />
         <ReferenceFact label="Tipo" value={formatGeneticType(genetic.type)} />
         <ReferenceFact label="Floracion publicada" value={formatRange(genetic.flowering_weeks_range, "semanas")} />
         <ReferenceFact label="THC publicado" value={formatRange(genetic.thc_percent_range, "%")} />
       </dl>
-      <p className="mt-3 text-xs font-bold leading-5 text-stone-700">Sabor: {genetic.flavor_notes}</p>
-      <p className="mt-2 text-xs font-bold leading-5 text-stone-700">Efecto: {genetic.effect_notes}</p>
+      <div className="mt-3 grid gap-2">
+        <ReferenceTextBlock label="Sabor" value={genetic.flavor_notes} />
+        <ReferenceTextBlock label="Efecto" value={genetic.effect_notes} />
+      </div>
     </article>
   );
 }
@@ -240,8 +265,35 @@ function SectionHeader({ eyebrow, id, title }: { eyebrow: string; id?: string; t
 function ReferenceFact({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-moss-950/10 bg-paper/80 px-2.5 py-2">
-      <dt className="text-[11px] font-black uppercase text-stone-500">{label}</dt>
-      <dd className="mt-1 font-black text-moss-950">{value}</dd>
+      <dt className="flex items-center justify-between gap-2 text-[11px] font-black uppercase text-stone-500">
+        <span>{label}</span>
+        <CopyValueButton label={label} value={value} />
+      </dt>
+      <dd className="mt-1 break-words font-black text-moss-950">{value}</dd>
+    </div>
+  );
+}
+
+function ReferenceLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-3 py-1">
+      <div className="min-w-0">
+        <p className="text-[11px] font-black uppercase text-stone-500">{label}</p>
+        <p className="mt-1 break-words text-sm font-black text-moss-950">{value}</p>
+      </div>
+      <CopyValueButton label={label} value={value} />
+    </div>
+  );
+}
+
+function ReferenceTextBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-moss-950/10 bg-paper/80 p-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[11px] font-black uppercase text-stone-500">{label}</p>
+        <CopyValueButton label={label} value={value} />
+      </div>
+      <p className="mt-2 text-xs font-bold leading-5 text-stone-700">{value}</p>
     </div>
   );
 }

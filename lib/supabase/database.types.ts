@@ -76,6 +76,39 @@ export type Database = {
         };
         Update: Partial<Database["public"]["Tables"]["plants"]["Insert"]>;
       };
+      calendar_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          plant_id: string;
+          title: string;
+          description: string | null;
+          event_type: "watering" | "photo" | "cleaning" | "review";
+          source: "manual" | "horticultural";
+          start_date: string;
+          recurrence_active: boolean;
+          recurrence_every_days: number | null;
+          recurrence_end_date: string | null;
+          completed_dates: string[];
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          plant_id: string;
+          title: string;
+          description?: string | null;
+          event_type: "watering" | "photo" | "cleaning" | "review";
+          source: "manual" | "horticultural";
+          start_date: string;
+          recurrence_active?: boolean;
+          recurrence_every_days?: number | null;
+          recurrence_end_date?: string | null;
+          completed_dates?: string[];
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["calendar_events"]["Insert"]>;
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

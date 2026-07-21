@@ -40,6 +40,8 @@ export type Task = {
   status: "open" | "done";
   frequency: "Manual" | "Diaria" | "Semanal" | "Recurrente";
   category: "Riego" | "Mantenimiento" | "Observacion" | "Registro";
+  dueDate?: string;
+  plantId?: string;
 };
 
 export type CareEntry = {
@@ -56,4 +58,36 @@ export type CalendarDay = {
   isToday: boolean;
   isCurrentMonth: boolean;
   items: string[];
+};
+
+export type CalendarEventKind = "watering" | "photo" | "cleaning" | "review";
+
+export type CalendarEventRecurrence = {
+  active: boolean;
+  everyDays: number;
+  endDate?: string;
+};
+
+export type CalendarEvent = {
+  id: string;
+  plantId: string;
+  title: string;
+  description: string;
+  kind: CalendarEventKind;
+  startDate: string;
+  recurrence?: CalendarEventRecurrence;
+  completedDates: string[];
+  source: "manual" | "horticultural";
+};
+
+export type CalendarEventOccurrence = {
+  occurrenceId: string;
+  eventId: string;
+  plantId: string;
+  title: string;
+  description: string;
+  kind: CalendarEventKind;
+  date: string;
+  completed: boolean;
+  source: CalendarEvent["source"];
 };

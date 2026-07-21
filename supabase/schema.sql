@@ -49,6 +49,22 @@ create table if not exists public.tasks (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.calendar_events (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  plant_id uuid not null references public.plants(id) on delete cascade,
+  title text not null,
+  description text,
+  event_type text not null check (event_type in ('watering', 'photo', 'cleaning', 'review')),
+  source text not null check (source in ('manual', 'horticultural')),
+  start_date date not null,
+  recurrence_active boolean not null default false,
+  recurrence_every_days integer check (recurrence_every_days is null or recurrence_every_days > 0),
+  recurrence_end_date date,
+  completed_dates date[] not null default '{}',
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.care_entries (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -74,6 +90,7 @@ alter table public.profiles enable row level security;
 alter table public.grow_spaces enable row level security;
 alter table public.plants enable row level security;
 alter table public.tasks enable row level security;
+alter table public.calendar_events enable row level security;
 alter table public.care_entries enable row level security;
 alter table public.photos enable row level security;
 
@@ -87,6 +104,9 @@ create policy "plants own rows" on public.plants
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create policy "tasks own rows" on public.tasks
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "calendar events own rows" on public.calendar_events
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 create policy "care entries own rows" on public.care_entries

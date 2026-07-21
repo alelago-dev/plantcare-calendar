@@ -1,4 +1,4 @@
-import type { CalendarDay, CareEntry, GrowSpace, Plant, Task } from "@/lib/types";
+import type { CalendarDay, CalendarEvent, CareEntry, GrowSpace, Plant, Task } from "@/lib/types";
 
 export const demoSpaces: GrowSpace[] = [
   {
@@ -63,7 +63,9 @@ export const demoTasks: Task[] = [
     description: "Confirmar con tacto o sensor antes de decidir si corresponde regar.",
     status: "open",
     frequency: "Diaria",
-    category: "Riego"
+    category: "Riego",
+    dueDate: "2026-07-21",
+    plantId: "plant-roma"
   },
   {
     id: "task-photo",
@@ -71,7 +73,9 @@ export const demoTasks: Task[] = [
     description: "Agregar una foto para comparar cambios visibles en la bitacora.",
     status: "open",
     frequency: "Semanal",
-    category: "Registro"
+    category: "Registro",
+    dueDate: "2026-07-21",
+    plantId: "plant-basil"
   },
   {
     id: "task-clean",
@@ -79,7 +83,52 @@ export const demoTasks: Task[] = [
     description: "Mantener el espacio ordenado para reducir riesgos sanitarios generales.",
     status: "done",
     frequency: "Recurrente",
-    category: "Mantenimiento"
+    category: "Mantenimiento",
+    dueDate: "2026-07-19",
+    plantId: "plant-lavender"
+  }
+];
+
+export const demoCalendarEvents: CalendarEvent[] = [
+  {
+    id: "event-moisture-roma",
+    plantId: "plant-roma",
+    title: "Revisar humedad",
+    description: "Recordatorio manual para decidir si corresponde riego.",
+    kind: "watering",
+    startDate: "2026-07-21",
+    recurrence: {
+      active: true,
+      everyDays: 3,
+      endDate: "2026-08-15"
+    },
+    completedDates: [],
+    source: "horticultural"
+  },
+  {
+    id: "event-photo-basil",
+    plantId: "plant-basil",
+    title: "Foto semanal",
+    description: "Registro visual para la bitacora.",
+    kind: "photo",
+    startDate: "2026-07-21",
+    recurrence: {
+      active: true,
+      everyDays: 7,
+      endDate: "2026-08-31"
+    },
+    completedDates: [],
+    source: "horticultural"
+  },
+  {
+    id: "event-clean-lavender",
+    plantId: "plant-lavender",
+    title: "Limpieza de espacio",
+    description: "Mantenimiento general de bandejas y herramientas.",
+    kind: "cleaning",
+    startDate: "2026-07-19",
+    completedDates: ["2026-07-19"],
+    source: "horticultural"
   }
 ];
 
