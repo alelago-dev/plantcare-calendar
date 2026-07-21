@@ -10,7 +10,7 @@ import {
   type CultivationReferenceRow
 } from "@/lib/cultivation-reference";
 import {
-  GENETICS_CATALOG,
+  getGeneticsCatalogAlphabetically,
   searchGeneticsByName,
   type GeneticReferenceEntry
 } from "@/lib/genetics-catalog";
@@ -31,6 +31,7 @@ const tabs: Array<{ id: SeedTab; label: string }> = [
 ];
 
 const regulatedSeedOptions = seedCatalog.filter((seed) => seed.regulated);
+const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
 
 export function SeedsSection({ locale, onCreateManualEvents }: SeedsSectionProps) {
   const [activeTab, setActiveTab] = useState<SeedTab>("manual");
@@ -133,13 +134,13 @@ function ReferenceTab({ locale }: { locale: Locale }) {
               className="form-control"
               value={selectedGenetic?.id ?? ""}
               onChange={(event) => {
-                const nextGenetic = GENETICS_CATALOG.find((genetic) => genetic.id === event.target.value) ?? null;
+                const nextGenetic = geneticsCatalogAlphabetically.find((genetic) => genetic.id === event.target.value) ?? null;
                 setSelectedGenetic(nextGenetic);
                 setGeneticsSearch(nextGenetic?.name ?? "");
               }}
             >
               <option value="">Sin genetica seleccionada</option>
-              {GENETICS_CATALOG.map((genetic) => (
+              {geneticsCatalogAlphabetically.map((genetic) => (
                 <option key={genetic.id} value={genetic.id}>
                   {genetic.name} - {formatGeneticType(genetic.type)}
                 </option>

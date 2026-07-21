@@ -442,6 +442,10 @@ export function getGeneticReference(id: string): GeneticReferenceEntry | undefin
   return GENETICS_CATALOG.find((g) => g.id === id);
 }
 
+export function getGeneticsCatalogAlphabetically(): GeneticReferenceEntry[] {
+  return [...GENETICS_CATALOG].sort(compareGeneticNames);
+}
+
 export function searchGeneticsByName(query: string): GeneticReferenceEntry[] {
   const q = query.trim().toLowerCase();
 
@@ -449,8 +453,12 @@ export function searchGeneticsByName(query: string): GeneticReferenceEntry[] {
     return [];
   }
 
-  return GENETICS_CATALOG.filter((g) => {
+  return getGeneticsCatalogAlphabetically().filter((g) => {
     const searchableText = [g.name, g.cross, g.type, g.source].join(" ").toLowerCase();
     return searchableText.includes(q);
   }).slice(0, 8);
+}
+
+function compareGeneticNames(first: GeneticReferenceEntry, second: GeneticReferenceEntry) {
+  return first.name.localeCompare(second.name, "es", { sensitivity: "base" });
 }

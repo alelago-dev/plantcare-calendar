@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { addDays, createEventId, getTodayIso } from "@/lib/calendar-events";
 import type { SeedType } from "@/lib/cultivation-reference";
-import { GENETICS_CATALOG } from "@/lib/genetics-catalog";
+import { getGeneticsCatalogAlphabetically } from "@/lib/genetics-catalog";
 import type { CalendarEvent, CalendarEventKind } from "@/lib/types";
 
 const seedTypeOptions: Array<{ label: string; value: SeedType }> = [
@@ -72,6 +72,7 @@ const recurrenceEndOptions = [
   { label: "Durante 60 dias", value: "60" },
   { label: "Durante 90 dias", value: "90" }
 ];
+const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
 
 export function ManualCannabisForm({ onCreateEvents }: { onCreateEvents: (events: CalendarEvent[]) => void }) {
   const [seedType, setSeedType] = useState<SeedType>("feminized");
@@ -160,7 +161,7 @@ export function ManualCannabisForm({ onCreateEvents }: { onCreateEvents: (events
         <FormSelect label="Banco o catalogo" options={bankOptions} />
         <FormSelect
           label="Nombre de la genetica"
-          options={["No seleccionada", ...GENETICS_CATALOG.map((genetic) => genetic.name), "Otra / no listada"]}
+          options={["No seleccionada", ...geneticsCatalogAlphabetically.map((genetic) => genetic.name), "Otra / no listada"]}
           value={geneticName}
           onChange={setGeneticName}
         />
