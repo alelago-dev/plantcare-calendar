@@ -3,8 +3,9 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { addDays, createEventId, getTodayIso } from "@/lib/calendar-events";
-import type { SeedType } from "@/lib/cultivation-reference";
-import { getGeneticsCatalogAlphabetically } from "@/lib/genetics-catalog";
+import { CopyValueButton } from "@/components/copy-button";
+import { getReferenceRow, type SeedType } from "@/lib/cultivation-reference";
+import { getGeneticsCatalogAlphabetically, type GeneticReferenceEntry, type GeneticType } from "@/lib/genetics-catalog";
 import type { CalendarEvent, CalendarEventKind } from "@/lib/types";
 
 const seedTypeOptions: Array<{ label: string; value: SeedType }> = [
@@ -73,6 +74,14 @@ const recurrenceEndOptions = [
   { label: "Durante 90 dias", value: "90" }
 ];
 const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
+const geneticSelectOptions = [
+  { label: "No seleccionada", value: "No seleccionada" },
+  ...geneticsCatalogAlphabetically.map((genetic) => ({
+    label: `${genetic.name} - ${formatGeneticType(genetic.type)} - ${formatWeekRange(genetic.flowering_weeks_range)}`,
+    value: genetic.name
+  })),
+  { label: "Otra / no listada", value: "Otra / no listada" }
+];
 
 export function ManualCannabisForm({
   calendarHref,
@@ -91,6 +100,9 @@ export function ManualCannabisForm({
   const [recurrenceEnd, setRecurrenceEnd] = useState("none");
   const [statusMessage, setStatusMessage] = useState("");
   const [showCalendarLink, setShowCalendarLink] = useState(false);
+  const selectedGenetic = geneticsCatalogAlphabetically.find((genetic) => genetic.name === geneticName);
+  const visualReferenceType = selectedGenetic ? mapGeneticTypeToSeedType(selectedGenetic.type) : seedType;
+  const visualReference = getReferenceRow(visualReferenceType);
 
   function handleCreateEvents() {
     const definitions: Array<{
@@ -173,7 +185,7 @@ export function ManualCannabisForm({
         <FormSelect label="Banco o catalogo" options={bankOptions} recentKey="bank" />
         <FormSelect
           label="Nombre de la genetica"
-          options={["No seleccionada", ...geneticsCatalogAlphabetically.map((genetic) => genetic.name), "Otra / no listada"]}
+          options={geneticSelectOptions}
           value={geneticName}
           onChange={setGeneticName}
         />
@@ -195,6 +207,7 @@ export function ManualCannabisForm({
       </FormGroup>
 
       <FormGroup title="Datos de cultivo">
+        <GeneticDataReference genetic={selectedGenetic} visualReference={visualReference} />
         <FormSelect label="Dias a flora" options={floweringDayOptions} />
         <FormSelect label="Semanas de floracion" options={floweringWeekOptions} />
         <FormSelect label="Tipo de espacio" options={["Interior", "Exterior", "Invernadero"]} />
@@ -228,6 +241,49 @@ export function ManualCannabisForm({
         Estos campos sirven para agenda y recordatorios definidos por el usuario. Evita guardar numeros de registro,
         domicilios exactos o datos medicos en esta demo publica.
       </p>
+    </div>
+  );
+}
+
+function GeneticDataReference({
+  genetic,
+  visualReference
+}: {
+  genetic?: GeneticReferenceEntry;
+  visualReference?: ReturnType<typeof getReferenceRow>;
+}) {
+  const floweringWeeks = genetic ? formatWeekRange(genetic.flowering_weeks_range) : visualReference?.flowering_weeks_range ?? "No declarado";
+  const daysToFlower = visualReference?.days_to_flower_range ?? "No declarado";
+  const geneticType = genetic ? formatGeneticType(genetic.type) : "Segun tipo declarado";
+
+  return (
+    <article className="manual-reference-card sm:col-span-2" aria-label="Referencia visual de la genetica seleccionada">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-black uppercase text-stone-500">Referencia visible, no autocompleta</p>
+          <h4 className="mt-1 font-black text-moss-950">{genetic?.name ?? "Elegí una genética para ver datos publicados"}</h4>
+          <p className="mt-1 text-sm font-bold text-stone-600">
+            {genetic ? `${genetic.cross} - ${genetic.source}` : "Los valores quedan como ayuda para copiar o elegir manualmente."}
+          </p>
+        </div>
+        <span className="mode-badge manual">Manual</span>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+        <ReferenceValue label="Tipo publicado" value={geneticType} />
+        <ReferenceValue label="Dias a flora ref." value={daysToFlower} />
+        <ReferenceValue label="Floracion/ciclo" value={floweringWeeks} />
+        <ReferenceValue label="THC publicado" value={genetic ? `${genetic.thc_percent_range[0]}-${genetic.thc_percent_range[1]}%` : "No declarado"} />
+      </div>
+    </article>
+  );
+}
+
+function ReferenceValue({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="reference-value">
+      <span>{label}</span>
+      <strong>{value}</strong>
+      <CopyValueButton label={label} value={value} />
     </div>
   );
 }
@@ -316,4 +372,19 @@ function formatSeedType(type: SeedType) {
   if (type === "autoflowering") return "Automatica";
   if (type === "regular") return "Regular";
   return "Feminizada";
+}
+
+function formatGeneticType(type: GeneticType) {
+  if (type === "autoflowering") return "Automatica";
+  if (type === "faster_flowering") return "Rapida";
+  return "Feminizada";
+}
+
+function formatWeekRange(range: [number, number]) {
+  return range[0] === range[1] ? `${range[0]} semanas` : `${range[0]}-${range[1]} semanas`;
+}
+
+function mapGeneticTypeToSeedType(type: GeneticType): SeedType {
+  if (type === "autoflowering") return "autoflowering";
+  return "feminized";
 }
