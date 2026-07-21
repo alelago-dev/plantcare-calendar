@@ -55,6 +55,7 @@ type QuickPlantInput = {
 const careScore = 86;
 const manualPlantId = "plant-manual-regulated";
 const storageKeys = {
+  calendarDate: "plantcare-calendar-selected-date",
   events: "plantcare-calendar-events",
   plants: "plantcare-plants",
   tasks: "plantcare-tasks"
@@ -101,26 +102,28 @@ export function AppShell({
   }
 
   function handleAddManualEvents(events: CalendarEvent[]) {
-    setPlantState((existingPlants) =>
-      existingPlants.some((plant) => plant.id === manualPlantId)
-        ? existingPlants
-        : [
-            ...existingPlants,
-            {
-              id: manualPlantId,
-              lighting: "Declarado por usuario",
-              mode: "Interior",
-              name: "Cultivo manual",
-              pot: "Declarado por usuario",
-              spaceId: spaces[0]?.id ?? "space-patio",
-              stage: "Agenda manual",
-              startedAt: todayIso,
-              substrate: "Declarado por usuario",
-              variety: "Declarada por usuario"
-            }
-          ]
-    );
-    setEventState((existingEvents) => [...events, ...existingEvents]);
+    const manualPlant: Plant = {
+      id: manualPlantId,
+      lighting: "Declarado por usuario",
+      mode: "Interior",
+      name: "Cultivo manual",
+      pot: "Declarado por usuario",
+      spaceId: spaces[0]?.id ?? "space-patio",
+      stage: "Agenda manual",
+      startedAt: todayIso,
+      substrate: "Declarado por usuario",
+      variety: "Declarada por usuario"
+    };
+    const nextPlants = plantState.some((plant) => plant.id === manualPlantId)
+      ? plantState
+      : [...plantState, manualPlant];
+    const nextEvents = [...events, ...eventState];
+
+    setPlantState(nextPlants);
+    setEventState(nextEvents);
+    persistStoredState(storageKeys.plants, nextPlants);
+    persistStoredState(storageKeys.events, nextEvents);
+    goToCalendar(events[0]?.startDate ?? todayIso, locale);
   }
 
   function handleCreateQuickPlant(input: QuickPlantInput) {
@@ -172,8 +175,14 @@ export function AppShell({
       });
     }
 
-    setPlantState((existingPlants) => [nextPlant, ...existingPlants]);
-    setEventState((existingEvents) => [...nextEvents, ...existingEvents]);
+    const nextPlantState = [nextPlant, ...plantState];
+    const nextEventState = [...nextEvents, ...eventState];
+
+    setPlantState(nextPlantState);
+    setEventState(nextEventState);
+    persistStoredState(storageKeys.plants, nextPlantState);
+    persistStoredState(storageKeys.events, nextEventState);
+    goToCalendar(nextEvents[0]?.startDate ?? todayIso, locale);
   }
 
   return (
@@ -386,11 +395,11 @@ function CalendarSection({
   plants: Plant[];
 }) {
   const todayIso = getTodayIso();
-  const [anchorDate] = useState(todayIso);
+  const [anchorDate] = useState(() => getStoredCalendarDate(todayIso));
   const [viewMode, setViewMode] = useState<"month" | "week">(() =>
     typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches ? "week" : "month"
   );
-  const [selectedDate, setSelectedDate] = useState(todayIso);
+  const [selectedDate, setSelectedDate] = useState(() => getStoredCalendarDate(todayIso));
 
   const days = useMemo(
     () => (viewMode === "month" ? buildMonthGrid(anchorDate) : buildWeekGrid(anchorDate)),
@@ -947,4 +956,23 @@ function useStoredState<T>(key: string, initialState: T) {
   }, [hydrated, key, state]);
 
   return [state, setState] as const;
+}
+
+function goToCalendar(selectedDate: string, locale: Locale) {
+  window.localStorage.setItem(storageKeys.calendarDate, selectedDate);
+  window.location.assign(getSectionHref(locale, "calendar"));
+}
+
+function getStoredCalendarDate(fallbackDate: string) {
+  if (typeof window === "undefined") {
+    return fallbackDate;
+  }
+
+  return window.localStorage.getItem(storageKeys.calendarDate) ?? fallbackDate;
+}
+
+function persistStoredState<T>(key: string, value: T) {
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  }
 }

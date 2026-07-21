@@ -39,5 +39,7 @@ export function getSectionFromSlug(locale: Locale, slug: string): AppSection | n
 
 export function getSectionHref(locale: Locale, section: AppSection) {
   const item = navigationByLocale[locale].find((navItem) => navItem.key === section);
-  return `/${locale}/${item?.slug ?? navigationByLocale[locale][0].slug}/`;
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
+  return `${basePath}/${locale}/${item?.slug ?? navigationByLocale[locale][0].slug}/`;
 }
