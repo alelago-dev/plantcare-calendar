@@ -1,11 +1,47 @@
-self.addEventListener("install", (event) => {
-  const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, "");
-  const withScope = (path) => `${scopePath}${path}`;
+const CACHE_NAME = "plantcare-calendar-v3";
+const ROUTES = [
+  "/",
+  "/es/",
+  "/es/hoy/",
+  "/es/semillas/",
+  "/es/espacios/",
+  "/es/calendario/",
+  "/es/diario/",
+  "/es/privacidad/",
+  "/en/",
+  "/en/today/",
+  "/en/seeds/",
+  "/en/spaces/",
+  "/en/calendar/",
+  "/en/journal/",
+  "/en/privacy/",
+  "/manifest.webmanifest"
+];
 
+function getScopePath() {
+  return new URL(self.registration.scope).pathname.replace(/\/$/, "");
+}
+
+function withScope(path) {
+  return `${getScopePath()}${path}`;
+}
+
+function getLocaleFallback(requestUrl) {
+  const scopePath = getScopePath();
+  const pathname = requestUrl.pathname;
+
+  if (pathname.startsWith(`${scopePath}/en/`)) {
+    return withScope("/en/");
+  }
+
+  return withScope("/es/");
+}
+
+self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
-      .open("plantcare-calendar-v2")
-      .then((cache) => cache.addAll([withScope("/"), withScope("/es/"), withScope("/en/"), withScope("/manifest.webmanifest")]))
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(ROUTES.map((route) => withScope(route))))
       .then(() => self.skipWaiting())
   );
 });
@@ -15,7 +51,7 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((cacheNames) =>
-        Promise.all(cacheNames.filter((cacheName) => cacheName !== "plantcare-calendar-v2").map((cacheName) => caches.delete(cacheName)))
+        Promise.all(cacheNames.filter((cacheName) => cacheName !== CACHE_NAME).map((cacheName) => caches.delete(cacheName)))
       )
       .then(() => self.clients.claim())
   );
@@ -27,24 +63,33 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (event.request.mode === "navigate") {
-    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        const requestUrl = new URL(event.request.url);
+
+        return caches
+          .match(event.request)
+          .then((cached) => cached || caches.match(getLocaleFallback(requestUrl)))
+          .then((cached) => cached || caches.match(withScope("/")));
+      })
+    );
     return;
   }
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        const responseCopy = response.clone();
+        if (response.ok) {
+          const responseCopy = response.clone();
 
-        caches.open("plantcare-calendar-v2").then((cache) => {
-          cache.put(event.request, responseCopy);
-        });
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseCopy);
+          });
+        }
 
         return response;
       })
-      .catch(() => {
-        return caches.match(event.request);
-      })
+      .catch(() => caches.match(event.request))
   );
 });
 
