@@ -62,6 +62,7 @@ const storageKeys = {
   habitDates: "plantcare-habit-dates",
   onboarding: "plantcare-onboarding-complete",
   plants: "plantcare-plants",
+  quickChecks: "plantcare-quick-checks",
   tasks: "plantcare-tasks"
 };
 
@@ -215,6 +216,19 @@ export function AppShell({
     goToCalendar(nextEvents[0]?.startDate ?? todayIso, locale);
   }
 
+  function handleClearCultivationData() {
+    setPlantState([]);
+    setTaskState([]);
+    setEventState([]);
+    setHabitDates([]);
+    persistStoredState(storageKeys.plants, []);
+    persistStoredState(storageKeys.tasks, []);
+    persistStoredState(storageKeys.events, []);
+    persistStoredState(storageKeys.habitDates, []);
+    removeStoredState(storageKeys.calendarDate);
+    removeStoredState(storageKeys.quickChecks);
+  }
+
   return (
     <main className="min-h-screen pb-28 text-moss-950 lg:pb-0">
       <header className="sticky top-0 z-20 border-b border-moss-950/10 bg-paper/92 backdrop-blur-xl">
@@ -285,7 +299,7 @@ export function AppShell({
         />
       ) : null}
       {currentSection === "journal" ? <JournalSection entries={entries} onCreateQuickPlant={handleCreateQuickPlant} plants={plantState} /> : null}
-      {currentSection === "privacy" ? <PrivacySection /> : null}
+      {currentSection === "privacy" ? <PrivacySection onClearCultivationData={handleClearCultivationData} /> : null}
 
       {showOnboarding ? (
         <OnboardingFlow
@@ -403,7 +417,7 @@ function TodaySection({
 }
 
 function PlantCareCoach({ agendaItems, plants }: { agendaItems: AgendaItem[]; plants: Plant[] }) {
-  const [checkedSignals, setCheckedSignals] = useStoredState<string[]>("plantcare-quick-checks", []);
+  const [checkedSignals, setCheckedSignals] = useStoredState<string[]>(storageKeys.quickChecks, []);
   const topPlant = plants[0];
   const openItems = agendaItems.filter((item) => item.status === "open");
   const signals = [
@@ -419,7 +433,7 @@ function PlantCareCoach({ agendaItems, plants }: { agendaItems: AgendaItem[]; pl
       const nextSignals = currentSignals.includes(signalId)
         ? currentSignals.filter((id) => id !== signalId)
         : [...currentSignals, signalId];
-      persistStoredState("plantcare-quick-checks", nextSignals);
+      persistStoredState(storageKeys.quickChecks, nextSignals);
       return nextSignals;
     });
   }
@@ -866,7 +880,20 @@ function JournalSection({
   );
 }
 
-function PrivacySection() {
+function PrivacySection({ onClearCultivationData }: { onClearCultivationData: () => void }) {
+  const [cleared, setCleared] = useState(false);
+
+  function handleClearClick() {
+    const confirmed = window.confirm(
+      "Esto elimina cultivos, tareas, eventos del calendario y racha guardados en esta demo. No se puede deshacer. ¿Continuar?"
+    );
+
+    if (!confirmed) return;
+
+    onClearCultivationData();
+    setCleared(true);
+  }
+
   return (
     <section className="mx-auto mt-8 max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
       <SectionHeader eyebrow="Cumplimiento" title="Privacidad y uso legal" />
@@ -888,10 +915,15 @@ function PrivacySection() {
         <button className="secondary-button" type="button">
           Exportar mis datos
         </button>
-        <button className="dark-button" type="button">
-          Solicitar eliminacion completa
+        <button className="dark-button" onClick={handleClearClick} type="button">
+          Eliminar cultivos demo
         </button>
       </div>
+      {cleared ? (
+        <p className="mt-3 rounded-lg border border-emerald-700/20 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-900">
+          Cultivos, tareas y eventos eliminados de esta demo.
+        </p>
+      ) : null}
     </section>
   );
 }
@@ -1429,6 +1461,12 @@ function getStoredCalendarDate(fallbackDate: string) {
 function persistStoredState<T>(key: string, value: T) {
   if (typeof window !== "undefined") {
     window.localStorage.setItem(key, JSON.stringify(value));
+  }
+}
+
+function removeStoredState(key: string) {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(key);
   }
 }
 
