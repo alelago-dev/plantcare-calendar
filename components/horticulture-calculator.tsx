@@ -27,6 +27,21 @@ export function HorticultureCalculator() {
     [indoorSize, lightType, potLiters, seedId]
   );
 
+  if (!plan.automaticEnabled) {
+    return (
+      <section className="surface p-4 sm:p-5" aria-labelledby="calculator-title">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <SectionHeader eyebrow="Calculadora" title="Cultivo horticola" />
+          <span className="pill pill-amber">Manual</span>
+        </div>
+        <div className="seed-result mt-5 border-amber-700/20 bg-amber-50/72">
+          <p className="text-sm font-black text-moss-950">{plan.seedLabel}</p>
+          <p className="mt-2 text-sm leading-6 text-stone-700">{plan.note}</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="surface p-4 sm:p-5" aria-labelledby="calculator-title">
       <div className="flex flex-wrap items-start justify-between gap-3">

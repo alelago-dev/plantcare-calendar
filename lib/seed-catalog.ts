@@ -4,6 +4,8 @@ export type SeedProfile = {
   id: string;
   name: string;
   crop: string;
+  category: "cannabis" | "horticultural" | "regulated";
+  regulated: boolean;
   seedType: string;
   climates: SeedClimate[];
   daysToHarvest: string;
@@ -20,6 +22,7 @@ export type HorticulturePlanInput = {
 };
 
 export type HorticulturePlan = {
+  automaticEnabled: boolean;
   seedLabel: string;
   substrateLiters: string;
   waterCheck: string;
@@ -32,11 +35,15 @@ export type HorticulturePlan = {
 
 export const seedClimateOptions: SeedClimate[] = ["Templado", "Calido", "Fresco", "Seco", "Interior controlado"];
 
+// Business rule: a seed is "regulated" when it belongs to cannabis or any crop that requires legal authorization.
+// Regulated seeds are manual-only: no automatic water, substrate, light, indoor, flowering, harvest, drying, or yield calculations.
 export const seedCatalog: SeedProfile[] = [
   {
     id: "cannabis-photoperiod-regular",
     name: "Fotoperiodica regular",
     crop: "Cannabis legal",
+    category: "cannabis",
+    regulated: true,
     seedType: "Regulada - registro manual",
     climates: [],
     daysToHarvest: "Definido por el usuario",
@@ -49,6 +56,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "cannabis-photoperiod-feminized",
     name: "Fotoperiodica feminizada",
     crop: "Cannabis legal",
+    category: "cannabis",
+    regulated: true,
     seedType: "Regulada - registro manual",
     climates: [],
     daysToHarvest: "Definido por el usuario",
@@ -61,6 +70,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "cannabis-autoflowering",
     name: "Autofloreciente",
     crop: "Cannabis legal",
+    category: "cannabis",
+    regulated: true,
     seedType: "Regulada - registro manual",
     climates: [],
     daysToHarvest: "Definido por el usuario",
@@ -73,6 +84,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "cannabis-cbd",
     name: "CBD / medicinal",
     crop: "Cannabis legal",
+    category: "cannabis",
+    regulated: true,
     seedType: "Regulada - registro manual",
     climates: [],
     daysToHarvest: "Definido por el usuario",
@@ -85,6 +98,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "cannabis-hemp",
     name: "Canamo industrial",
     crop: "Cannabis legal",
+    category: "cannabis",
+    regulated: true,
     seedType: "Regulada - registro manual",
     climates: [],
     daysToHarvest: "Definido por el usuario",
@@ -97,6 +112,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "cannabis-custom",
     name: "Otra genetica / banco propio",
     crop: "Cannabis legal",
+    category: "cannabis",
+    regulated: true,
     seedType: "Regulada - carga libre",
     climates: [],
     daysToHarvest: "Definido por el usuario",
@@ -109,6 +126,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "tomato-roma",
     name: "Roma",
     crop: "Tomate",
+    category: "horticultural",
+    regulated: false,
     seedType: "Hortaliza de fruto",
     climates: ["Templado", "Calido"],
     daysToHarvest: "70-85 dias",
@@ -120,6 +139,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "basil-genovese",
     name: "Genovesa",
     crop: "Albahaca",
+    category: "horticultural",
+    regulated: false,
     seedType: "Aromatica",
     climates: ["Templado", "Calido", "Interior controlado"],
     daysToHarvest: "45-60 dias",
@@ -131,6 +152,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "lettuce-butterhead",
     name: "Mantecosa",
     crop: "Lechuga",
+    category: "horticultural",
+    regulated: false,
     seedType: "Hoja",
     climates: ["Fresco", "Templado"],
     daysToHarvest: "50-65 dias",
@@ -142,6 +165,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "pepper-california",
     name: "California Wonder",
     crop: "Pimiento",
+    category: "horticultural",
+    regulated: false,
     seedType: "Hortaliza de fruto",
     climates: ["Calido", "Templado"],
     daysToHarvest: "75-95 dias",
@@ -153,6 +178,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "lavender-dentata",
     name: "Dentata",
     crop: "Lavanda",
+    category: "horticultural",
+    regulated: false,
     seedType: "Aromatica perenne",
     climates: ["Seco", "Templado"],
     daysToHarvest: "90-120 dias",
@@ -164,6 +191,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "cilantro-santo",
     name: "Santo",
     crop: "Cilantro",
+    category: "horticultural",
+    regulated: false,
     seedType: "Aromatica",
     climates: ["Fresco", "Templado"],
     daysToHarvest: "35-55 dias",
@@ -175,6 +204,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "spinach-bloomsdale",
     name: "Bloomsdale",
     crop: "Espinaca",
+    category: "horticultural",
+    regulated: false,
     seedType: "Hoja",
     climates: ["Fresco"],
     daysToHarvest: "40-55 dias",
@@ -186,6 +217,8 @@ export const seedCatalog: SeedProfile[] = [
     id: "regulated-manual",
     name: "Variedad regulada",
     crop: "Carga manual legal",
+    category: "regulated",
+    regulated: true,
     seedType: "Solo registro del usuario",
     climates: [],
     daysToHarvest: "Definido por el usuario",
@@ -197,15 +230,30 @@ export const seedCatalog: SeedProfile[] = [
 ];
 
 export function getRecommendedSeeds(climate: SeedClimate) {
-  return seedCatalog.filter((seed) => seed.recommendationEnabled && seed.climates.includes(climate));
+  return seedCatalog.filter((seed) => !seed.regulated && seed.recommendationEnabled && seed.climates.includes(climate));
 }
 
 export function getHorticultureSeeds() {
-  return seedCatalog.filter((seed) => seed.recommendationEnabled);
+  return seedCatalog.filter((seed) => !seed.regulated && seed.category === "horticultural" && seed.recommendationEnabled);
 }
 
 export function calculateHorticulturePlan(input: HorticulturePlanInput): HorticulturePlan {
-  const seed = getHorticultureSeeds().find((item) => item.id === input.seedId) ?? getHorticultureSeeds()[0];
+  const seed = seedCatalog.find((item) => item.id === input.seedId) ?? getHorticultureSeeds()[0];
+
+  if (seed.regulated) {
+    return {
+      automaticEnabled: false,
+      seedLabel: `${seed.crop} ${seed.name}`,
+      substrateLiters: "Carga manual del usuario",
+      waterCheck: "Carga manual del usuario",
+      waterAmount: "Carga manual del usuario",
+      lightFit: "Carga manual del usuario",
+      spaceFit: "Carga manual del usuario",
+      harvestWindow: "Carga manual del usuario",
+      note: "Calculo automatico deshabilitado para cultivos regulados. Usar agenda, bitacora y recordatorios manuales."
+    };
+  }
+
   const potLiters = Math.max(1, Math.min(input.potLiters, 80));
   const waterBase = getWaterBaseBySeed(seed.seedType);
   const lightMultiplier = input.lightType === "led" ? 1.05 : input.lightType === "sun" ? 1.15 : 1;
@@ -214,6 +262,7 @@ export function calculateHorticulturePlan(input: HorticulturePlanInput): Horticu
   const waterMax = Math.round(waterMin * 1.35);
 
   return {
+    automaticEnabled: true,
     seedLabel: `${seed.crop} ${seed.name}`,
     substrateLiters: `${Math.ceil(potLiters * 1.05)} a ${Math.ceil(potLiters * 1.2)} L de mezcla total`,
     waterCheck: getWaterCheckBySeed(seed.seedType, input.lightType),

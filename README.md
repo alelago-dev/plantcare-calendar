@@ -21,6 +21,24 @@ La app evita recomendaciones destinadas a maximizar sustancias controladas o eva
 Para cultivos regulados, la app permite carga manual de datos solo donde sea legal, sin recomendador automatico de semilla, clima, cosecha ni rendimiento.
 La demo no debe guardar numeros de registro, domicilios exactos ni datos medicos.
 
+## Regla de negocio: cultivos regulados
+
+En `lib/seed-catalog.ts`, una semilla se clasifica como regulada cuando `regulated: true` o cuando su `category` es `"cannabis"` o `"regulated"`. Esto aplica a cannabis y a cualquier cultivo que requiera autorizacion legal especifica.
+
+Para semillas reguladas:
+
+- no se calculan automaticamente riego, agua, sustrato, luz, indoor, flora, cosecha, secado ni rendimiento;
+- no se cargan tiempos reales desde bancos externos ni catalogos scrapeados;
+- solo se permite carga manual declarada por el usuario, agenda, recordatorios, bitacora y registro legal.
+
+Para semillas horticultoras no reguladas (`regulated: false`, `category: "horticultural"`), la calculadora puede mostrar valores orientativos de sustrato, agua, luz, espacio y ventana de cosecha.
+
+### Casos de prueba manuales
+
+1. Semilla regulada: elegir una opcion de cannabis o `Carga manual legal - Variedad regulada`. Resultado esperado: no aparece en la calculadora horticola automatica; si se llama `calculateHorticulturePlan` con ese ID, `automaticEnabled` debe ser `false` y todos los valores tecnicos quedan como carga manual del usuario.
+2. Semilla no regulada: elegir `Tomate - Roma`, modificar maceta, luz e indoor/espacio. Resultado esperado: la calculadora actualiza sustrato, revision de humedad, agua orientativa, luz, espacio y ventana estimada.
+3. Flujo manual regulado: completar banco/catalogo, genetica, tipo declarado, dias publicados y fechas. Resultado esperado: esos campos son entradas de usuario; no se autocompletan con datos reales de bancos externos.
+
 ## Instalacion
 
 ```bash

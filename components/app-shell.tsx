@@ -39,7 +39,7 @@ export function AppShell({
   const outdoorPlants = plants.filter((plant) => plant.mode === "Exterior").length;
   const selectedClimate = "Templado";
   const recommendedSeeds = getRecommendedSeeds(selectedClimate);
-  const regulatedSeedOptions = seedCatalog.filter((seed) => !seed.recommendationEnabled);
+  const regulatedSeedOptions = seedCatalog.filter((seed) => seed.regulated);
 
   return (
     <main className="min-h-screen pb-28 text-moss-950 lg:pb-0">
