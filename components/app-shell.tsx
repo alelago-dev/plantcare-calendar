@@ -832,7 +832,7 @@ function TaskCard({
   task: AgendaItem;
 }) {
   return (
-    <article className={isPrimary ? "task-row task-priority" : "task-row"} key={task.id}>
+    <article className={`${isPrimary ? "task-row task-priority" : "task-row"} ${getTaskAccentClass(task.category)}`} key={task.id}>
       <button className={task.status === "done" ? "task-check done" : "task-check"} onClick={onToggle} type="button">
         {task.status === "done" ? "OK" : ""}
       </button>
@@ -1109,6 +1109,13 @@ function getTaskPriority(task: AgendaItem) {
   if (task.category === "Riego") return 0;
   if (task.category === "Registro") return 1;
   return 2;
+}
+
+function getTaskAccentClass(category: Task["category"]) {
+  if (category === "Riego") return "task-accent-water";
+  if (category === "Registro") return "task-accent-photo";
+  if (category === "Mantenimiento") return "task-accent-clean";
+  return "task-accent-review";
 }
 
 function getEventClass(kind: CalendarEventOccurrence["kind"]) {

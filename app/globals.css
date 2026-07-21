@@ -4,8 +4,14 @@
 
 :root {
   color-scheme: light;
-  --background: #f5f7ef;
+  --background: #f7f8ee;
   --foreground: #162015;
+  --accent-green: #23543e;
+  --accent-teal: #24766f;
+  --accent-sky: #2f789c;
+  --accent-amber: #b76d18;
+  --accent-coral: #a84f3d;
+  --accent-lime: #6f8f2f;
 }
 
 * {
@@ -19,7 +25,10 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--background);
+  background:
+    linear-gradient(115deg, rgba(223, 241, 241, 0.72), transparent 34%),
+    linear-gradient(245deg, rgba(255, 240, 200, 0.86), transparent 38%),
+    linear-gradient(180deg, #f7f8ee 0%, #edf5ec 48%, #f8faf4 100%);
   color: var(--foreground);
   font-feature-settings: "ss01" on, "cv01" on;
   font-size: 15px;
@@ -40,17 +49,17 @@ textarea {
 @layer components {
   .brand-mark {
     display: grid;
-    height: 38px;
-    width: 38px;
+    height: 42px;
+    width: 42px;
     place-items: center;
     border-radius: 8px;
     background:
-      linear-gradient(135deg, rgba(226, 180, 87, 0.95), rgba(45, 111, 82, 0.95)),
-      #2d6f52;
+      linear-gradient(145deg, rgba(183, 109, 24, 0.98), rgba(36, 118, 111, 0.98) 52%, rgba(35, 84, 62, 0.98)),
+      var(--accent-green);
     color: white;
     font-size: 0.8rem;
     font-weight: 950;
-    box-shadow: 0 10px 22px rgba(45, 111, 82, 0.18);
+    box-shadow: 0 14px 30px rgba(35, 84, 62, 0.22);
   }
 
   .status-dot,
@@ -64,16 +73,30 @@ textarea {
   }
 
   .surface {
-    border: 1px solid rgba(22, 32, 21, 0.1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(22, 32, 21, 0.09);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 8px 22px rgba(28, 54, 38, 0.06);
+    background:
+      linear-gradient(140deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 244, 0.88)),
+      rgba(255, 255, 255, 0.9);
+    box-shadow: 0 16px 38px rgba(28, 54, 38, 0.1);
+  }
+
+  .surface::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-teal), #e2b457);
+    content: "";
   }
 
   .info-card {
     border: 1px solid rgba(22, 32, 21, 0.08);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.68);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(223, 241, 241, 0.36)),
+      rgba(255, 255, 255, 0.78);
   }
 
   .desktop-nav-item {
@@ -88,8 +111,9 @@ textarea {
   }
 
   .desktop-nav-item.active {
-    background: #23543e;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
     color: #ffffff;
+    box-shadow: 0 8px 18px rgba(35, 84, 62, 0.18);
   }
 
   .mobile-tab-bar {
@@ -102,7 +126,9 @@ textarea {
     gap: 0.15rem;
     border: 1px solid rgba(22, 32, 21, 0.12);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.96);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 244, 0.98)),
+      #ffffff;
     padding: 0.28rem;
     box-shadow: 0 12px 28px rgba(28, 54, 38, 0.16);
   }
@@ -126,7 +152,7 @@ textarea {
   }
 
   .mobile-tab.active {
-    background: #e8f3df;
+    background: linear-gradient(135deg, #e8f3df, #dff1f1);
     color: #23543e;
   }
 
@@ -142,7 +168,7 @@ textarea {
     width: 22px;
     place-items: center;
     border-radius: 6px;
-    background: rgba(35, 84, 62, 0.08);
+    background: rgba(36, 118, 111, 0.11);
     font-size: 0.72rem;
     font-weight: 950;
   }
@@ -181,9 +207,11 @@ textarea {
     align-items: center;
     border: 1px solid rgba(22, 32, 21, 0.1);
     border-radius: 8px;
-    background: #ffffff;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(223, 241, 241, 0.76) 56%, rgba(255, 240, 200, 0.72)),
+      #ffffff;
     padding: 1rem;
-    box-shadow: 0 8px 22px rgba(28, 54, 38, 0.06);
+    box-shadow: 0 18px 48px rgba(28, 54, 38, 0.12);
   }
 
   @media (min-width: 768px) {
@@ -202,14 +230,24 @@ textarea {
   .metric-card {
     border: 1px solid rgba(22, 32, 21, 0.1);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.72);
+    background: linear-gradient(145deg, #ffffff, #eef7f4);
     padding: 0.85rem;
   }
 
   .metric-card.featured {
-    border-color: rgba(121, 82, 15, 0.28);
-    background: #fff8e7;
-    box-shadow: inset 0 0 0 1px rgba(121, 82, 15, 0.08);
+    border-color: rgba(183, 109, 24, 0.28);
+    background: linear-gradient(145deg, #fff8e7, #ffffff);
+    box-shadow:
+      inset 0 0 0 1px rgba(183, 109, 24, 0.08),
+      0 12px 24px rgba(183, 109, 24, 0.12);
+  }
+
+  .summary-grid .metric-card:nth-child(1) {
+    background: linear-gradient(145deg, #ffffff, #e8f3df);
+  }
+
+  .summary-grid .metric-card:nth-child(3) {
+    background: linear-gradient(145deg, #ffffff, #dff1f1);
   }
 
   .eyebrow {
@@ -232,14 +270,30 @@ textarea {
     align-items: flex-start;
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.08);
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.82);
     padding: 0.78rem;
   }
 
   .task-priority {
-    border-color: rgba(121, 82, 15, 0.36);
-    background: #fff8e7;
+    border-color: rgba(183, 109, 24, 0.36);
+    background: linear-gradient(135deg, #fff8e7, #ffffff);
     box-shadow: inset 4px 0 0 #e2b457;
+  }
+
+  .task-accent-water {
+    box-shadow: inset 4px 0 0 var(--accent-teal);
+  }
+
+  .task-accent-photo {
+    box-shadow: inset 4px 0 0 var(--accent-green);
+  }
+
+  .task-accent-clean {
+    box-shadow: inset 4px 0 0 #e2b457;
+  }
+
+  .task-accent-review {
+    box-shadow: inset 4px 0 0 var(--accent-sky);
   }
 
   .seed-card,
@@ -265,7 +319,7 @@ textarea {
     overflow-x: auto;
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.1);
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.94);
     padding: 0.25rem;
   }
 
@@ -279,7 +333,7 @@ textarea {
   }
 
   .seed-tab.active {
-    background: #23543e;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
     color: #ffffff;
   }
 
@@ -328,7 +382,7 @@ textarea {
 
   .plant-row-details:target {
     border-radius: 8px;
-    background: #fff8e7;
+    background: linear-gradient(135deg, #fff8e7, #ffffff);
     box-shadow: inset 4px 0 0 #e2b457;
   }
 
@@ -360,7 +414,9 @@ textarea {
     height: 44px;
     width: 44px;
     place-items: center;
-    background: #e8f3df;
+    background:
+      linear-gradient(145deg, #e8f3df, #dff1f1),
+      #e8f3df;
     color: #23543e;
     font-size: 0.78rem;
     font-weight: 950;
@@ -394,7 +450,7 @@ textarea {
   .weather-panel {
     border-radius: 8px;
     background:
-      linear-gradient(135deg, rgba(200, 230, 224, 0.84), rgba(255, 246, 222, 0.9)),
+      linear-gradient(135deg, rgba(200, 230, 224, 0.92), rgba(255, 240, 200, 0.9) 58%, rgba(232, 243, 223, 0.88)),
       #eef7f4;
     padding: 1rem;
   }
@@ -403,7 +459,9 @@ textarea {
     min-height: 86px;
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.08);
-    background: rgba(248, 250, 244, 0.86);
+    background:
+      linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 244, 0.9)),
+      rgba(248, 250, 244, 0.86);
     padding: 0.85rem;
   }
 
@@ -414,7 +472,7 @@ textarea {
     justify-content: space-between;
     gap: 0.75rem;
     background:
-      linear-gradient(135deg, rgba(35, 84, 62, 0.96), rgba(37, 127, 116, 0.86)),
+      linear-gradient(135deg, rgba(35, 84, 62, 0.98), rgba(36, 118, 111, 0.92) 48%, rgba(183, 109, 24, 0.82)),
       #23543e;
     padding: 1.25rem;
   }
@@ -423,7 +481,9 @@ textarea {
     min-height: 84px;
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.08);
-    background: #eef6e8;
+    background:
+      linear-gradient(145deg, #f8faf4, #e8f3df),
+      #eef6e8;
     padding: 0.5rem;
     text-align: left;
     color: #162015;
@@ -436,7 +496,9 @@ textarea {
   .day-cell:hover,
   .day-cell.selected {
     border-color: rgba(35, 84, 62, 0.38);
-    box-shadow: inset 0 0 0 1px rgba(35, 84, 62, 0.16);
+    box-shadow:
+      inset 0 0 0 1px rgba(35, 84, 62, 0.16),
+      0 10px 22px rgba(35, 84, 62, 0.1);
   }
 
   .day-cell.muted {
@@ -463,23 +525,23 @@ textarea {
   }
 
   .event-water {
-    background: #dff1f1;
+    background: linear-gradient(135deg, #dff1f1, #eef7f4);
     color: #1c5f58;
   }
 
   .event-photo {
-    background: #e8f3df;
+    background: linear-gradient(135deg, #e8f3df, #f5fbef);
     color: #23543e;
   }
 
   .event-clean {
-    background: #fff0c8;
+    background: linear-gradient(135deg, #fff0c8, #fff8e7);
     color: #79520f;
   }
 
   .event-review {
-    background: #f0f3ea;
-    color: #52604d;
+    background: linear-gradient(135deg, #e4eef7, #f0f3ea);
+    color: #25526d;
   }
 
   .view-toggle {
@@ -507,7 +569,7 @@ textarea {
   .calendar-detail-card {
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.1);
-    background: rgba(255, 255, 255, 0.76);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(240, 243, 234, 0.78));
     padding: 0.85rem;
   }
 
@@ -520,22 +582,22 @@ textarea {
   }
 
   .pill-green {
-    background: #e8f3df;
+    background: linear-gradient(135deg, #e8f3df, #f4faef);
     color: #23543e;
   }
 
   .pill-amber {
-    background: #fff0c8;
+    background: linear-gradient(135deg, #fff0c8, #fff8e7);
     color: #79520f;
   }
 
   .pill-blue {
-    background: #dff1f1;
+    background: linear-gradient(135deg, #dff1f1, #eef7f4);
     color: #1c5f58;
   }
 
   .pill-soft {
-    background: #f0f3ea;
+    background: linear-gradient(135deg, #f0f3ea, #ffffff);
     color: #52604d;
   }
 
@@ -543,7 +605,7 @@ textarea {
     min-height: 40px;
     border-radius: 8px;
     border: 1.5px solid rgba(35, 84, 62, 0.28);
-    background: #ffffff;
+    background: linear-gradient(180deg, #ffffff, #fbfcf8);
     padding: 0.55rem 0.7rem;
     color: #162015;
   }
@@ -588,7 +650,9 @@ textarea {
     width: min(92vw, 520px);
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.12);
-    background: #ffffff;
+    background:
+      linear-gradient(135deg, #ffffff, #eef7f4 68%, #fff8e7),
+      #ffffff;
     padding: 1rem;
     box-shadow: 0 24px 60px rgba(28, 54, 38, 0.24);
   }
@@ -599,7 +663,9 @@ textarea {
     min-height: 132px;
     place-items: center;
     border-radius: 8px;
-    background: #e8f3df;
+    background:
+      linear-gradient(135deg, #e8f3df, #dff1f1 60%, #fff0c8),
+      #e8f3df;
   }
 
   .plant-state-icon {
@@ -679,7 +745,7 @@ textarea {
   }
 
   .plant-progress-dot.active {
-    background: #23543e;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
   }
 
   .plant-progress-track {
@@ -694,7 +760,7 @@ textarea {
     display: block;
     height: 100%;
     border-radius: inherit;
-    background: #23543e;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-teal), #e2b457);
   }
 
   .journal-timeline {
@@ -705,7 +771,7 @@ textarea {
   .journal-group {
     display: grid;
     gap: 0.75rem;
-    border-left: 3px solid #d7dfcf;
+    border-left: 3px solid #9fc7b8;
     padding-left: 0.9rem;
   }
 
@@ -719,13 +785,14 @@ textarea {
     overflow: hidden;
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.1);
-    background: #ffffff;
+    background: linear-gradient(180deg, #ffffff, #f8faf4);
+    box-shadow: 0 12px 28px rgba(28, 54, 38, 0.08);
   }
 
   .journal-photo {
     aspect-ratio: 16 / 9;
     background:
-      linear-gradient(135deg, rgba(35, 84, 62, 0.2), rgba(226, 180, 87, 0.22)),
+      linear-gradient(135deg, rgba(35, 84, 62, 0.22), rgba(36, 118, 111, 0.2) 45%, rgba(226, 180, 87, 0.28)),
       #e8f3df;
   }
 
@@ -771,7 +838,7 @@ textarea {
   }
 
   .primary-button {
-    background: #23543e;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
     color: #ffffff;
     box-shadow: 0 14px 34px rgba(35, 84, 62, 0.18);
   }
