@@ -17,7 +17,17 @@ import { getSectionHref, navigationByLocale, type AppSection } from "@/lib/navig
 import { getGeneticsCatalogAlphabetically, type GeneticReferenceEntry } from "@/lib/genetics-catalog";
 import { requestReminderNotification } from "@/lib/notifications";
 import { seedCatalog } from "@/lib/seed-catalog";
-import type { CalendarEvent, CalendarEventOccurrence, CareEntry, Dictionary, GrowSpace, Locale, Plant, Task } from "@/lib/types";
+import type {
+  CalendarEvent,
+  CalendarEventKind,
+  CalendarEventOccurrence,
+  CareEntry,
+  Dictionary,
+  GrowSpace,
+  Locale,
+  Plant,
+  Task
+} from "@/lib/types";
 import { getDeviceWeather, getWeatherReadiness, type WeatherReadiness } from "@/lib/weather";
 
 type AppShellProps = {
@@ -98,6 +108,42 @@ const firstReminderLabels = {
   "7": "En 7 dias",
   "14": "En 14 dias"
 };
+const calendarQuickActions: Array<{
+  description: string;
+  emoji: string;
+  kind: CalendarEventKind;
+  label: string;
+  title: string;
+}> = [
+  {
+    description: "Evento manual agregado desde el calendario para revisar riego.",
+    emoji: "💧",
+    kind: "watering",
+    label: "Riego",
+    title: "💧 Riego"
+  },
+  {
+    description: "Evento manual agregado desde el calendario para registrar una foto.",
+    emoji: "📷",
+    kind: "photo",
+    label: "Foto",
+    title: "📷 Foto"
+  },
+  {
+    description: "Evento manual agregado desde el calendario para limpieza o mantenimiento.",
+    emoji: "🧹",
+    kind: "cleaning",
+    label: "Limpieza",
+    title: "🧹 Limpieza"
+  },
+  {
+    description: "Evento manual agregado desde el calendario para revision o fumigacion declarada por el usuario.",
+    emoji: "🐛",
+    kind: "review",
+    label: "Fumigar",
+    title: "🐛 Fumigar"
+  }
+];
 const storageKeys = {
   calendarDate: "plantcare-calendar-selected-date",
   entries: "plantcare-journal-entries",
@@ -342,6 +388,19 @@ export function AppShell({
     persistStoredState(storageKeys.entries, nextEntries);
   }
 
+  function handleAddCalendarEvent(event: CalendarEvent) {
+    const nextEvents = [event, ...eventState];
+
+    setEventState(nextEvents);
+    persistStoredState(storageKeys.events, nextEvents);
+    persistCalendarDate(event.startDate);
+    void requestReminderNotification({
+      body: `${event.title} agregado al calendario.`,
+      title: "PlantCare Calendar",
+      url: calendarHref
+    });
+  }
+
   async function handleUseDeviceWeather() {
     if (!("geolocation" in navigator)) {
       setWeatherStatus("Este navegador no permite leer ubicacion.");
@@ -455,6 +514,7 @@ export function AppShell({
           entries={entryState}
           events={eventState}
           locale={locale}
+          onAddCalendarEvent={handleAddCalendarEvent}
           onAddJournalEntry={handleAddJournalEntry}
           onToggleOccurrence={(eventId, date) => setEventState((events) => toggleEventCompletion(events, eventId, date))}
           plants={plantState}
@@ -1319,6 +1379,7 @@ function CalendarSection({
   entries,
   events,
   locale,
+  onAddCalendarEvent,
   onAddJournalEntry,
   onToggleOccurrence,
   plants
@@ -1326,6 +1387,7 @@ function CalendarSection({
   entries: CareEntry[];
   events: CalendarEvent[];
   locale: Locale;
+  onAddCalendarEvent: (event: CalendarEvent) => void;
   onAddJournalEntry: (entry: CareEntry) => void;
   onToggleOccurrence: (eventId: string, date: string) => void;
   plants: Plant[];
@@ -1346,6 +1408,23 @@ function CalendarSection({
   const occurrences = useMemo(() => expandEventOccurrences(events, firstDate, lastDate), [events, firstDate, lastDate]);
   const selectedOccurrences = occurrences.filter((occurrence) => occurrence.date === selectedDate);
   const selectedEntries = entries.filter((entry) => entry.createdAt === selectedDate);
+  const [quickEventStatus, setQuickEventStatus] = useState("");
+
+  function handleQuickEvent(action: (typeof calendarQuickActions)[number]) {
+    const plantId = plants[0]?.id ?? manualPlantId;
+
+    onAddCalendarEvent({
+      completedDates: [],
+      description: action.description,
+      id: createEventId(`event-${action.kind}`),
+      kind: action.kind,
+      plantId,
+      source: "manual",
+      startDate: selectedDate,
+      title: action.title
+    });
+    setQuickEventStatus(`${action.label} agregado al ${formatDisplayDate(selectedDate)}.`);
+  }
 
   return (
     <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -1360,11 +1439,19 @@ function CalendarSection({
           </button>
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2 text-xs font-black text-stone-600">
-        <span className="event-legend event-water">Riego</span>
-        <span className="event-legend event-photo">Foto</span>
-        <span className="event-legend event-clean">Limpieza</span>
-        <span className="event-legend event-review">Revision</span>
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-black text-stone-600">
+        {calendarQuickActions.map((action) => (
+          <button
+            className={`event-legend event-action ${getEventClass(action.kind)}`}
+            key={action.label}
+            onClick={() => handleQuickEvent(action)}
+            type="button"
+          >
+            <span aria-hidden="true">{action.emoji}</span>
+            <span>{action.label}</span>
+          </button>
+        ))}
+        {quickEventStatus ? <span className="pill pill-soft">{quickEventStatus}</span> : null}
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_360px]">
         <div className="surface p-3 sm:p-5">
