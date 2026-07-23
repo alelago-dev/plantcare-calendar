@@ -137,6 +137,20 @@ const calendarQuickActions: Array<{
     title: "🧹 Limpieza"
   },
   {
+    description: "Evento manual agregado desde el calendario para poda declarada por el usuario.",
+    emoji: "✂️",
+    kind: "review",
+    label: "Poda",
+    title: "✂️ Poda"
+  },
+  {
+    description: "Evento manual agregado desde el calendario para defoliar o quitar hojas segun decision del usuario.",
+    emoji: "🍃",
+    kind: "review",
+    label: "Defoliar",
+    title: "🍃 Defoliar"
+  },
+  {
     description: "Evento manual agregado desde el calendario para revision o fumigacion declarada por el usuario.",
     emoji: "🐛",
     kind: "review",
