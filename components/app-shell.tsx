@@ -1175,7 +1175,7 @@ function PlantSpaceRow({
   onOpenGenetic: (genetic: GeneticReferenceEntry) => void;
   plant: Plant;
 }) {
-  const plantGenetic = findGeneticByPlantVariety(plant.variety);
+  const plantGenetic = findGeneticByPlant(plant);
 
   return (
     <details className="plant-row-details" id={plant.id}>
@@ -1187,16 +1187,7 @@ function PlantSpaceRow({
         </span>
         <span className="pill pill-green">{plant.stage}</span>
       </summary>
-      {plantGenetic ? (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-emerald-900/10 bg-white/75 p-3">
-          <p className="text-sm font-bold text-stone-700">
-            Hay una ficha publicada para <strong className="text-moss-950">{plantGenetic.name}</strong>.
-          </p>
-          <button className="secondary-button" onClick={() => onOpenGenetic(plantGenetic)} type="button">
-            Ver genetica
-          </button>
-        </div>
-      ) : null}
+      <PlantGeneticSummary genetic={plantGenetic} onOpenGenetic={onOpenGenetic} plant={plant} />
       <dl className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
         <PlantFact label="Maceta" value={plant.pot} />
         <PlantFact label="Sustrato" value={plant.substrate} />
@@ -1206,6 +1197,47 @@ function PlantSpaceRow({
       <PlantStageProgress plant={plant} />
       <PlantUtilityPanel calendarEvents={calendarEvents} entries={entries} plant={plant} />
     </details>
+  );
+}
+
+function PlantGeneticSummary({
+  genetic,
+  onOpenGenetic,
+  plant
+}: {
+  genetic?: GeneticReferenceEntry;
+  onOpenGenetic: (genetic: GeneticReferenceEntry) => void;
+  plant: Plant;
+}) {
+  return (
+    <div className="mt-3 rounded-lg border border-emerald-900/10 bg-white/75 p-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="text-[11px] font-black uppercase text-stone-500">Genetica declarada</p>
+          <p className="mt-1 font-black text-moss-950">{genetic?.name ?? plant.variety}</p>
+          <p className="mt-1 text-sm font-bold leading-6 text-stone-600">
+            {genetic ? genetic.source : "No hay ficha publicada vinculada en el catalogo."}
+          </p>
+        </div>
+        {genetic ? (
+          <button className="secondary-button" onClick={() => onOpenGenetic(genetic)} type="button">
+            Ver ficha completa
+          </button>
+        ) : null}
+      </div>
+      {genetic ? (
+        <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+          <PlantFact label="Tipo" value={formatGeneticType(genetic.type)} />
+          <PlantFact label="Floracion" value={formatRange(genetic.flowering_weeks_range, "sem")} />
+          <PlantFact label="THC" value={formatThcRange(genetic.thc_percent_range)} />
+          <PlantFact label="Linaje" value={genetic.cross} />
+        </dl>
+      ) : (
+        <p className="mt-3 text-xs font-bold leading-5 text-stone-600">
+          Para ver datos aca, elegi una genetica del catalogo al cargar el cultivo o agregala al catalogo de referencia.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -2155,10 +2187,18 @@ function getElapsedDays(startedAt: string, todayIso: string) {
   return Math.max(0, Math.floor(diff / 86_400_000));
 }
 
-function findGeneticByPlantVariety(variety: string) {
-  const normalizedVariety = normalizeLookupText(variety);
+function findGeneticByPlant(plant: Plant) {
+  const lookupValues = [plant.variety, plant.name].map(normalizeLookupText).filter(Boolean);
+  const exactMatch = geneticsCatalogAlphabetically.find((genetic) =>
+    lookupValues.some((value) => normalizeLookupText(genetic.name) === value)
+  );
 
-  return geneticsCatalogAlphabetically.find((genetic) => normalizeLookupText(genetic.name) === normalizedVariety);
+  if (exactMatch) return exactMatch;
+
+  return geneticsCatalogAlphabetically.find((genetic) => {
+    const geneticName = normalizeLookupText(genetic.name);
+    return lookupValues.some((value) => value.length >= 4 && (geneticName.includes(value) || value.includes(geneticName)));
+  });
 }
 
 function formatGeneticType(type: GeneticReferenceEntry["type"]) {
