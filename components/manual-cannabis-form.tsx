@@ -397,7 +397,7 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
   }
 
   return (
-    <div className="grid gap-2 sm:col-span-2">
+    <div className="grid scroll-mt-28 gap-2 sm:col-span-2" id="manual-genetic-selection">
       <label className="grid gap-1 text-sm font-black text-moss-950">
         Buscar genetica
         <input

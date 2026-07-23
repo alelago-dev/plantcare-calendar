@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { GeneticFinderWizard } from "@/components/genetic-finder-wizard";
 import { HorticultureCalculator } from "@/components/horticulture-calculator";
@@ -153,9 +153,24 @@ const manualTaskTemplates = [
 export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: SeedsSectionProps) {
   const [activeTab, setActiveTab] = useState<SeedTab>("finder");
   const [selectedGeneticName, setSelectedGeneticName] = useState("");
+  const shouldScrollToGeneticField = useRef(false);
   const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
   const previousTab = activeTabIndex > 0 ? tabs[activeTabIndex - 1] : null;
   const nextTab = activeTabIndex >= 0 && activeTabIndex < tabs.length - 1 ? tabs[activeTabIndex + 1] : null;
+
+  useEffect(() => {
+    if (activeTab !== "manual" || !shouldScrollToGeneticField.current) {
+      return;
+    }
+
+    shouldScrollToGeneticField.current = false;
+    window.requestAnimationFrame(() => {
+      const geneticField = document.getElementById("manual-genetic-selection");
+
+      geneticField?.scrollIntoView({ behavior: "smooth", block: "start" });
+      geneticField?.querySelector<HTMLInputElement>("input")?.focus({ preventScroll: true });
+    });
+  }, [activeTab, selectedGeneticName]);
 
   return (
     <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8" id="seeds">
@@ -189,6 +204,7 @@ export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: See
           {activeTab === "finder" ? (
             <GeneticFinderWizard
               onSelectGenetic={(name) => {
+                shouldScrollToGeneticField.current = true;
                 setSelectedGeneticName(name);
                 setActiveTab("manual");
               }}
