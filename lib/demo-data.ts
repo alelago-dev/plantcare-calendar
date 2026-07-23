@@ -3,9 +3,9 @@ import type { CalendarDay, CalendarEvent, CareEntry, GrowSpace, Plant, Task } fr
 export const demoSpaces: GrowSpace[] = [
   {
     id: "space-patio",
-    name: "Patio norte",
+    name: "Espacio exterior",
     mode: "Exterior",
-    region: "Buenos Aires, AR",
+    region: "Ubicacion aproximada",
     privacyLevel: "Region aproximada"
   },
   {

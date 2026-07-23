@@ -17,7 +17,7 @@ import { getGeneticsCatalogAlphabetically } from "@/lib/genetics-catalog";
 import { requestReminderNotification } from "@/lib/notifications";
 import { seedCatalog } from "@/lib/seed-catalog";
 import type { CalendarEvent, CalendarEventOccurrence, CareEntry, Dictionary, GrowSpace, Locale, Plant, Task } from "@/lib/types";
-import { getWeatherReadiness } from "@/lib/weather";
+import { getDeviceWeather, getWeatherReadiness, type WeatherReadiness } from "@/lib/weather";
 
 type AppShellProps = {
   calendarEvents: CalendarEvent[];
@@ -123,11 +123,12 @@ export function AppShell({
   const [eventState, setEventState] = useStoredState(storageKeys.events, calendarEvents);
   const [entryState, setEntryState] = useStoredState(storageKeys.entries, entries);
   const [habitDates, setHabitDates] = useStoredState<string[]>(storageKeys.habitDates, []);
+  const [weather, setWeather] = useState<WeatherReadiness>(() => getWeatherReadiness("Ubicacion sin conectar"));
+  const [weatherStatus, setWeatherStatus] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(
     () => typeof window !== "undefined" && window.localStorage.getItem(storageKeys.onboarding) !== "true"
   );
   const todayIso = getTodayIso();
-  const weather = getWeatherReadiness(spaces[0]?.region ?? "Region sin definir");
   const navItems = navigationByLocale[locale];
   const todayOccurrences = useMemo(
     () => expandEventOccurrences(eventState, todayIso, todayIso),
@@ -340,6 +341,32 @@ export function AppShell({
     persistStoredState(storageKeys.entries, nextEntries);
   }
 
+  async function handleUseDeviceWeather() {
+    if (!("geolocation" in navigator)) {
+      setWeatherStatus("Este navegador no permite leer ubicacion.");
+      return;
+    }
+
+    setWeatherStatus("Esperando permiso de ubicacion...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setWeatherStatus("Consultando clima real...");
+        getDeviceWeather(position.coords.latitude, position.coords.longitude)
+          .then((nextWeather) => {
+            setWeather(nextWeather);
+            setWeatherStatus("Clima actualizado.");
+          })
+          .catch(() => setWeatherStatus("No se pudo consultar Open-Meteo."));
+      },
+      () => setWeatherStatus("Ubicacion no autorizada. Podes volver a intentarlo desde el navegador."),
+      {
+        enableHighAccuracy: false,
+        maximumAge: 600_000,
+        timeout: 12_000
+      }
+    );
+  }
+
   function handleClearCultivationData() {
     setPlantState([]);
     setTaskState([]);
@@ -406,6 +433,8 @@ export function AppShell({
           tasks={taskState}
           plants={plantState}
           streakCount={streakCount}
+          weatherStatus={weatherStatus}
+          onUseDeviceWeather={handleUseDeviceWeather}
           weather={weather}
         />
       ) : null}
@@ -622,23 +651,27 @@ function TodaySection({
   careScore,
   calendarEvents,
   dictionary,
+  onUseDeviceWeather,
   onToggleTask,
   openTasks,
   plants,
   streakCount,
   tasks,
-  weather
+  weather,
+  weatherStatus
 }: {
   agendaItems: AgendaItem[];
   careScore: number;
   calendarEvents: CalendarEvent[];
   dictionary: Dictionary;
+  onUseDeviceWeather: () => void;
   onToggleTask: (item: AgendaItem) => void;
   openTasks: number;
   plants: Plant[];
   streakCount: number;
   tasks: Task[];
-  weather: ReturnType<typeof getWeatherReadiness>;
+  weather: WeatherReadiness;
+  weatherStatus: string;
 }) {
   return (
     <>
@@ -680,7 +713,9 @@ function TodaySection({
         <section className="surface p-4 sm:p-5" aria-labelledby="weather-title">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <SectionHeader eyebrow="Clima" title="Condiciones del espacio" />
-            <span className="pill pill-blue">Datos de ejemplo</span>
+            <span className={weather.isLive ? "pill pill-green" : "pill pill-blue"}>
+              {weather.isLive ? "Tiempo real" : "Ubicacion pendiente"}
+            </span>
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-[0.85fr_1.15fr]">
             <div className="weather-panel">
@@ -689,8 +724,14 @@ function TodaySection({
                 {weather.region}
               </h3>
               <p className="mt-3 text-sm leading-6 text-stone-700">{weather.message}</p>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <button className="primary-button" onClick={onUseDeviceWeather} type="button">
+                  Usar ubicacion del dispositivo
+                </button>
+                {weatherStatus ? <span className="text-xs font-black text-stone-600">{weatherStatus}</span> : null}
+              </div>
             </div>
-            <dl className="grid grid-cols-2 gap-3">
+            <dl className="grid grid-cols-2 gap-3 xl:grid-cols-4">
               {weather.preview.map((item) => (
                 <div className="metric-tile" key={item.label}>
                   <dt className="text-xs font-black uppercase text-stone-500">{item.label}</dt>
@@ -719,7 +760,7 @@ function GrowCommandPanel({
 }: {
   calendarEvents: CalendarEvent[];
   plants: Plant[];
-  weather: ReturnType<typeof getWeatherReadiness>;
+  weather: WeatherReadiness;
 }) {
   const todayIso = getTodayIso();
   const upcomingEvents = calendarEvents
@@ -794,10 +835,14 @@ function GrowCommandPanel({
             </div>
           </div>
           <div className="grow-command-card">
-            <p className="text-[11px] font-black uppercase text-stone-500">Clima demo</p>
+            <p className="text-[11px] font-black uppercase text-stone-500">
+              {weather.isLive ? "Clima real" : "Clima pendiente"}
+            </p>
             <strong className="mt-2 block text-moss-950">{weather.region}</strong>
             <p className="mt-1 text-sm font-bold text-stone-600">{weather.preview[0]?.value ?? "Sin dato"} / {weather.preview[1]?.value ?? "Sin dato"}</p>
-            <span className="mt-3 inline-flex pill pill-blue">Conectar API luego</span>
+            <span className={weather.isLive ? "mt-3 inline-flex pill pill-green" : "mt-3 inline-flex pill pill-blue"}>
+              {weather.isLive ? "Open-Meteo" : "Activar ubicacion"}
+            </span>
           </div>
         </div>
       </div>
