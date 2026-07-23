@@ -31,7 +31,7 @@ type FinderState = {
   seedType: FinderSeedType;
 };
 
-type FinderStep = "place" | "type" | "effect" | "flavors" | "results";
+type FinderStep = "place" | "type" | "effect" | "flavors";
 
 type FinderOption<T extends string> = {
   description: string;
@@ -45,7 +45,7 @@ type GeneticFinderWizardProps = {
   onSelectGenetic?: (name: string) => void;
 };
 
-const steps: FinderStep[] = ["place", "type", "effect", "flavors", "results"];
+const steps: FinderStep[] = ["place", "type", "effect", "flavors"];
 const geneticsCatalog = getGeneticsCatalogAlphabetically();
 
 const growPlaceOptions: Array<FinderOption<FinderGrowPlace>> = [
@@ -239,23 +239,18 @@ export function GeneticFinderWizard({ compact = false, onSelectGenetic }: Geneti
               );
             })}
           </div>
-          <button className="primary-button mt-4" onClick={goNext} type="button">
-            Ver coincidencias
-          </button>
         </div>
       ) : null}
 
-      {currentStep === "results" ? (
-        <FinderResults matches={matches} onSelectGenetic={onSelectGenetic} />
-      ) : null}
+      <FinderResults matches={matches} onSelectGenetic={onSelectGenetic} />
 
       <div className="finder-actions">
         <button className="secondary-button" disabled={stepIndex === 0} onClick={goBack} type="button">
           Atras
         </button>
-        {currentStep !== "results" ? (
-          <button className="secondary-button" onClick={() => setStepIndex(steps.length - 1)} type="button">
-            Ver resultados
+        {stepIndex < steps.length - 1 ? (
+          <button className="secondary-button" onClick={goNext} type="button">
+            Continuar filtros
           </button>
         ) : (
           <button
