@@ -3,6 +3,7 @@
 import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { CopyValueButton } from "@/components/copy-button";
+import { GeneticFinderWizard } from "@/components/genetic-finder-wizard";
 import { SeedsSection } from "@/components/seeds-section";
 import {
   buildMonthGrid,
@@ -686,6 +687,13 @@ function FirstCultivationScreen({
             {step === 0 ? (
               <div className="grid gap-3">
                 <SectionHeader eyebrow="Datos declarados" title="Identificacion" />
+                <GeneticFinderWizard
+                  compact
+                  onSelectGenetic={(name) => {
+                    setGeneticName(name);
+                    setCustomGeneticName("");
+                  }}
+                />
                 <div className="grid gap-3 sm:grid-cols-2">
                   <FormSelect label="Banco o catalogo" onChange={setBank} options={legalBankOptions} value={bank} />
                   <FormSelect

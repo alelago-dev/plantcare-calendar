@@ -1736,6 +1736,299 @@ textarea {
     transform: translateY(-1px);
   }
 
+  .genetic-finder {
+    border: 1px solid rgba(22, 32, 21, 0.09);
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at top left, rgba(255, 224, 96, 0.42), transparent 32%),
+      radial-gradient(circle at 88% 20%, rgba(36, 118, 111, 0.2), transparent 28%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 244, 0.9));
+    box-shadow: 0 18px 46px rgba(28, 54, 38, 0.12);
+    padding: 1rem;
+  }
+
+  .genetic-finder.compact {
+    background:
+      linear-gradient(135deg, rgba(223, 241, 241, 0.62), rgba(255, 248, 231, 0.62)),
+      rgba(255, 255, 255, 0.92);
+    box-shadow: none;
+  }
+
+  .finder-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .finder-header h3 {
+    margin-top: 0.2rem;
+    color: #162015;
+    font-size: clamp(1.15rem, 2vw, 1.75rem);
+    font-weight: 950;
+    letter-spacing: 0;
+  }
+
+  .finder-header p {
+    margin-top: 0.45rem;
+    max-width: 56rem;
+    color: #4f5a4b;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.55;
+  }
+
+  .finder-progress {
+    margin-top: 1rem;
+    height: 11px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(22, 32, 21, 0.09);
+  }
+
+  .finder-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #ffe04f, #6f8f2f, #24766f);
+    transition: width 220ms ease;
+  }
+
+  .finder-step-count {
+    margin-top: 0.45rem;
+    color: #6f7869;
+    font-size: 0.78rem;
+    font-weight: 950;
+    text-align: right;
+    text-transform: uppercase;
+  }
+
+  .finder-option-grid {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .finder-option-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .finder-option,
+  .finder-flavor {
+    min-height: 132px;
+    border: 1px solid rgba(22, 32, 21, 0.12);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #162015;
+    text-align: center;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease,
+      background 160ms ease;
+  }
+
+  .finder-option {
+    display: grid;
+    gap: 0.45rem;
+    align-content: center;
+    padding: 1rem;
+  }
+
+  .finder-option span,
+  .finder-flavor span {
+    display: inline-grid;
+    min-height: 2.35rem;
+    min-width: 2.35rem;
+    place-items: center;
+    justify-self: center;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #fff0c8, #dff1f1);
+    color: #23543e;
+    font-size: 0.78rem;
+    font-weight: 950;
+  }
+
+  .finder-option strong,
+  .finder-flavor strong {
+    font-size: 0.96rem;
+    font-weight: 950;
+  }
+
+  .finder-option small {
+    color: #5f6959;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .finder-option.active,
+  .finder-flavor.active {
+    border-color: rgba(183, 109, 24, 0.34);
+    background: linear-gradient(145deg, #fff2a8, #fff9d9);
+    box-shadow: 0 16px 34px rgba(183, 109, 24, 0.16);
+    transform: translateY(-1px);
+  }
+
+  .finder-option:hover,
+  .finder-flavor:hover {
+    border-color: rgba(36, 118, 111, 0.35);
+    box-shadow: 0 12px 26px rgba(35, 84, 62, 0.12);
+    transform: translateY(-1px);
+  }
+
+  .finder-flavor-step {
+    margin-top: 1rem;
+  }
+
+  .finder-flavor-step h4,
+  .finder-results h4 {
+    font-size: 1.1rem;
+    font-weight: 950;
+    color: #162015;
+  }
+
+  .finder-flavor-step p,
+  .finder-results p {
+    margin-top: 0.35rem;
+    color: #5f6959;
+    font-size: 0.86rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .finder-flavor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin-top: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .finder-flavor-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .finder-flavor {
+    display: grid;
+    min-height: 92px;
+    gap: 0.4rem;
+    align-content: center;
+    padding: 0.75rem;
+  }
+
+  .finder-results {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .finder-result-grid {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  @media (min-width: 768px) {
+    .finder-result-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .finder-result-card {
+    display: grid;
+    gap: 0.85rem;
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(223, 241, 241, 0.34)),
+      #ffffff;
+    padding: 0.9rem;
+  }
+
+  .finder-result-main {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .finder-result-main h5 {
+    color: #162015;
+    font-size: 1rem;
+    font-weight: 950;
+  }
+
+  .finder-result-main p {
+    margin-top: 0.15rem;
+    color: #6f7869;
+    font-size: 0.76rem;
+    font-weight: 800;
+  }
+
+  .finder-score {
+    display: inline-flex;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    background: #23543e;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 950;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .finder-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .finder-chip-row span {
+    border-radius: 999px;
+    background: rgba(36, 118, 111, 0.1);
+    color: #23543e;
+    font-size: 0.74rem;
+    font-weight: 950;
+    padding: 0.32rem 0.5rem;
+  }
+
+  .finder-notes {
+    color: #4f5a4b;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .finder-use-button {
+    justify-self: start;
+    border: 1px solid rgba(35, 84, 62, 0.24);
+    border-radius: 8px;
+    background: #ffffff;
+    color: #23543e;
+    font-size: 0.8rem;
+    font-weight: 950;
+    padding: 0.55rem 0.7rem;
+  }
+
+  .finder-empty {
+    border: 1px dashed rgba(22, 32, 21, 0.18);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #5f6959;
+    font-size: 0.9rem;
+    font-weight: 800;
+    padding: 1rem;
+  }
+
+  .finder-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    justify-content: space-between;
+    margin-top: 1rem;
+  }
+
   @media (max-width: 639px) {
     .quick-plant-desktop {
       display: none;

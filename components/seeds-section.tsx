@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { GeneticFinderWizard } from "@/components/genetic-finder-wizard";
 import { HorticultureCalculator } from "@/components/horticulture-calculator";
 import { ManualCannabisForm } from "@/components/manual-cannabis-form";
 import { CopyValueButton } from "@/components/copy-button";
@@ -23,9 +24,10 @@ type SeedsSectionProps = {
   onCreateManualEvents: (events: CalendarEvent[]) => void;
 };
 
-type SeedTab = "manual" | "horticultural" | "setups" | "reference";
+type SeedTab = "finder" | "manual" | "horticultural" | "setups" | "reference";
 
 const tabs: Array<{ id: SeedTab; label: string }> = [
+  { id: "finder", label: "Finder" },
   { id: "manual", label: "Mi cultivo" },
   { id: "horticultural", label: "Catalogo horticola" },
   { id: "setups", label: "Setups" },
@@ -149,7 +151,7 @@ const manualTaskTemplates = [
 ];
 
 export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: SeedsSectionProps) {
-  const [activeTab, setActiveTab] = useState<SeedTab>("manual");
+  const [activeTab, setActiveTab] = useState<SeedTab>("finder");
   const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
   const previousTab = activeTabIndex > 0 ? tabs[activeTabIndex - 1] : null;
   const nextTab = activeTabIndex >= 0 && activeTabIndex < tabs.length - 1 ? tabs[activeTabIndex + 1] : null;
@@ -183,6 +185,8 @@ export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: See
         </div>
 
         <div className="mt-4">
+          {activeTab === "finder" ? <GeneticFinderWizard /> : null}
+
           {activeTab === "manual" ? (
             <section className="surface p-4 sm:p-5" aria-labelledby="manual-seed-title">
               <div className="flex flex-wrap items-start justify-between gap-3">
