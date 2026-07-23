@@ -180,6 +180,33 @@ export function GeneticFinderWizard({ compact = false, onSelectGenetic }: Geneti
         <span className="mode-badge manual">Manual</span>
       </div>
 
+      <details className="finder-education">
+        <summary>Como leer la informacion del catalogo</summary>
+        <div className="finder-education-grid">
+          <article>
+            <h4>THC publicado</h4>
+            <p>
+              Como referencia comparativa: bajo es menos de 10%, medio entre 10% y 20%, y alto mas de 20%. Es un dato
+              informado por la fuente, no una indicacion medica ni una prediccion del efecto.
+            </p>
+          </article>
+          <article>
+            <h4>Duracion de floracion</h4>
+            <p>
+              Corta: hasta 8 semanas. Media: 9 a 10 semanas. Larga: 11 semanas o mas. Son rangos publicados, no fechas
+              calculadas para tu cultivo.
+            </p>
+          </article>
+          <article>
+            <h4>Tipo de semilla</h4>
+            <p>
+              Feminizada indica semillas comercializadas como femeninas; autofloreciente declara un ciclo automatico;
+              regular puede producir plantas masculinas o femeninas.
+            </p>
+          </article>
+        </div>
+      </details>
+
       <div className="finder-progress" aria-label={`Paso ${stepIndex + 1} de ${steps.length}`}>
         <span style={{ width: `${progress}%` }} />
       </div>
@@ -242,7 +269,7 @@ export function GeneticFinderWizard({ compact = false, onSelectGenetic }: Geneti
         </div>
       ) : null}
 
-      <FinderResults matches={matches} onSelectGenetic={onSelectGenetic} />
+      <FinderResults finderState={finderState} matches={matches} onSelectGenetic={onSelectGenetic} />
 
       <div className="finder-actions">
         <button className="secondary-button" disabled={stepIndex === 0} onClick={goBack} type="button">
@@ -297,9 +324,11 @@ function FinderOptionGrid<T extends string>({
 }
 
 function FinderResults({
+  finderState,
   matches,
   onSelectGenetic
 }: {
+  finderState: FinderState;
   matches: Array<{ genetic: GeneticReferenceEntry; score: number }>;
   onSelectGenetic?: (name: string) => void;
 }) {
@@ -312,19 +341,24 @@ function FinderResults({
 
       {matches.length > 0 ? (
         <div className="finder-result-grid">
-          {matches.map(({ genetic, score }) => (
+          {matches.map(({ genetic }) => (
             <article className="finder-result-card" key={genetic.id}>
               <div className="finder-result-main">
-                <span className="finder-score">{score} pts</span>
                 <div>
                   <h5>{genetic.name}</h5>
-                  <p>{genetic.source}</p>
+                  <p className="finder-source">
+                    <span>Fuente</span>
+                    {genetic.source}
+                  </p>
                 </div>
               </div>
+              <p className="finder-match-summary">{formatMatchSummary(genetic, finderState)}</p>
               <div className="finder-chip-row">
-                <span>{formatGeneticType(genetic.type)}</span>
-                <span>{formatRange(genetic.flowering_weeks_range, "sem")}</span>
-                <span>{formatThcRange(genetic.thc_percent_range)}</span>
+                <span className={`finder-type-badge ${getGeneticTypeClass(genetic.type)}`}>
+                  {formatGeneticType(genetic.type)}
+                </span>
+                <span className="finder-data-badge">{formatRange(genetic.flowering_weeks_range, "sem")}</span>
+                <span className="finder-data-badge">{formatThcRange(genetic.thc_percent_range)}</span>
               </div>
               <p className="finder-notes">{compactText(genetic.flavor_notes || genetic.effect_notes)}</p>
               {onSelectGenetic ? (
@@ -379,6 +413,42 @@ function scoreGenetic(genetic: GeneticReferenceEntry, finderState: FinderState) 
   });
 
   return score;
+}
+
+function formatMatchSummary(genetic: GeneticReferenceEntry, finderState: FinderState) {
+  const searchableText = buildSearchableText(genetic);
+  const criteria: boolean[] = [];
+
+  if (finderState.growPlace !== "any") {
+    criteria.push(
+      finderState.growPlace === "indoor"
+        ? /\b(indoor|interior|inside)\b/.test(searchableText)
+        : /\b(outdoor|exterior|terraza|balcon|jardin|invernaculo)\b/.test(searchableText)
+    );
+  }
+
+  if (finderState.seedType !== "any") {
+    criteria.push(geneticMatchesType(genetic.type, finderState.seedType));
+  }
+
+  if (finderState.effect !== "any") {
+    criteria.push(getEffectKeywords(finderState.effect).some((keyword) => searchableText.includes(keyword)));
+  }
+
+  if (finderState.flavors.length > 0) {
+    criteria.push(
+      finderState.flavors.some((flavor) =>
+        getFlavorKeywords(flavor).some((keyword) => searchableText.includes(keyword))
+      )
+    );
+  }
+
+  if (criteria.length === 0) {
+    return "Mostrada sin filtros especificos";
+  }
+
+  const matchingCriteria = criteria.filter(Boolean).length;
+  return `Coincide con ${matchingCriteria} de ${criteria.length} filtros elegidos`;
 }
 
 function geneticMatchesType(geneticType: GeneticType, selectedType: FinderSeedType) {
@@ -446,6 +516,13 @@ function formatGeneticType(type: GeneticReferenceEntry["type"]) {
   if (type === "faster_flowering") return "Rapida";
   if (type === "regular") return "Regular";
   return "Feminizada";
+}
+
+function getGeneticTypeClass(type: GeneticReferenceEntry["type"]) {
+  if (type === "autoflowering") return "autoflowering";
+  if (type === "regular") return "regular";
+  if (type === "faster_flowering") return "fast";
+  return "feminized";
 }
 
 function formatRange([min, max]: [number, number], unit: string) {

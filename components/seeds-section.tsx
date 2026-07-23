@@ -182,6 +182,13 @@ export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: See
       <div className="mt-4 rounded-lg border border-moss-950/10 bg-white/88 p-3 text-sm font-bold leading-6 text-stone-700">
         Para cannabis o cultivos regulados, las referencias son solo lectura y no completan ni calculan campos. Las
         estimaciones automaticas quedan limitadas al catalogo horticola no regulado.
+        <span className="mt-2 block">
+          ¿Estas registrado en REPROCANN?{" "}
+          <a className="font-black text-emerald-800 underline underline-offset-4" href="../privacidad/">
+            Consulta la informacion legal y de privacidad
+          </a>
+          .
+        </span>
       </div>
 
       <div className="mt-5">

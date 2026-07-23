@@ -1955,6 +1955,53 @@ textarea {
     line-height: 1.55;
   }
 
+  .finder-education {
+    margin-top: 1rem;
+    border: 1px solid rgba(35, 84, 62, 0.18);
+    border-radius: 8px;
+    background: rgba(238, 247, 244, 0.72);
+    padding: 0.8rem 0.9rem;
+  }
+
+  .finder-education summary {
+    color: #23543e;
+    cursor: pointer;
+    font-size: 0.86rem;
+    font-weight: 950;
+  }
+
+  .finder-education-grid {
+    display: grid;
+    gap: 0.7rem;
+    margin-top: 0.8rem;
+  }
+
+  @media (min-width: 768px) {
+    .finder-education-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .finder-education-grid article {
+    border-left: 3px solid #6fcf97;
+    background: rgba(255, 255, 255, 0.64);
+    padding: 0.7rem 0.75rem;
+  }
+
+  .finder-education-grid h4 {
+    color: #162015;
+    font-size: 0.82rem;
+    font-weight: 950;
+  }
+
+  .finder-education-grid p {
+    margin-top: 0.3rem;
+    color: #4f5a4b;
+    font-size: 0.76rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
   .finder-progress {
     margin-top: 1rem;
     height: 11px;
@@ -2137,22 +2184,39 @@ textarea {
     font-weight: 950;
   }
 
-  .finder-result-main p {
-    margin-top: 0.15rem;
-    color: #6f7869;
-    font-size: 0.76rem;
-    font-weight: 800;
+  .finder-result-main > div {
+    min-width: 0;
   }
 
-  .finder-score {
-    display: inline-flex;
-    flex: 0 0 auto;
-    border-radius: 8px;
-    background: #23543e;
-    color: #ffffff;
-    font-size: 0.72rem;
+  .finder-result-main .finder-source {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.45rem;
+    align-items: baseline;
+    margin-top: 0.3rem;
+    color: #3f544b;
+    font-size: 0.8rem;
+    font-weight: 850;
+    line-height: 1.4;
+  }
+
+  .finder-source span {
+    color: #6f7869;
+    font-size: 0.66rem;
     font-weight: 950;
-    padding: 0.35rem 0.5rem;
+    text-transform: uppercase;
+  }
+
+  .finder-match-summary {
+    display: inline-flex;
+    justify-self: start;
+    border-radius: 8px;
+    background: rgba(111, 207, 151, 0.2);
+    color: #1f5e43;
+    font-size: 0.74rem;
+    font-weight: 950;
+    line-height: 1.35;
+    padding: 0.4rem 0.55rem;
   }
 
   .finder-chip-row {
@@ -2161,13 +2225,36 @@ textarea {
     gap: 0.35rem;
   }
 
-  .finder-chip-row span {
+  .finder-chip-row > span {
     border-radius: 999px;
-    background: rgba(36, 118, 111, 0.1);
-    color: #23543e;
     font-size: 0.74rem;
     font-weight: 950;
     padding: 0.32rem 0.5rem;
+  }
+
+  .finder-data-badge {
+    background: rgba(36, 118, 111, 0.1);
+    color: #23543e;
+  }
+
+  .finder-type-badge.feminized {
+    background: rgba(111, 207, 151, 0.22);
+    color: #185a3d;
+  }
+
+  .finder-type-badge.autoflowering {
+    background: rgba(226, 180, 87, 0.25);
+    color: #74460f;
+  }
+
+  .finder-type-badge.regular {
+    background: rgba(135, 105, 190, 0.2);
+    color: #573e83;
+  }
+
+  .finder-type-badge.fast {
+    background: rgba(55, 132, 176, 0.18);
+    color: #215d7d;
   }
 
   .finder-notes {
