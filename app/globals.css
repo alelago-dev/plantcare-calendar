@@ -668,6 +668,104 @@ textarea {
     line-height: 1.2;
   }
 
+  .setup-hero-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at 90% 12%, rgba(226, 180, 87, 0.28), transparent 32%),
+      linear-gradient(135deg, #102416, #23543e 58%, #24766f);
+    padding: 1rem;
+    color: #ffffff;
+  }
+
+  .setup-hero-card h3 {
+    margin-top: 0.25rem;
+    font-size: 1.65rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .setup-hero-card p:not(:first-child) {
+    margin-top: 0.55rem;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.86rem;
+    font-weight: 750;
+    line-height: 1.45;
+  }
+
+  .setup-grid-preview {
+    display: grid;
+    flex: 0 0 auto;
+    height: 86px;
+    width: 86px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.42rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem;
+  }
+
+  .setup-grid-preview span {
+    border-radius: 999px;
+    background: linear-gradient(135deg, #dff1f1, #77b07e);
+    box-shadow: inset 0 -5px 10px rgba(22, 32, 21, 0.16);
+  }
+
+  .setup-card {
+    display: grid;
+    gap: 0.7rem;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.08);
+    background: #ffffff;
+    padding: 0.85rem;
+    box-shadow: 0 10px 22px rgba(28, 54, 38, 0.08);
+  }
+
+  .setup-card.green {
+    background: linear-gradient(135deg, #e8f3df, #ffffff);
+  }
+
+  .setup-card.amber {
+    background: linear-gradient(135deg, #fff0c8, #ffffff);
+  }
+
+  .setup-card.blue {
+    background: linear-gradient(135deg, #dff1f1, #ffffff);
+  }
+
+  .setup-card p {
+    color: #52604d;
+    font-size: 0.7rem;
+    font-weight: 950;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .setup-card strong {
+    color: #162015;
+    font-size: 1rem;
+    font-weight: 950;
+    line-height: 1.3;
+  }
+
+  .setup-card span {
+    color: #52604d;
+    font-size: 0.82rem;
+    font-weight: 750;
+    line-height: 1.45;
+  }
+
+  .setup-cheatsheet {
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.08);
+    background: rgba(255, 255, 255, 0.72);
+    padding: 0.85rem;
+  }
+
   .plant-row {
     padding: 1rem 0;
   }

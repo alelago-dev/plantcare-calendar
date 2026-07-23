@@ -23,16 +23,59 @@ type SeedsSectionProps = {
   onCreateManualEvents: (events: CalendarEvent[]) => void;
 };
 
-type SeedTab = "manual" | "horticultural" | "reference";
+type SeedTab = "manual" | "horticultural" | "setups" | "reference";
 
 const tabs: Array<{ id: SeedTab; label: string }> = [
   { id: "manual", label: "Mi cultivo" },
   { id: "horticultural", label: "Catalogo horticola" },
+  { id: "setups", label: "Setups" },
   { id: "reference", label: "Referencia" }
 ];
 
 const regulatedSeedOptions = seedCatalog.filter((seed) => seed.regulated);
 const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
+const setupPresets = [
+  {
+    id: "40x40",
+    label: "40 x 40 cm",
+    comfortable: "1 maceta de 7-10 L",
+    compact: "2 macetas de 3-5 L",
+    airflow: "Dejar margen libre para riego, poda sanitaria o revision visual.",
+    bestFor: "Plantin, aromatica, planta compacta o prueba de genetica declarada."
+  },
+  {
+    id: "60x60",
+    label: "60 x 60 cm",
+    comfortable: "1 maceta de 15-20 L o 2 macetas de 7-10 L",
+    compact: "4 macetas de 3-5 L si se prioriza variedad y registro individual",
+    airflow: "Conviene no llenar toda la base: dejar pasillo visual y espacio para bandeja.",
+    bestFor: "Espacio chico con seguimiento simple."
+  },
+  {
+    id: "80x80",
+    label: "80 x 80 cm",
+    comfortable: "2 macetas de 15-20 L o 4 macetas de 7-11 L",
+    compact: "6 macetas de 5-7 L si el usuario declara plantas chicas",
+    airflow: "Configuracion equilibrada: 4 macetas deja buena lectura de hojas y acceso al sustrato.",
+    bestFor: "Setup mediano: buen balance entre orden, fotos y mantenimiento."
+  },
+  {
+    id: "100x100",
+    label: "100 x 100 cm",
+    comfortable: "4 macetas de 15-20 L",
+    compact: "6 macetas de 10-11 L",
+    airflow: "Usar grilla 2x2 para manejo comodo o 3x2 si se acepta menos espacio de acceso.",
+    bestFor: "Varias plantas con bitacora separada."
+  },
+  {
+    id: "120x120",
+    label: "120 x 120 cm",
+    comfortable: "4 macetas de 20-25 L o 6 macetas de 15 L",
+    compact: "9 macetas de 10-11 L",
+    airflow: "Priorizar circulacion y acceso frontal; no bloquear esquinas de revision.",
+    bestFor: "Espacio amplio con calendario por planta."
+  }
+];
 
 export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: SeedsSectionProps) {
   const [activeTab, setActiveTab] = useState<SeedTab>("manual");
@@ -85,10 +128,111 @@ export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: See
 
           {activeTab === "horticultural" ? <HorticultureCalculator /> : null}
 
+          {activeTab === "setups" ? <SetupSuggestionsTab /> : null}
+
           {activeTab === "reference" ? <ReferenceTab locale={locale} /> : null}
         </div>
       </div>
     </section>
+  );
+}
+
+function SetupSuggestionsTab() {
+  const [setupId, setSetupId] = useState("80x80");
+  const selectedSetup = setupPresets.find((preset) => preset.id === setupId) ?? setupPresets[2];
+
+  return (
+    <section className="surface p-4 sm:p-5" aria-labelledby="setup-title">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <SectionHeader eyebrow="Sugerencias" id="setup-title" title="Setups de carpa y macetas" />
+        <ModeBadge mode="manual" />
+      </div>
+
+      <div className="mt-4 rounded-lg border border-moss-950/10 bg-white/88 p-3 text-sm font-bold leading-6 text-stone-700">
+        Son plantillas de distribucion para ordenar el espacio. No calculan cosecha, rendimiento, riego ni calendario
+        para cultivos regulados.
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-[0.75fr_1.25fr]">
+        <label className="grid gap-1 text-sm font-black text-moss-950">
+          Tamano de carpa / indoor
+          <select className="form-control" value={setupId} onChange={(event) => setSetupId(event.target.value)}>
+            {setupPresets.map((preset) => (
+              <option key={preset.id} value={preset.id}>
+                {preset.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <article className="setup-hero-card">
+          <div>
+            <p className="text-[11px] font-black uppercase text-mint-50/80">Setup seleccionado</p>
+            <h3>{selectedSetup.label}</h3>
+            <p>{selectedSetup.bestFor}</p>
+          </div>
+          <span className="setup-grid-preview" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <span />
+          </span>
+        </article>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <SetupSuggestionCard
+          label="Comodo"
+          tone="green"
+          value={selectedSetup.comfortable}
+          note="Menos plantas, mas acceso para revisar y registrar."
+        />
+        <SetupSuggestionCard
+          label="Compacto"
+          tone="amber"
+          value={selectedSetup.compact}
+          note="Mas macetas, requiere mejor orden y etiquetas claras."
+        />
+        <SetupSuggestionCard
+          label="Circulacion"
+          tone="blue"
+          value={selectedSetup.airflow}
+          note="Pensado para mantenimiento, fotos y lectura visual."
+        />
+      </div>
+
+      <div className="setup-cheatsheet mt-4">
+        <p className="text-xs font-black uppercase text-stone-500">Regla rapida de lectura</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <ReferenceFact label="Maceta chica" value="3-7 L: plantines, aromaticas o pruebas" />
+          <ReferenceFact label="Maceta media" value="7-15 L: balance entre espacio y manejo" />
+          <ReferenceFact label="Maceta grande" value="15-25 L: menos unidades y mas margen de sustrato" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SetupSuggestionCard({
+  label,
+  note,
+  tone,
+  value
+}: {
+  label: string;
+  note: string;
+  tone: "amber" | "blue" | "green";
+  value: string;
+}) {
+  return (
+    <article className={`setup-card ${tone}`}>
+      <div className="flex items-start justify-between gap-2">
+        <p>{label}</p>
+        <CopyValueButton label={label} value={value} />
+      </div>
+      <strong>{value}</strong>
+      <span>{note}</span>
+    </article>
   );
 }
 
