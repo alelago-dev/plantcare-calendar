@@ -31,6 +31,9 @@ export type Plant = {
   pot: string;
   substrate: string;
   lighting: string;
+  bank?: string;
+  legalRecordStatus?: string;
+  setup?: string;
 };
 
 export type Task = {

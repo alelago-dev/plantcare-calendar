@@ -1119,6 +1119,104 @@ textarea {
     color: #162015;
   }
 
+  .first-cultivation-shell {
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.1);
+    background:
+      radial-gradient(circle at 8% 0%, rgba(226, 180, 87, 0.2), transparent 26%),
+      linear-gradient(135deg, #102416, #23543e 42%, #24766f),
+      #23543e;
+    box-shadow: 0 22px 60px rgba(28, 54, 38, 0.18);
+  }
+
+  .first-cultivation-intro {
+    padding: 1.15rem;
+    color: #ffffff;
+  }
+
+  .first-cultivation-intro h1 {
+    margin-top: 0.35rem;
+    max-width: 760px;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 950;
+    line-height: 0.98;
+  }
+
+  .first-cultivation-intro p:not(.eyebrow) {
+    margin-top: 0.9rem;
+    max-width: 720px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+    font-weight: 750;
+    line-height: 1.55;
+  }
+
+  .first-cultivation-card {
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(248, 250, 244, 0.95)),
+      #ffffff;
+    padding: 1rem;
+  }
+
+  .wizard-steps {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .wizard-step {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.08);
+    background: #ffffff;
+    padding: 0.65rem;
+    color: #52604d;
+    font-size: 0.8rem;
+    font-weight: 950;
+    text-align: left;
+  }
+
+  .wizard-step span {
+    display: grid;
+    height: 26px;
+    width: 26px;
+    place-items: center;
+    border-radius: 6px;
+    background: #eef0ec;
+    color: #23543e;
+    font-size: 0.72rem;
+    font-weight: 950;
+  }
+
+  .wizard-step.active {
+    border-color: rgba(36, 118, 111, 0.26);
+    background: linear-gradient(135deg, #dff1f1, #ffffff);
+    color: #162015;
+    box-shadow: inset 4px 0 0 #24766f;
+  }
+
+  .wizard-step.active span {
+    background: #23543e;
+    color: #ffffff;
+  }
+
+  @media (min-width: 768px) {
+    .first-cultivation-intro {
+      padding: 1.6rem;
+    }
+
+    .first-cultivation-card {
+      padding: 1.25rem;
+    }
+
+    .wizard-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
   .onboarding-backdrop {
     position: fixed;
     inset: 0;

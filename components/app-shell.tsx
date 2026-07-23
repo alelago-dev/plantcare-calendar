@@ -13,6 +13,7 @@ import {
   getTodayIso
 } from "@/lib/calendar-events";
 import { getSectionHref, navigationByLocale, type AppSection } from "@/lib/navigation";
+import { getGeneticsCatalogAlphabetically } from "@/lib/genetics-catalog";
 import { requestReminderNotification } from "@/lib/notifications";
 import { seedCatalog } from "@/lib/seed-catalog";
 import type { CalendarEvent, CalendarEventOccurrence, CareEntry, Dictionary, GrowSpace, Locale, Plant, Task } from "@/lib/types";
@@ -54,8 +55,48 @@ type QuickPlantInput = {
   recurrenceDays: number;
 };
 
+type FirstCultivationInput = {
+  bank: string;
+  geneticName: string;
+  legalRecordStatus: string;
+  light: string;
+  mode: Plant["mode"];
+  nickname: string;
+  pot: string;
+  setup: string;
+  startDate: string;
+  substrate: string;
+  humidityReminderOffset: number;
+  photoReminderOffset: number;
+};
+
 const careScore = 86;
 const manualPlantId = "plant-manual-regulated";
+const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
+const legalBankOptions = ["Catalogo propio", "BSF", "Zig Zag", "Banco legal local", "Otro banco autorizado", "No declarado"];
+const legalRecordStatusOptions = ["Confirmado", "Pendiente de verificar", "No aplica"];
+const legalSetupOptions = [
+  "40 x 40 cm",
+  "60 x 60 cm",
+  "80 x 80 cm",
+  "100 x 100 cm",
+  "120 x 120 cm",
+  "Terraza",
+  "Balcon",
+  "Patio",
+  "Invernaculo chico",
+  "Otro espacio declarado"
+];
+const legalLightOptions = ["LED", "Sodio", "Mixta", "Luz natural", "No declarado"];
+const legalPotOptions = ["No declarado", "3 L", "5 L", "7 L", "10 L", "15 L", "20 L", "25 L", "Otro volumen"];
+const legalSubstrateOptions = ["No declarado", "Organico liviano", "Compost y fibra", "Drenante", "Universal", "Otro declarado"];
+const firstReminderOptions = ["0", "3", "7", "14"];
+const firstReminderLabels = {
+  "0": "Sin recordatorio",
+  "3": "En 3 dias",
+  "7": "En 7 dias",
+  "14": "En 14 dias"
+};
 const storageKeys = {
   calendarDate: "plantcare-calendar-selected-date",
   events: "plantcare-calendar-events",
@@ -98,6 +139,7 @@ export function AppShell({
   const todayHref = getSectionHref(locale, "today");
   const calendarHref = getSectionHref(locale, "calendar");
   const streakCount = getStreakCount(habitDates, todayIso);
+  const shouldShowFirstCultivation = plantState.length === 0 && currentSection !== "privacy";
 
   function handleToggleTask(item: AgendaItem) {
     if (item.source === "event" && item.eventId && item.occurrenceDate) {
@@ -216,6 +258,79 @@ export function AppShell({
     goToCalendar(nextEvents[0]?.startDate ?? todayIso, locale);
   }
 
+  function handleCreateFirstCultivation(input: FirstCultivationInput) {
+    const plantId = createEventId("plant-manual");
+    const plantName = input.nickname.trim() || input.geneticName.trim() || "Cultivo legal";
+    const nextPlant: Plant = {
+      bank: input.bank,
+      id: plantId,
+      legalRecordStatus: input.legalRecordStatus,
+      lighting: input.light,
+      mode: input.mode,
+      name: plantName,
+      pot: input.pot,
+      setup: input.setup,
+      spaceId: spaces[0]?.id ?? "space-patio",
+      stage: "Inicio declarado",
+      startedAt: input.startDate,
+      substrate: input.substrate,
+      variety: input.geneticName.trim() || "Genetica declarada por usuario"
+    };
+    const nextEvents: CalendarEvent[] = [
+      {
+        completedDates: [],
+        description: `Alta manual del cultivo. Banco: ${input.bank}. Registro legal: ${input.legalRecordStatus}.`,
+        id: createEventId("event-review"),
+        kind: "review",
+        plantId,
+        source: "manual",
+        startDate: input.startDate,
+        title: "Inicio de cultivo declarado"
+      }
+    ];
+
+    if (input.humidityReminderOffset > 0) {
+      nextEvents.push({
+        completedDates: [],
+        description: "Recordatorio manual para revisar humedad antes de decidir riego.",
+        id: createEventId("event-water"),
+        kind: "watering",
+        plantId,
+        source: "manual",
+        startDate: offsetDate(input.startDate, input.humidityReminderOffset),
+        title: "Revision de humedad"
+      });
+    }
+
+    if (input.photoReminderOffset > 0) {
+      nextEvents.push({
+        completedDates: [],
+        description: "Recordatorio manual para sumar foto y nota a la bitacora.",
+        id: createEventId("event-photo"),
+        kind: "photo",
+        plantId,
+        source: "manual",
+        startDate: offsetDate(input.startDate, input.photoReminderOffset),
+        title: "Registro fotografico"
+      });
+    }
+
+    const nextPlantState = [nextPlant, ...plantState];
+    const nextEventState = [...nextEvents, ...eventState];
+
+    setPlantState(nextPlantState);
+    setEventState(nextEventState);
+    persistStoredState(storageKeys.plants, nextPlantState);
+    persistStoredState(storageKeys.events, nextEventState);
+    persistCalendarDate(nextEvents[0]?.startDate ?? todayIso);
+    void requestReminderNotification({
+      body: "Primer cultivo creado con datos manuales.",
+      title: "PlantCare Calendar",
+      url: calendarHref
+    });
+    goToCalendar(nextEvents[0]?.startDate ?? todayIso, locale);
+  }
+
   function handleClearCultivationData() {
     setPlantState([]);
     setTaskState([]);
@@ -265,7 +380,11 @@ export function AppShell({
         </div>
       </header>
 
-      {currentSection === "today" ? (
+      {shouldShowFirstCultivation ? (
+        <FirstCultivationScreen onCreateFirstCultivation={handleCreateFirstCultivation} />
+      ) : null}
+
+      {!shouldShowFirstCultivation && currentSection === "today" ? (
         <TodaySection
           agendaItems={agendaItems}
           careScore={careScore}
@@ -280,17 +399,17 @@ export function AppShell({
         />
       ) : null}
 
-      {currentSection === "seeds" ? (
+      {!shouldShowFirstCultivation && currentSection === "seeds" ? (
         <SeedsSection
           calendarHref={calendarHref}
           locale={locale}
           onCreateManualEvents={handleAddManualEvents}
         />
       ) : null}
-      {currentSection === "spaces" ? (
+      {!shouldShowFirstCultivation && currentSection === "spaces" ? (
         <SpacesSection calendarEvents={eventState} entries={entries} plants={plantState} spaces={spaces} />
       ) : null}
-      {currentSection === "calendar" ? (
+      {!shouldShowFirstCultivation && currentSection === "calendar" ? (
         <CalendarSection
           events={eventState}
           locale={locale}
@@ -298,10 +417,10 @@ export function AppShell({
           plants={plantState}
         />
       ) : null}
-      {currentSection === "journal" ? <JournalSection entries={entries} onCreateQuickPlant={handleCreateQuickPlant} plants={plantState} /> : null}
+      {!shouldShowFirstCultivation && currentSection === "journal" ? <JournalSection entries={entries} onCreateQuickPlant={handleCreateQuickPlant} plants={plantState} /> : null}
       {currentSection === "privacy" ? <PrivacySection onClearCultivationData={handleClearCultivationData} /> : null}
 
-      {showOnboarding ? (
+      {showOnboarding && !shouldShowFirstCultivation ? (
         <OnboardingFlow
           onClose={() => {
             window.localStorage.setItem(storageKeys.onboarding, "true");
@@ -322,6 +441,166 @@ export function AppShell({
         ))}
       </nav>
     </main>
+  );
+}
+
+function FirstCultivationScreen({
+  onCreateFirstCultivation
+}: {
+  onCreateFirstCultivation: (input: FirstCultivationInput) => void;
+}) {
+  const todayIso = getTodayIso();
+  const geneticOptions = [
+    "No seleccionada",
+    ...geneticsCatalogAlphabetically.map((genetic) => genetic.name),
+    "Otra / no listada"
+  ];
+  const [step, setStep] = useState(0);
+  const [bank, setBank] = useState(legalBankOptions[0]);
+  const [legalRecordStatus, setLegalRecordStatus] = useState(legalRecordStatusOptions[0]);
+  const [geneticName, setGeneticName] = useState(geneticOptions[0]);
+  const [customGeneticName, setCustomGeneticName] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [mode, setMode] = useState<Plant["mode"]>("Interior");
+  const [setup, setSetup] = useState("80 x 80 cm");
+  const [light, setLight] = useState("LED");
+  const [pot, setPot] = useState("10 L");
+  const [substrate, setSubstrate] = useState("No declarado");
+  const [startDate, setStartDate] = useState(todayIso);
+  const [humidityReminderOffset, setHumidityReminderOffset] = useState(7);
+  const [photoReminderOffset, setPhotoReminderOffset] = useState(7);
+  const selectedGeneticName = geneticName === "Otra / no listada" ? customGeneticName.trim() : geneticName;
+  const stepTitles = ["Identificacion", "Espacio de cultivo", "Fechas y recordatorios"];
+
+  function handleSubmit() {
+    onCreateFirstCultivation({
+      bank,
+      geneticName: selectedGeneticName || "Genetica declarada por usuario",
+      humidityReminderOffset,
+      legalRecordStatus,
+      light,
+      mode,
+      nickname,
+      photoReminderOffset,
+      pot,
+      setup,
+      startDate,
+      substrate
+    });
+  }
+
+  return (
+    <section className="mx-auto max-w-5xl px-4 pb-12 pt-6 sm:px-6 lg:px-8">
+      <div className="first-cultivation-shell">
+        <div className="first-cultivation-intro">
+          <p className="eyebrow text-mint-50/80">Primer cultivo</p>
+          <h1>Configuremos tu cultivo paso a paso</h1>
+          <p>
+            Carga banco, registro, genetica, espacio y primeros recordatorios. Para cultivos regulados, todo queda como
+            dato declarado manualmente por el usuario.
+          </p>
+        </div>
+
+        <div className="first-cultivation-card">
+          <div className="wizard-steps" aria-label="Pasos del alta inicial">
+            {stepTitles.map((title, index) => (
+              <button
+                aria-current={step === index ? "step" : undefined}
+                className={step === index ? "wizard-step active" : "wizard-step"}
+                key={title}
+                onClick={() => setStep(index)}
+                type="button"
+              >
+                <span>{index + 1}</span>
+                {title}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-5">
+            {step === 0 ? (
+              <div className="grid gap-3">
+                <SectionHeader eyebrow="Datos declarados" title="Identificacion" />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FormSelect label="Banco o catalogo" onChange={setBank} options={legalBankOptions} value={bank} />
+                  <FormSelect
+                    label="Registro legal"
+                    onChange={setLegalRecordStatus}
+                    options={legalRecordStatusOptions}
+                    value={legalRecordStatus}
+                  />
+                  <FormSelect label="Nombre de genetica" onChange={setGeneticName} options={geneticOptions} value={geneticName} />
+                  <FormField label="Nombre visible del cultivo" onChange={setNickname} placeholder="Ej. Indoor 80 julio" value={nickname} />
+                </div>
+                {geneticName === "Otra / no listada" ? (
+                  <FormField
+                    label="Genetica escrita por el usuario"
+                    onChange={setCustomGeneticName}
+                    placeholder="Nombre declarado"
+                    value={customGeneticName}
+                  />
+                ) : null}
+              </div>
+            ) : null}
+
+            {step === 1 ? (
+              <div className="grid gap-3">
+                <SectionHeader eyebrow="Setup" title="Espacio de cultivo" />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <ModeSelect onChange={setMode} value={mode} />
+                  <FormSelect label="Tamano/lugar" onChange={setSetup} options={legalSetupOptions} value={setup} />
+                  <FormSelect label="Tipo de luz" onChange={setLight} options={legalLightOptions} value={light} />
+                  <FormSelect label="Maceta" onChange={setPot} options={legalPotOptions} value={pot} />
+                  <FormSelect label="Sustrato" onChange={setSubstrate} options={legalSubstrateOptions} value={substrate} />
+                </div>
+              </div>
+            ) : null}
+
+            {step === 2 ? (
+              <div className="grid gap-3">
+                <SectionHeader eyebrow="Agenda manual" title="Fechas y recordatorios" />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FormField label="Fecha de inicio" onChange={setStartDate} placeholder={todayIso} value={startDate} />
+                  <FormSelect
+                    label="Revision de humedad"
+                    onChange={(value) => setHumidityReminderOffset(Number(value))}
+                    options={firstReminderOptions}
+                    value={String(humidityReminderOffset)}
+                    valueLabels={firstReminderLabels}
+                  />
+                  <FormSelect
+                    label="Registro fotografico"
+                    onChange={(value) => setPhotoReminderOffset(Number(value))}
+                    options={firstReminderOptions}
+                    value={String(photoReminderOffset)}
+                    valueLabels={firstReminderLabels}
+                  />
+                </div>
+                <div className="rounded-lg border border-moss-950/10 bg-paper/80 p-3 text-sm font-bold leading-6 text-stone-700">
+                  Estos recordatorios no calculan tareas de cultivo. Solo guardan fechas elegidas por el usuario para
+                  que aparezcan en el calendario.
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <button className="secondary-button" disabled={step === 0} onClick={() => setStep((value) => Math.max(0, value - 1))} type="button">
+              Atras
+            </button>
+            {step < stepTitles.length - 1 ? (
+              <button className="primary-button" onClick={() => setStep((value) => Math.min(stepTitles.length - 1, value + 1))} type="button">
+                Continuar
+              </button>
+            ) : (
+              <button className="primary-button" onClick={handleSubmit} type="button">
+                Guardar cultivo e ir al calendario
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
