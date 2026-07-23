@@ -96,6 +96,11 @@ export function ManualCannabisForm({
   const [stageReminder, setStageReminder] = useState("none");
   const [dryingReminder, setDryingReminder] = useState("none");
   const [maintenanceReminder, setMaintenanceReminder] = useState("7");
+  const [photoReminder, setPhotoReminder] = useState("none");
+  const [structureReminder, setStructureReminder] = useState("none");
+  const [nutritionReminder, setNutritionReminder] = useState("none");
+  const [pestReminder, setPestReminder] = useState("none");
+  const [closingReminder, setClosingReminder] = useState("none");
   const [recurrenceDays, setRecurrenceDays] = useState("0");
   const [recurrenceEnd, setRecurrenceEnd] = useState("none");
   const [statusMessage, setStatusMessage] = useState("");
@@ -134,6 +139,36 @@ export function ManualCannabisForm({
         kind: "cleaning",
         title: "Mantenimiento",
         value: maintenanceReminder
+      },
+      {
+        description: "Fecha declarada manualmente por el usuario para registrar foto de seguimiento.",
+        kind: "photo",
+        title: "Registro fotografico",
+        value: photoReminder
+      },
+      {
+        description: "Fecha declarada manualmente por el usuario para trabajo de estructura o poda.",
+        kind: "review",
+        title: "Trabajo de estructura / poda",
+        value: structureReminder
+      },
+      {
+        description: "Fecha declarada manualmente por el usuario para registrar nutricion o fertilizacion.",
+        kind: "review",
+        title: "Nutricion / fertilizacion",
+        value: nutritionReminder
+      },
+      {
+        description: "Fecha declarada manualmente por el usuario para prevencion o revision de plagas.",
+        kind: "review",
+        title: "Prevencion de plagas",
+        value: pestReminder
+      },
+      {
+        description: "Fecha declarada manualmente por el usuario para cierre de riego o fertilizacion.",
+        kind: "review",
+        title: "Cierre de riego / fertilizacion",
+        value: closingReminder
       }
     ];
     const todayIso = getTodayIso();
@@ -221,6 +256,11 @@ export function ManualCannabisForm({
         <FormSelect label="Cambio de etapa / flora" options={reminderOptions} value={stageReminder} onChange={setStageReminder} />
         <FormSelect label="Secado de ramas" options={reminderOptions} value={dryingReminder} onChange={setDryingReminder} />
         <FormSelect label="Mantenimiento" options={reminderOptions} value={maintenanceReminder} onChange={setMaintenanceReminder} />
+        <FormSelect label="Registro fotografico" options={reminderOptions} value={photoReminder} onChange={setPhotoReminder} />
+        <FormSelect label="Trabajo de estructura / poda" options={reminderOptions} value={structureReminder} onChange={setStructureReminder} />
+        <FormSelect label="Nutricion / fertilizacion" options={reminderOptions} value={nutritionReminder} onChange={setNutritionReminder} />
+        <FormSelect label="Prevencion de plagas" options={reminderOptions} value={pestReminder} onChange={setPestReminder} />
+        <FormSelect label="Cierre de riego / fertilizacion" options={reminderOptions} value={closingReminder} onChange={setClosingReminder} />
         <FormSelect label="Recurrencia" options={recurrenceOptions} value={recurrenceDays} onChange={setRecurrenceDays} />
         <FormSelect label="Fin recurrencia" options={recurrenceEndOptions} value={recurrenceEnd} onChange={setRecurrenceEnd} />
       </FormGroup>

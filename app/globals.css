@@ -681,6 +681,17 @@ textarea {
     color: #ffffff;
   }
 
+  .setup-builder {
+    display: grid;
+    gap: 0.85rem;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.08);
+    background:
+      linear-gradient(135deg, rgba(255, 248, 231, 0.74), rgba(223, 241, 241, 0.42)),
+      rgba(255, 255, 255, 0.86);
+    padding: 0.9rem;
+  }
+
   .setup-hero-card h3 {
     margin-top: 0.25rem;
     font-size: 1.65rem;
@@ -772,6 +783,40 @@ textarea {
     border: 1px solid rgba(22, 32, 21, 0.08);
     background: rgba(255, 255, 255, 0.72);
     padding: 0.85rem;
+  }
+
+  .manual-task-template {
+    display: grid;
+    gap: 0.35rem;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.08);
+    background: rgba(248, 250, 244, 0.82);
+    padding: 0.75rem;
+  }
+
+  .manual-task-template strong {
+    color: #162015;
+    font-size: 0.9rem;
+    font-weight: 950;
+    line-height: 1.25;
+  }
+
+  .manual-task-template span {
+    width: fit-content;
+    border-radius: 999px;
+    background: #eef0ec;
+    padding: 0.2rem 0.45rem;
+    color: #52604d;
+    font-size: 0.68rem;
+    font-weight: 950;
+    text-transform: uppercase;
+  }
+
+  .manual-task-template p {
+    color: #52604d;
+    font-size: 0.8rem;
+    font-weight: 750;
+    line-height: 1.45;
   }
 
   .plant-row {

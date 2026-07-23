@@ -34,6 +34,25 @@ const tabs: Array<{ id: SeedTab; label: string }> = [
 
 const regulatedSeedOptions = seedCatalog.filter((seed) => seed.regulated);
 const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
+const spaceTypeOptions = [
+  { id: "interior", label: "Interior" },
+  { id: "exterior", label: "Exterior" },
+  { id: "greenhouse", label: "Invernaculo" }
+];
+const outdoorPlaceOptions = [
+  "Terraza",
+  "Balcon",
+  "Patio",
+  "Jardin",
+  "Region aproximada"
+];
+const greenhousePlaceOptions = [
+  "Mini invernaculo",
+  "Invernaculo chico",
+  "Invernaculo mediano",
+  "Tunel",
+  "Otro espacio declarado"
+];
 const setupPresets = [
   {
     id: "40x40",
@@ -84,6 +103,48 @@ const setupPresets = [
     lightFit: "LED modular, mixta o sodio si el usuario declara control termico suficiente.",
     plantHeight: "80-130 cm de altura util declarada",
     bestFor: "Espacio amplio con calendario por planta."
+  }
+];
+const manualTaskTemplates = [
+  {
+    title: "Revision de humedad",
+    cadence: "Manual o recurrente",
+    detail: "Registrar tacto, peso de maceta o sensor antes de decidir si corresponde regar."
+  },
+  {
+    title: "Registro fotografico",
+    cadence: "Manual semanal",
+    detail: "Tomar fotos comparables por planta para ver evolucion y dejar evidencia de seguimiento."
+  },
+  {
+    title: "Limpieza y mantenimiento",
+    cadence: "Manual",
+    detail: "Anotar limpieza, filtros, ventilacion, orden de cables o estado general del espacio."
+  },
+  {
+    title: "Trabajo de estructura / poda",
+    cadence: "Fecha definida por usuario",
+    detail: "Usar solo como recordatorio de una tarea decidida previamente por el cultivador."
+  },
+  {
+    title: "Nutricion / fertilizacion",
+    cadence: "Fecha definida por usuario",
+    detail: "Registrar producto, dosis declarada por el usuario y observaciones posteriores."
+  },
+  {
+    title: "Prevencion de plagas",
+    cadence: "Revision visual",
+    detail: "Agendar inspeccion de hojas, sustrato y entorno sin guardar domicilios exactos."
+  },
+  {
+    title: "Cambio de etapa declarado",
+    cadence: "Fecha definida por usuario",
+    detail: "Marcar hitos cargados manualmente para que el calendario los recuerde."
+  },
+  {
+    title: "Cierre de riego / fertilizacion",
+    cadence: "Fecha definida por usuario",
+    detail: "Recordar una decision ya tomada por el usuario, sin calcularla desde la genetica."
   }
 ];
 
@@ -148,8 +209,16 @@ export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: See
 }
 
 function SetupSuggestionsTab() {
+  const [spaceType, setSpaceType] = useState("interior");
   const [setupId, setSetupId] = useState("80x80");
+  const [outdoorPlace, setOutdoorPlace] = useState(outdoorPlaceOptions[0]);
+  const [greenhousePlace, setGreenhousePlace] = useState(greenhousePlaceOptions[1]);
+  const [geneticId, setGeneticId] = useState("");
   const selectedSetup = setupPresets.find((preset) => preset.id === setupId) ?? setupPresets[2];
+  const selectedGenetic = geneticsCatalogAlphabetically.find((genetic) => genetic.id === geneticId);
+  const isInterior = spaceType === "interior";
+  const isGreenhouse = spaceType === "greenhouse";
+  const selectedPlace = isInterior ? selectedSetup.label : isGreenhouse ? greenhousePlace : outdoorPlace;
 
   return (
     <section className="surface p-4 sm:p-5" aria-labelledby="setup-title">
@@ -159,27 +228,77 @@ function SetupSuggestionsTab() {
       </div>
 
       <div className="mt-4 rounded-lg border border-moss-950/10 bg-white/88 p-3 text-sm font-bold leading-6 text-stone-700">
-        Son plantillas de distribucion para ordenar el espacio. No calculan cosecha, rendimiento, riego ni calendario
-        para cultivos regulados.
+        Configura el contexto de cultivo legal para tomar decisiones manuales. La app muestra referencias de espacio y
+        genetica, pero no calcula cosecha, rendimiento, riego ni labores para cultivos regulados.
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[0.75fr_1.25fr]">
-        <label className="grid gap-1 text-sm font-black text-moss-950">
-          Tamano de carpa / indoor
-          <select className="form-control" value={setupId} onChange={(event) => setSetupId(event.target.value)}>
-            {setupPresets.map((preset) => (
-              <option key={preset.id} value={preset.id}>
-                {preset.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="setup-builder">
+          <label className="grid gap-1 text-sm font-black text-moss-950">
+            Sector de cultivo
+            <select className="form-control" value={spaceType} onChange={(event) => setSpaceType(event.target.value)}>
+              {spaceTypeOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          {isInterior ? (
+            <label className="grid gap-1 text-sm font-black text-moss-950">
+              Tamano de carpa / indoor
+              <select className="form-control" value={setupId} onChange={(event) => setSetupId(event.target.value)}>
+                {setupPresets.map((preset) => (
+                  <option key={preset.id} value={preset.id}>
+                    {preset.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+
+          {!isInterior ? (
+            <label className="grid gap-1 text-sm font-black text-moss-950">
+              {isGreenhouse ? "Tipo de invernaculo" : "Lugar exterior"}
+              <select
+                className="form-control"
+                value={isGreenhouse ? greenhousePlace : outdoorPlace}
+                onChange={(event) => {
+                  if (isGreenhouse) {
+                    setGreenhousePlace(event.target.value);
+                    return;
+                  }
+                  setOutdoorPlace(event.target.value);
+                }}
+              >
+                {(isGreenhouse ? greenhousePlaceOptions : outdoorPlaceOptions).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
+
+          <label className="grid gap-1 text-sm font-black text-moss-950">
+            Genetica de referencia
+            <select className="form-control" value={geneticId} onChange={(event) => setGeneticId(event.target.value)}>
+              <option value="">Sin genetica seleccionada</option>
+              {geneticsCatalogAlphabetically.map((genetic) => (
+                <option key={genetic.id} value={genetic.id}>
+                  {genetic.name} - {formatGeneticType(genetic.type)}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
         <article className="setup-hero-card">
           <div>
             <p className="text-[11px] font-black uppercase text-mint-50/80">Setup seleccionado</p>
-            <h3>{selectedSetup.label}</h3>
-            <p>{selectedSetup.bestFor}</p>
+            <h3>{selectedPlace}</h3>
+            <p>{isInterior ? selectedSetup.bestFor : "Espacio declarado por el usuario para organizar calendario y bitacora."}</p>
           </div>
           <span className="setup-grid-preview" aria-hidden="true">
             <span />
@@ -194,33 +313,66 @@ function SetupSuggestionsTab() {
         <SetupSuggestionCard
           label="Comodo"
           tone="green"
-          value={selectedSetup.comfortable}
+          value={isInterior ? selectedSetup.comfortable : "Definir cantidad de plantas segun acceso, normativa y registro declarado"}
           note="Menos plantas, mas acceso para revisar y registrar."
         />
         <SetupSuggestionCard
           label="Compacto"
           tone="amber"
-          value={selectedSetup.compact}
+          value={isInterior ? selectedSetup.compact : "Mantener separacion suficiente para inspeccion visual y fotos"}
           note="Mas macetas, requiere mejor orden y etiquetas claras."
         />
         <SetupSuggestionCard
           label="Circulacion"
           tone="blue"
-          value={selectedSetup.airflow}
+          value={isInterior ? selectedSetup.airflow : "Dejar margen para caminar, revisar hojas, mover macetas y proteger del clima"}
           note="Pensado para mantenimiento, fotos y lectura visual."
         />
         <SetupSuggestionCard
           label="Luz compatible"
           tone="teal"
-          value={selectedSetup.lightFit}
+          value={isInterior ? selectedSetup.lightFit : "Luz natural declarada; registrar sombra, viento y exposicion aproximada"}
           note="Referencia por calor y espacio; el usuario declara el equipo real."
         />
         <SetupSuggestionCard
           label="Altura util"
           tone="soft"
-          value={selectedSetup.plantHeight}
+          value={isInterior ? selectedSetup.plantHeight : "Altura declarada por el usuario segun privacidad, viento y soporte"}
           note="Margen fisico para no perder acceso ni tocar luminaria o techo."
         />
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <article className="setup-cheatsheet">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase text-stone-500">Genetica seleccionada</p>
+              <h3 className="mt-1 text-lg font-black text-moss-950">{selectedGenetic?.name ?? "Sin genetica"}</h3>
+            </div>
+            <span className="mode-badge manual">Manual</span>
+          </div>
+          {selectedGenetic ? (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <ReferenceFact label="Tipo" value={formatGeneticType(selectedGenetic.type)} />
+              <ReferenceFact label="Floracion publicada" value={formatRange(selectedGenetic.flowering_weeks_range, "semanas")} />
+              <ReferenceFact label="THC publicado" value={formatRange(selectedGenetic.thc_percent_range, "%")} />
+              <ReferenceFact label="Fuente" value={selectedGenetic.source} />
+            </div>
+          ) : (
+            <p className="mt-3 text-sm font-bold leading-6 text-stone-700">
+              Elegi una genetica para ver datos publicados como referencia y copiarlos si queres cargarlos a mano.
+            </p>
+          )}
+        </article>
+
+        <article className="setup-cheatsheet">
+          <p className="text-xs font-black uppercase text-stone-500">Checklist manual para calendario</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {manualTaskTemplates.map((task) => (
+              <ManualTaskTemplateCard key={task.title} task={task} />
+            ))}
+          </div>
+        </article>
       </div>
 
       <div className="setup-cheatsheet mt-4">
@@ -232,6 +384,29 @@ function SetupSuggestionsTab() {
         </div>
       </div>
     </section>
+  );
+}
+
+function ManualTaskTemplateCard({
+  task
+}: {
+  task: {
+    cadence: string;
+    detail: string;
+    title: string;
+  };
+}) {
+  const value = `${task.title} - ${task.cadence}`;
+
+  return (
+    <div className="manual-task-template">
+      <div className="flex items-start justify-between gap-2">
+        <strong>{task.title}</strong>
+        <CopyValueButton label={task.title} value={value} />
+      </div>
+      <span>{task.cadence}</span>
+      <p>{task.detail}</p>
+    </div>
   );
 }
 
