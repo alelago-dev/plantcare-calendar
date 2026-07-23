@@ -105,6 +105,7 @@ export function ManualCannabisForm({
   const [indoorSize, setIndoorSize] = useState(indoorSizeOptions[0]);
   const [lightType, setLightType] = useState("LED");
   const [potLiters, setPotLiters] = useState(potOptions[0]);
+  const [geneticNote, setGeneticNote] = useState("");
   const [moistureReminder, setMoistureReminder] = useState("0");
   const [stageReminder, setStageReminder] = useState("none");
   const [dryingReminder, setDryingReminder] = useState("none");
@@ -233,24 +234,22 @@ export function ManualCannabisForm({
         <FormSelect label="Banco o catalogo" options={bankOptions} recentKey="bank" />
         <GeneticPredictiveSelect value={geneticName} onChange={setGeneticName} />
         <FormSelect label="Registro legal" options={["Confirmado", "Pendiente de verificar", "No aplica"]} />
-        <FormSelect
-          allowClipboardPaste
-          label="Tipo declarado"
-          options={seedTypeOptions}
-          value={seedType}
-          onChange={(nextValue) => setSeedType(nextValue as SeedType)}
-        />
       </FormGroup>
 
       <FormGroup title="Datos de cultivo">
-        <GeneticDataReference genetic={selectedGenetic} visualReference={visualReference} />
-        <FormSelect allowClipboardPaste label="Dias a flora" options={floweringDayOptions} value={daysToFlower} onChange={setDaysToFlower} />
-        <FormSelect
-          allowClipboardPaste
-          label="Semanas de floracion"
-          options={floweringWeekOptions}
-          value={floweringWeeks}
-          onChange={setFloweringWeeks}
+        <GeneticDataReference
+          daysToFlower={daysToFlower}
+          floweringWeeks={floweringWeeks}
+          genetic={selectedGenetic}
+          geneticNote={geneticNote}
+          onDaysToFlowerChange={setDaysToFlower}
+          onFloweringWeeksChange={setFloweringWeeks}
+          onGeneticNoteChange={setGeneticNote}
+          onPotLitersChange={setPotLiters}
+          onSeedTypeChange={(nextValue) => setSeedType(nextValue as SeedType)}
+          potLiters={potLiters}
+          seedType={seedType}
+          visualReference={visualReference}
         />
         <FormSelect allowClipboardPaste label="Tipo de espacio" options={["Interior", "Exterior", "Invernadero"]} value={spaceType} onChange={setSpaceType} />
         <FormSelect allowClipboardPaste label="Tamano indoor" options={indoorSizeOptions} recentKey="indoor-size" value={indoorSize} onChange={setIndoorSize} />
@@ -262,7 +261,6 @@ export function ManualCannabisForm({
           value={lightType}
           onChange={setLightType}
         />
-        <FormSelect allowClipboardPaste label="Maceta en litros" options={potOptions} recentKey="pot-liters" value={potLiters} onChange={setPotLiters} />
       </FormGroup>
 
       <FormGroup title="Fechas y recordatorios">
@@ -300,15 +298,36 @@ export function ManualCannabisForm({
 }
 
 function GeneticDataReference({
+  daysToFlower,
+  floweringWeeks,
   genetic,
+  geneticNote,
+  onDaysToFlowerChange,
+  onFloweringWeeksChange,
+  onGeneticNoteChange,
+  onPotLitersChange,
+  onSeedTypeChange,
+  potLiters,
+  seedType,
   visualReference
 }: {
+  daysToFlower: string;
+  floweringWeeks: string;
   genetic?: GeneticReferenceEntry;
+  geneticNote: string;
+  onDaysToFlowerChange: (value: string) => void;
+  onFloweringWeeksChange: (value: string) => void;
+  onGeneticNoteChange: (value: string) => void;
+  onPotLitersChange: (value: string) => void;
+  onSeedTypeChange: (value: string) => void;
+  potLiters: string;
+  seedType: SeedType;
   visualReference?: ReturnType<typeof getReferenceRow>;
 }) {
-  const floweringWeeks = genetic ? formatWeekRange(genetic.flowering_weeks_range) : visualReference?.flowering_weeks_range ?? "No declarado";
-  const daysToFlower = visualReference?.days_to_flower_range ?? "No declarado";
+  const referenceFloweringWeeks = genetic ? formatWeekRange(genetic.flowering_weeks_range) : visualReference?.flowering_weeks_range ?? "No declarado";
+  const referenceDaysToFlower = visualReference?.days_to_flower_range ?? "No declarado";
   const geneticType = genetic ? formatGeneticType(genetic.type) : "Segun tipo declarado";
+  const thcReference = genetic ? formatThcRange(genetic.thc_percent_range) : "No declarado";
 
   return (
     <article className="manual-reference-card sm:col-span-2" aria-label="Referencia visual de la genetica seleccionada">
@@ -322,18 +341,75 @@ function GeneticDataReference({
         </div>
         <span className="mode-badge manual">Manual</span>
       </div>
-      <div className="mt-3 grid gap-2 sm:grid-cols-4">
-        <ReferenceValue label="Tipo publicado" targetField="Tipo declarado" value={geneticType} />
-        <ReferenceValue label="Dias a flora ref." targetField="Dias a flora" value={daysToFlower} />
-        <ReferenceValue label="Floracion/ciclo" targetField="Semanas de floracion" value={floweringWeeks} />
-        <ReferenceValue
-          label="THC publicado"
-          targetField="Nota manual de genetica"
-          value={genetic ? formatThcRange(genetic.thc_percent_range) : "No declarado"}
-        />
+      <div className="reference-field-grid">
+        <ReferenceFieldPair label="Tipo publicado" targetField="Tipo declarado" value={geneticType}>
+          <FormSelect
+            allowClipboardPaste
+            label="Tipo declarado"
+            options={seedTypeOptions}
+            value={seedType}
+            onChange={onSeedTypeChange}
+          />
+        </ReferenceFieldPair>
+        <ReferenceFieldPair label="Dias a flora ref." targetField="Dias a flora" value={referenceDaysToFlower}>
+          <FormSelect
+            allowClipboardPaste
+            label="Dias a flora"
+            options={floweringDayOptions}
+            value={daysToFlower}
+            onChange={onDaysToFlowerChange}
+          />
+        </ReferenceFieldPair>
+        <ReferenceFieldPair label="Floracion/ciclo" targetField="Semanas de floracion" value={referenceFloweringWeeks}>
+          <FormSelect
+            allowClipboardPaste
+            label="Semanas de floracion"
+            options={floweringWeekOptions}
+            value={floweringWeeks}
+            onChange={onFloweringWeeksChange}
+          />
+        </ReferenceFieldPair>
+        <ReferenceFieldPair label="Maceta ref." targetField="Maceta en litros" value={visualReference?.pot_liters_range ?? "No declarado"}>
+          <FormSelect
+            allowClipboardPaste
+            label="Maceta en litros"
+            options={potOptions}
+            recentKey="pot-liters"
+            value={potLiters}
+            onChange={onPotLitersChange}
+          />
+        </ReferenceFieldPair>
+        <ReferenceFieldPair label="THC publicado" targetField="Nota manual de genetica" value={thcReference}>
+          <FormTextInput
+            allowClipboardPaste
+            label="Nota manual de genetica"
+            placeholder="Ej: THC publicado 18-22%"
+            value={geneticNote}
+            onChange={onGeneticNoteChange}
+          />
+        </ReferenceFieldPair>
       </div>
       {genetic?.raw_fields ? <RawFieldsPanel fields={genetic.raw_fields} /> : null}
     </article>
+  );
+}
+
+function ReferenceFieldPair({
+  children,
+  label,
+  targetField,
+  value
+}: {
+  children: ReactNode;
+  label: string;
+  targetField: string;
+  value: string;
+}) {
+  return (
+    <div className="reference-field-pair">
+      <ReferenceValue label={label} targetField={targetField} value={value} />
+      <div className="reference-destination-control">{children}</div>
+    </div>
   );
 }
 
@@ -554,6 +630,66 @@ function FormSelect({
               </option>
             ))}
           </select>
+          {allowClipboardPaste ? (
+            <button className="paste-value-button" onClick={handlePasteFromClipboard} type="button">
+              Pegar
+            </button>
+          ) : null}
+        </div>
+      </label>
+      {allowClipboardPaste && pasteStatus ? <span className="paste-status">{pasteStatus}</span> : null}
+    </div>
+  );
+}
+
+function FormTextInput({
+  allowClipboardPaste = false,
+  label,
+  onChange,
+  placeholder,
+  value
+}: {
+  allowClipboardPaste?: boolean;
+  label: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  value: string;
+}) {
+  const [pasteStatus, setPasteStatus] = useState("");
+
+  async function handlePasteFromClipboard() {
+    if (!navigator.clipboard?.readText) {
+      setPasteStatus("El navegador no permite leer el portapapeles.");
+      return;
+    }
+
+    try {
+      const clipboardText = (await navigator.clipboard.readText()).trim();
+
+      if (!clipboardText) {
+        setPasteStatus("No hay texto copiado.");
+        return;
+      }
+
+      onChange(clipboardText);
+      setPasteStatus(`Pegado manualmente en ${label}.`);
+    } catch {
+      setPasteStatus("No se pudo leer el portapapeles.");
+    }
+  }
+
+  return (
+    <div className="grid gap-1">
+      <label className="grid gap-1 text-sm font-black text-moss-950">
+        {label}
+        <div className={allowClipboardPaste ? "paste-select-row" : ""}>
+          <input
+            aria-label={label}
+            className="form-control"
+            placeholder={placeholder}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+          />
           {allowClipboardPaste ? (
             <button className="paste-value-button" onClick={handlePasteFromClipboard} type="button">
               Pegar

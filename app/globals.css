@@ -919,6 +919,7 @@ textarea {
   .reference-value {
     display: grid;
     gap: 0.35rem;
+    min-width: 0;
     border-radius: 8px;
     border: 1px solid rgba(22, 32, 21, 0.08);
     background: rgba(255, 255, 255, 0.78);
@@ -934,6 +935,8 @@ textarea {
   }
 
   .reference-value strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
     color: #162015;
     font-size: 0.92rem;
     font-weight: 950;
@@ -960,6 +963,43 @@ textarea {
     font-weight: 950;
     line-height: 1.15;
     text-transform: none;
+  }
+
+  .reference-field-grid {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.9rem;
+  }
+
+  .reference-field-pair {
+    display: grid;
+    min-width: 0;
+    gap: 0.58rem;
+    border-radius: 8px;
+    border: 1px solid rgba(35, 84, 62, 0.12);
+    background: rgba(255, 255, 255, 0.36);
+    padding: 0.52rem;
+  }
+
+  .reference-destination-control {
+    display: grid;
+    min-width: 0;
+    align-content: end;
+  }
+
+  @media (min-width: 768px) {
+    .reference-field-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .reference-field-pair {
+      grid-template-columns: minmax(160px, 0.88fr) minmax(210px, 1.12fr);
+      align-items: end;
+    }
+
+    .reference-field-pair:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
   }
 
   .setup-hero-card {
@@ -3090,6 +3130,19 @@ textarea {
       padding: 0.72rem;
     }
 
+    .reference-field-grid {
+      gap: 0.62rem;
+    }
+
+    .reference-field-pair {
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .reference-value {
+      padding: 0.58rem;
+    }
+
     .manual-reference-card h4 {
       font-size: 0.98rem;
       line-height: 1.15;
@@ -3279,7 +3332,29 @@ textarea {
   .manual-reference-card {
     border-color: rgba(111, 207, 151, 0.18);
     background:
-      radial-gradient(circle at 100% 0%, rgba(111, 207, 151, 0.12), transparent 30%),
-      linear-gradient(145deg, rgba(242, 247, 244, 0.92), rgba(223, 241, 241, 0.82));
+      radial-gradient(circle at 100% 0%, rgba(111, 207, 151, 0.16), transparent 30%),
+      linear-gradient(145deg, rgba(32, 53, 45, 0.96), rgba(24, 39, 34, 0.94));
+    color: #f2f7f4;
+  }
+
+  .manual-reference-card h4,
+  .manual-reference-card .text-moss-950 {
+    color: #f2f7f4;
+  }
+
+  .manual-reference-card p,
+  .manual-reference-card .text-stone-500,
+  .manual-reference-card .text-stone-600 {
+    color: #aebdb5;
+  }
+
+  .reference-field-pair {
+    border-color: rgba(111, 207, 151, 0.16);
+    background: rgba(242, 247, 244, 0.08);
+  }
+
+  .manual-reference-card .reference-value {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(242, 247, 244, 0.96);
   }
 }
