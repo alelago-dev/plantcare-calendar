@@ -1293,6 +1293,8 @@ function CalendarOccurrenceCard({
   onToggle: () => void;
   plant?: Plant;
 }) {
+  const googleCalendarUrl = buildGoogleCalendarUrl(occurrence, plant);
+
   return (
     <article className="calendar-detail-card">
       <div className="flex items-start gap-3">
@@ -1318,6 +1320,9 @@ function CalendarOccurrenceCard({
             Ver planta
           </a>
         ) : null}
+        <a className="secondary-button" href={googleCalendarUrl} rel="noopener noreferrer" target="_blank">
+          Agregar a Google Calendar
+        </a>
       </div>
     </article>
   );
@@ -1836,6 +1841,30 @@ function formatDisplayDate(isoDate: string) {
     month: "long",
     year: "numeric"
   }).format(new Date(`${isoDate}T00:00:00`));
+}
+
+function buildGoogleCalendarUrl(occurrence: CalendarEventOccurrence, plant?: Plant) {
+  const startDate = formatGoogleCalendarDate(occurrence.date);
+  const endDate = formatGoogleCalendarDate(offsetDate(occurrence.date, 1));
+  const details = [
+    occurrence.description,
+    plant ? `Planta: ${plant.name}` : "",
+    "Creado desde PlantCare Calendar. Evento declarado manualmente por el usuario."
+  ]
+    .filter(Boolean)
+    .join("\n");
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    dates: `${startDate}/${endDate}`,
+    details,
+    text: `PlantCare: ${occurrence.title}`
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function formatGoogleCalendarDate(isoDate: string) {
+  return isoDate.replaceAll("-", "");
 }
 
 function offsetDate(isoDate: string, days: number) {
