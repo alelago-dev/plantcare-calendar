@@ -748,6 +748,151 @@ textarea {
     padding: 0.85rem;
   }
 
+  .genetic-entry-card {
+    display: grid;
+    gap: 0.72rem;
+    min-width: 0;
+    border-radius: 8px;
+    border: 1px solid rgba(36, 118, 111, 0.16);
+    background:
+      radial-gradient(circle at 100% 0%, rgba(36, 118, 111, 0.12), transparent 30%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(232, 243, 223, 0.62));
+    padding: 0.78rem;
+  }
+
+  .genetic-entry-card .form-control {
+    width: 100%;
+    min-width: 0;
+    font-size: 1rem;
+    font-weight: 850;
+  }
+
+  .genetic-suggestion-list {
+    display: grid;
+    max-height: 220px;
+    gap: 0.45rem;
+    overflow: auto;
+    border-radius: 8px;
+    border: 1px solid rgba(35, 84, 62, 0.12);
+    background: rgba(255, 255, 255, 0.82);
+    padding: 0.45rem;
+    box-shadow: 0 12px 24px rgba(28, 54, 38, 0.08);
+  }
+
+  .genetic-suggestion-option {
+    display: grid;
+    gap: 0.18rem;
+    min-height: 46px;
+    border-radius: 8px;
+    padding: 0.58rem 0.68rem;
+    text-align: left;
+    transition:
+      background 160ms ease,
+      transform 160ms ease;
+  }
+
+  .genetic-suggestion-option:hover,
+  .genetic-suggestion-option:focus-visible {
+    background: rgba(223, 241, 241, 0.78);
+    outline: 2px solid rgba(36, 118, 111, 0.34);
+    outline-offset: 2px;
+    transform: translateY(-1px);
+  }
+
+  .genetic-suggestion-option strong,
+  .selected-genetic-card strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: #162015;
+    font-weight: 950;
+    line-height: 1.12;
+  }
+
+  .genetic-suggestion-option span {
+    color: #52604d;
+    font-size: 0.76rem;
+    font-weight: 850;
+    line-height: 1.25;
+  }
+
+  .selected-genetic-card {
+    display: grid;
+    gap: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(35, 84, 62, 0.14);
+    background:
+      linear-gradient(135deg, rgba(16, 36, 22, 0.95), rgba(35, 84, 62, 0.9)),
+      #102416;
+    padding: 0.78rem;
+    color: #ffffff;
+    box-shadow: 0 14px 30px rgba(28, 54, 38, 0.12);
+  }
+
+  .selected-genetic-card span,
+  .selected-genetic-card small,
+  .selected-genetic-card dt {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.72rem;
+    font-weight: 900;
+    line-height: 1.25;
+  }
+
+  .selected-genetic-card strong {
+    display: block;
+    margin-top: 0.2rem;
+    color: #ffffff;
+    font-size: 1.08rem;
+  }
+
+  .selected-genetic-card small {
+    display: block;
+    margin-top: 0.28rem;
+  }
+
+  .selected-genetic-card dl {
+    display: grid;
+    gap: 0.45rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .selected-genetic-card dl > div {
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.11);
+    padding: 0.52rem;
+  }
+
+  .selected-genetic-card dd {
+    margin-top: 0.15rem;
+    color: #f2f7f4;
+    font-size: 0.86rem;
+    font-weight: 950;
+    line-height: 1.15;
+  }
+
+  .genetic-entry-help {
+    color: #52604d;
+    font-size: 0.82rem;
+    font-weight: 750;
+    line-height: 1.45;
+  }
+
+  .genetic-full-list {
+    border-top: 1px solid rgba(35, 84, 62, 0.12);
+    padding-top: 0.65rem;
+  }
+
+  .genetic-full-list summary {
+    cursor: pointer;
+    color: #23543e;
+    font-size: 0.82rem;
+    font-weight: 950;
+    list-style-position: inside;
+  }
+
+  .genetic-full-list label {
+    margin-top: 0.65rem;
+  }
+
   .reference-value {
     display: grid;
     gap: 0.35rem;
@@ -2806,6 +2951,25 @@ textarea {
   }
 
   @media (max-width: 639px) {
+    .genetic-entry-card {
+      margin-inline: -0.25rem;
+      padding: 0.68rem;
+    }
+
+    .genetic-entry-card label,
+    .genetic-full-list label {
+      font-size: 0.88rem;
+    }
+
+    .genetic-full-list .form-control {
+      font-size: 0.92rem;
+      text-overflow: ellipsis;
+    }
+
+    .selected-genetic-card {
+      grid-template-columns: 1fr;
+    }
+
     .finder-result-grid {
       grid-template-columns: 1fr;
     }

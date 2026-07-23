@@ -82,7 +82,7 @@ const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
 const geneticSelectOptions = [
   { label: "No seleccionada", value: "No seleccionada" },
   ...geneticsCatalogAlphabetically.map((genetic) => ({
-    label: `${genetic.name} - ${formatGeneticType(genetic.type)} - ${formatWeekRange(genetic.flowering_weeks_range)}`,
+    label: genetic.name,
     value: genetic.name
   })),
   { label: "Otra / no listada", value: "Otra / no listada" }
@@ -391,13 +391,14 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
   const results = useMemo(() => searchGeneticsByName(query), [query]);
   const selectValue = geneticSelectOptions.some((option) => option.value === value) ? value : "Otra / no listada";
   const showResults = query.trim().length >= 2 && results.length > 0 && query !== value;
+  const selectedGenetic = geneticsCatalogAlphabetically.find((genetic) => genetic.name === value);
 
   function chooseGenetic(genetic: GeneticReferenceEntry) {
     onChange(genetic.name);
   }
 
   return (
-    <div className="grid scroll-mt-28 gap-2 sm:col-span-2" id="manual-genetic-selection">
+    <div className="genetic-entry-card scroll-mt-28 sm:col-span-2" id="manual-genetic-selection">
       <label className="grid gap-1 text-sm font-black text-moss-950">
         Buscar genetica
         <input
@@ -413,35 +414,56 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
       </label>
 
       {showResults ? (
-        <div className="grid max-h-56 gap-1 overflow-auto rounded-lg border border-emerald-900/15 bg-white p-2 shadow-sm">
-          {results.map((genetic) => (
+        <div className="genetic-suggestion-list" aria-label="Coincidencias de genetica">
+          {results.slice(0, 6).map((genetic) => (
             <button
-              className="rounded-md px-2.5 py-2 text-left text-sm font-black text-moss-950 transition hover:bg-mint-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+              className="genetic-suggestion-option"
               key={genetic.id}
               onClick={() => chooseGenetic(genetic)}
               type="button"
             >
-              {genetic.name}
-              <span className="ml-2 text-xs font-bold text-stone-500">
-                {formatGeneticType(genetic.type)} - {genetic.source}
-              </span>
+              <strong>{genetic.name}</strong>
+              <span>{formatGeneticType(genetic.type)} · {formatWeekRange(genetic.flowering_weeks_range)}</span>
             </button>
           ))}
         </div>
       ) : null}
 
-      <FormSelect
-        label={`O elegir desde la lista completa (${geneticsCatalogAlphabetically.length} geneticas)`}
-        options={geneticSelectOptions}
-        value={selectValue}
-        onChange={(nextValue) => {
-          onChange(nextValue);
-        }}
-      />
-      <p className="text-xs font-bold leading-5 text-stone-600">
-        Busca por nombre o banco. Ejemplos cargados: Gorilla Glue #4, AK 47, Red Skunk Auto, OBG Kush. Elegir una
-        genetica solo muestra referencia para copiar; no completa dias, luz, riego ni fechas.
-      </p>
+      {selectedGenetic ? (
+        <article className="selected-genetic-card">
+          <div>
+            <span>Genetica seleccionada</span>
+            <strong>{selectedGenetic.name}</strong>
+            <small>{selectedGenetic.source}</small>
+          </div>
+          <dl>
+            <div>
+              <dt>Tipo</dt>
+              <dd>{formatGeneticType(selectedGenetic.type)}</dd>
+            </div>
+            <div>
+              <dt>Floracion</dt>
+              <dd>{formatWeekRange(selectedGenetic.flowering_weeks_range)}</dd>
+            </div>
+          </dl>
+        </article>
+      ) : (
+        <p className="genetic-entry-help">
+          Busca por nombre o banco. Elegir una genetica solo muestra referencia; no completa dias, luz, riego ni fechas.
+        </p>
+      )}
+
+      <details className="genetic-full-list">
+        <summary>Elegir desde la lista completa ({geneticsCatalogAlphabetically.length})</summary>
+        <FormSelect
+          label="Lista completa de geneticas"
+          options={geneticSelectOptions}
+          value={selectValue}
+          onChange={(nextValue) => {
+            onChange(nextValue);
+          }}
+        />
+      </details>
     </div>
   );
 }
