@@ -573,7 +573,7 @@ function FirstCultivationScreen({
               <div className="grid gap-3">
                 <SectionHeader eyebrow="Agenda manual" title="Fechas y recordatorios" />
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <FormField label="Fecha de inicio" onChange={setStartDate} placeholder={todayIso} value={startDate} />
+                  <FormField label="Fecha de inicio" onChange={setStartDate} placeholder={todayIso} type="date" value={startDate} />
                   <FormSelect
                     label="Revision de humedad"
                     onChange={(value) => setHumidityReminderOffset(Number(value))}
@@ -1517,7 +1517,7 @@ function QuickPlantForm({
     >
       <FormField label="Nombre" onChange={setName} placeholder="Ej. Tomate patio" value={name} />
       <SeedSelect onChange={setSeedId} value={seedId} />
-      <FormField label="Fecha de inicio" onChange={setStartDate} placeholder={todayIso} value={startDate} />
+      <FormField label="Fecha de inicio" onChange={setStartDate} placeholder={todayIso} type="date" value={startDate} />
       <FormSelect label="Region aproximada" onChange={setRegion} options={["Buenos Aires, AR", "Region metropolitana", "Otra region"]} value={region} />
       <div className="grid gap-3 sm:grid-cols-2">
         <FormSelect label="Maceta" onChange={setPot} options={["5 L", "10 L", "15 L", "20 L", "25 L"]} value={pot} />
@@ -1708,17 +1708,26 @@ function FormField({
   label,
   onChange,
   placeholder,
+  type = "text",
   value
 }: {
   label: string;
   onChange: (value: string) => void;
   placeholder: string;
+  type?: "date" | "text";
   value: string;
 }) {
   return (
     <label className="grid gap-1 text-sm font-black text-moss-950">
       {label}
-      <input aria-label={label} className="form-control" onChange={(event) => onChange(event.target.value)} placeholder={placeholder} value={value} />
+      <input
+        aria-label={label}
+        className="form-control"
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        type={type}
+        value={value}
+      />
     </label>
   );
 }
