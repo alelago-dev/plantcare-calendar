@@ -1,11 +1,16 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { addDays, createEventId, getTodayIso } from "@/lib/calendar-events";
 import { CopyValueButton } from "@/components/copy-button";
 import { getReferenceRow, type SeedType } from "@/lib/cultivation-reference";
-import { getGeneticsCatalogAlphabetically, type GeneticReferenceEntry, type GeneticType } from "@/lib/genetics-catalog";
+import {
+  getGeneticsCatalogAlphabetically,
+  searchGeneticsByName,
+  type GeneticReferenceEntry,
+  type GeneticType
+} from "@/lib/genetics-catalog";
 import type { CalendarEvent, CalendarEventKind } from "@/lib/types";
 
 const seedTypeOptions: Array<{ label: string; value: SeedType }> = [
@@ -218,12 +223,7 @@ export function ManualCannabisForm({
     <div className="grid gap-4">
       <FormGroup title="Identificacion">
         <FormSelect label="Banco o catalogo" options={bankOptions} recentKey="bank" />
-        <FormSelect
-          label="Nombre de la genetica"
-          options={geneticSelectOptions}
-          value={geneticName}
-          onChange={setGeneticName}
-        />
+        <GeneticPredictiveSelect value={geneticName} onChange={setGeneticName} />
         <FormSelect label="Registro legal" options={["Confirmado", "Pendiente de verificar", "No aplica"]} />
         <label className="grid gap-1 text-sm font-black text-moss-950">
           Tipo declarado
@@ -349,6 +349,68 @@ function FormGroup({ children, title }: { children: ReactNode; title: string }) 
       <h3 className="text-xs font-black uppercase text-stone-500">{title}</h3>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">{children}</div>
     </section>
+  );
+}
+
+function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string) => void; value: string }) {
+  const [query, setQuery] = useState(value === "No seleccionada" ? "" : value);
+  const results = useMemo(() => searchGeneticsByName(query), [query]);
+  const selectValue = geneticSelectOptions.some((option) => option.value === value) ? value : "Otra / no listada";
+  const showResults = query.trim().length >= 2 && results.length > 0 && query !== value;
+
+  function chooseGenetic(genetic: GeneticReferenceEntry) {
+    setQuery(genetic.name);
+    onChange(genetic.name);
+  }
+
+  return (
+    <div className="grid gap-2 sm:col-span-2">
+      <label className="grid gap-1 text-sm font-black text-moss-950">
+        Buscar genetica
+        <input
+          aria-label="Buscar genetica por nombre, banco o linaje"
+          className="form-control"
+          placeholder="Escribi para buscar: Gorilla, Baseball, Kush..."
+          value={query}
+          onChange={(event) => {
+            const nextQuery = event.target.value;
+            setQuery(nextQuery);
+            onChange(nextQuery.trim() ? nextQuery : "No seleccionada");
+          }}
+        />
+      </label>
+
+      {showResults ? (
+        <div className="grid max-h-56 gap-1 overflow-auto rounded-lg border border-emerald-900/15 bg-white p-2 shadow-sm">
+          {results.map((genetic) => (
+            <button
+              className="rounded-md px-2.5 py-2 text-left text-sm font-black text-moss-950 transition hover:bg-mint-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800"
+              key={genetic.id}
+              onClick={() => chooseGenetic(genetic)}
+              type="button"
+            >
+              {genetic.name}
+              <span className="ml-2 text-xs font-bold text-stone-500">
+                {formatGeneticType(genetic.type)} - {genetic.source}
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      <FormSelect
+        label="O elegir desde la lista completa"
+        options={geneticSelectOptions}
+        value={selectValue}
+        onChange={(nextValue) => {
+          setQuery(nextValue === "No seleccionada" ? "" : nextValue);
+          onChange(nextValue);
+        }}
+      />
+      <p className="text-xs font-bold leading-5 text-stone-600">
+        Elegir una genetica solo muestra referencia para copiar. No completa dias, luz, riego ni fechas.
+      </p>
+    </div>
   );
 }
 
