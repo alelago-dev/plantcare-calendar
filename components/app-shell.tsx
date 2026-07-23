@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { CopyValueButton } from "@/components/copy-button";
 import { SeedsSection } from "@/components/seeds-section";
@@ -1422,9 +1422,21 @@ function CalendarSection({
   const occurrences = useMemo(() => expandEventOccurrences(events, firstDate, lastDate), [events, firstDate, lastDate]);
   const selectedOccurrences = occurrences.filter((occurrence) => occurrence.date === selectedDate);
   const selectedEntries = entries.filter((entry) => entry.createdAt === selectedDate);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const [quickEventStatus, setQuickEventStatus] = useState("");
 
   function handleQuickEvent(action: (typeof calendarQuickActions)[number]) {
+    if (action.kind === "photo") {
+      if (!photoInputRef.current) {
+        setQuickEventStatus("No se pudo abrir la camara en este navegador.");
+        return;
+      }
+
+      photoInputRef.current.value = "";
+      photoInputRef.current.click();
+      return;
+    }
+
     const plantId = plants[0]?.id ?? manualPlantId;
 
     onAddCalendarEvent({
@@ -1438,6 +1450,43 @@ function CalendarSection({
       title: action.title
     });
     setQuickEventStatus(`${action.label} agregado al ${formatDisplayDate(selectedDate)}.`);
+  }
+
+  async function handlePhotoSelected(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const plantId = plants[0]?.id ?? manualPlantId;
+    let photoDataUrl = "";
+
+    try {
+      photoDataUrl = await readPhotoFileAsDataUrl(file);
+    } catch {
+      setQuickEventStatus("No se pudo guardar la foto. Proba elegirla desde galeria.");
+      return;
+    }
+
+    onAddCalendarEvent({
+      completedDates: [],
+      description: "Foto tomada o elegida manualmente para registrar el ultimo estado visual.",
+      id: createEventId("event-photo"),
+      kind: "photo",
+      plantId,
+      source: "manual",
+      startDate: selectedDate,
+      title: "Foto"
+    });
+    onAddJournalEntry({
+      createdAt: selectedDate,
+      id: createEventId("entry-photo"),
+      note: "Registro fotografico del ultimo estado.",
+      photoDataUrl,
+      plantId,
+      tags: ["Foto"],
+      title: "Foto del estado"
+    });
+    setQuickEventStatus(`Foto guardada en bitacora y calendario para ${formatDisplayDate(selectedDate)}.`);
   }
 
   return (
@@ -1465,6 +1514,15 @@ function CalendarSection({
             <span>{action.label}</span>
           </button>
         ))}
+        <input
+          ref={photoInputRef}
+          accept="image/*"
+          aria-label="Tomar o elegir foto del cultivo"
+          capture="environment"
+          className="sr-only"
+          onChange={handlePhotoSelected}
+          type="file"
+        />
         {quickEventStatus ? <span className="pill pill-soft">{quickEventStatus}</span> : null}
       </div>
       <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_360px]">
@@ -1619,6 +1677,10 @@ function CalendarDayJournal({
 
             return (
               <article className="calendar-journal-entry" key={entry.id}>
+                {entry.photoDataUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="calendar-journal-photo" src={entry.photoDataUrl} alt={`Foto de ${entry.title}`} />
+                ) : null}
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[11px] font-black uppercase text-stone-500">{plant?.name ?? "Sin planta"}</p>
@@ -1714,7 +1776,12 @@ function JournalSection({
               <div className="grid gap-3">
                 {group.entries.map((entry) => (
                   <article className="journal-photo-card" key={entry.id}>
-                    <div className="journal-photo" aria-label={`Foto demo de ${entry.title}`} />
+                    {entry.photoDataUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="journal-photo" src={entry.photoDataUrl} alt={`Foto de ${entry.title}`} />
+                    ) : (
+                      <div className="journal-photo" aria-label={`Foto demo de ${entry.title}`} />
+                    )}
                     <div className="p-3">
                       <h3 className="font-black text-moss-950">{entry.title}</h3>
                       <p className="mt-2 text-sm leading-6 text-stone-700">{entry.note}</p>
@@ -2355,6 +2422,23 @@ function getStreakCount(habitDates: string[], todayIso: string) {
   }
 
   return count;
+}
+
+function readPhotoFileAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.addEventListener("load", () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new Error("No se pudo leer la foto seleccionada."));
+    });
+    reader.addEventListener("error", () => reject(reader.error ?? new Error("No se pudo leer la foto seleccionada.")));
+    reader.readAsDataURL(file);
+  });
 }
 
 function useStoredState<T>(key: string, initialState: T) {

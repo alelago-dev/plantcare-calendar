@@ -53,6 +53,7 @@ export type CareEntry = {
   title: string;
   createdAt: string;
   note: string;
+  photoDataUrl?: string;
   tags: string[];
 };
 
