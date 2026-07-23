@@ -37,9 +37,14 @@ export function getSectionFromSlug(locale: Locale, slug: string): AppSection | n
   return navigationByLocale[locale].find((item) => item.slug === slug)?.key ?? null;
 }
 
-export function getSectionHref(locale: Locale, section: AppSection) {
+export function getInternalSectionHref(locale: Locale, section: AppSection) {
   const item = navigationByLocale[locale].find((navItem) => navItem.key === section);
+
+  return `/${locale}/${item?.slug ?? navigationByLocale[locale][0].slug}/`;
+}
+
+export function getSectionHref(locale: Locale, section: AppSection) {
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-  return `${basePath}/${locale}/${item?.slug ?? navigationByLocale[locale][0].slug}/`;
+  return `${basePath}${getInternalSectionHref(locale, section)}`;
 }
