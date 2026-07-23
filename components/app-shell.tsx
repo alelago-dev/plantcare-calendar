@@ -825,7 +825,7 @@ function TodaySection({
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-5 sm:px-6 lg:px-8">
-        <GrowCommandPanel calendarEvents={calendarEvents} plants={plants} weather={weather} />
+        <GrowCommandPanel calendarEvents={calendarEvents} plants={plants} />
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
@@ -889,12 +889,10 @@ function TodaySection({
 
 function GrowCommandPanel({
   calendarEvents,
-  plants,
-  weather
+  plants
 }: {
   calendarEvents: CalendarEvent[];
   plants: Plant[];
-  weather: WeatherReadiness;
 }) {
   const todayIso = getTodayIso();
   const upcomingEvents = calendarEvents
@@ -970,16 +968,6 @@ function GrowCommandPanel({
               ))}
               {upcomingEvents.length === 0 ? <p className="text-sm font-bold text-stone-600">Sin eventos manuales proximos.</p> : null}
             </div>
-          </div>
-          <div className="grow-command-card">
-            <p className="text-[11px] font-black uppercase text-stone-500">
-              {weather.isLive ? "Clima real" : "Clima pendiente"}
-            </p>
-            <strong className="mt-2 block text-moss-950">{weather.region}</strong>
-            <p className="mt-1 text-sm font-bold text-stone-600">{weather.preview[0]?.value ?? "Sin dato"} / {weather.preview[1]?.value ?? "Sin dato"}</p>
-            <span className={weather.isLive ? "mt-3 inline-flex pill pill-green" : "mt-3 inline-flex pill pill-blue"}>
-              {weather.isLive ? "Open-Meteo" : "Activar ubicacion"}
-            </span>
           </div>
         </div>
       </div>
