@@ -949,6 +949,50 @@ textarea {
     background: linear-gradient(135deg, #dff1f1, #ffffff);
   }
 
+  .genetic-pot-grid {
+    display: grid;
+    gap: 0.6rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .genetic-pot-card {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    border-radius: 8px;
+    border: 1px solid rgba(35, 84, 62, 0.14);
+    background: linear-gradient(135deg, rgba(232, 243, 223, 0.72), rgba(255, 255, 255, 0.9));
+    padding: 0.65rem;
+  }
+
+  .genetic-pot-card > span {
+    display: grid;
+    height: 34px;
+    width: 34px;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 8px;
+    background: #23543e;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 950;
+  }
+
+  .genetic-pot-card p {
+    color: #162015;
+    font-size: 0.86rem;
+    font-weight: 950;
+    line-height: 1.2;
+  }
+
+  .genetic-pot-card small {
+    display: block;
+    margin-top: 0.2rem;
+    color: #52604d;
+    font-size: 0.72rem;
+    font-weight: 850;
+  }
+
   .plant-signal {
     display: inline-flex;
     max-width: 100%;

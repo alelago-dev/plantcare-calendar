@@ -1035,6 +1035,7 @@ function SpacesSection({
 }) {
   const [query, setQuery] = useState("");
   const [referenceGeneticId, setReferenceGeneticId] = useState("");
+  const [referencePotCount, setReferencePotCount] = useState(4);
   const [popupGenetic, setPopupGenetic] = useState<GeneticReferenceEntry | null>(null);
   const normalizedQuery = query.trim().toLowerCase();
   const selectedReferenceGenetic = geneticsCatalogAlphabetically.find((genetic) => genetic.id === referenceGeneticId);
@@ -1072,10 +1073,10 @@ function SpacesSection({
             <p className="eyebrow text-emerald-800">Referencia rapida</p>
             <h3 className="mt-1 text-lg font-black text-moss-950">Elegir semilla y ver caracteristicas</h3>
             <p className="mt-1 text-sm font-bold leading-6 text-stone-600">
-              Esta ficha es solo lectura para comparar datos publicados. No completa ni calcula tareas del cultivo.
+              Esta ficha es solo lectura para comparar datos publicados. La cantidad de macetas la declara el usuario.
             </p>
           </div>
-          <div className="grid min-w-72 gap-2">
+          <div className="grid min-w-72 gap-2 sm:grid-cols-[1fr_140px]">
             <label className="grid gap-1 text-sm font-black text-moss-950">
               Genetica de referencia
               <select
@@ -1091,8 +1092,22 @@ function SpacesSection({
                 ))}
               </select>
             </label>
+            <label className="grid gap-1 text-sm font-black text-moss-950">
+              Cantidad
+              <select
+                className="form-control"
+                value={referencePotCount}
+                onChange={(event) => setReferencePotCount(Number(event.target.value))}
+              >
+                {[1, 2, 3, 4, 5, 6, 8, 9, 12].map((count) => (
+                  <option key={count} value={count}>
+                    {count} maceta{count === 1 ? "" : "s"}
+                  </option>
+                ))}
+              </select>
+            </label>
             <button
-              className="secondary-button"
+              className="secondary-button sm:col-span-2"
               disabled={!selectedReferenceGenetic}
               onClick={() => selectedReferenceGenetic && setPopupGenetic(selectedReferenceGenetic)}
               type="button"
@@ -1101,6 +1116,19 @@ function SpacesSection({
             </button>
           </div>
         </div>
+        {selectedReferenceGenetic ? (
+          <div className="genetic-pot-grid mt-4" aria-label="Macetas declaradas para la genetica seleccionada">
+            {Array.from({ length: referencePotCount }, (_, index) => (
+              <article className="genetic-pot-card" key={`${selectedReferenceGenetic.id}-${index}`}>
+                <span>{index + 1}</span>
+                <div>
+                  <p>{selectedReferenceGenetic.name}</p>
+                  <small>Maceta {index + 1} - misma genetica</small>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
