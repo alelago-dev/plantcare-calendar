@@ -150,6 +150,9 @@ const manualTaskTemplates = [
 
 export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: SeedsSectionProps) {
   const [activeTab, setActiveTab] = useState<SeedTab>("manual");
+  const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+  const previousTab = activeTabIndex > 0 ? tabs[activeTabIndex - 1] : null;
+  const nextTab = activeTabIndex >= 0 && activeTabIndex < tabs.length - 1 ? tabs[activeTabIndex + 1] : null;
 
   return (
     <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8" id="seeds">
@@ -203,6 +206,33 @@ export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: See
 
           {activeTab === "reference" ? <ReferenceTab locale={locale} /> : null}
         </div>
+
+        <nav className="tab-stepper" aria-label="Avanzar entre solapas de semillas">
+          <button
+            className={previousTab ? "stepper-button secondary" : "stepper-button disabled"}
+            disabled={!previousTab}
+            onClick={() => previousTab && setActiveTab(previousTab.id)}
+            type="button"
+          >
+            <span aria-hidden="true">←</span>
+            <span>
+              <small>Solapa anterior</small>
+              {previousTab?.label ?? "Inicio"}
+            </span>
+          </button>
+          <button
+            className={nextTab ? "stepper-button primary" : "stepper-button disabled"}
+            disabled={!nextTab}
+            onClick={() => nextTab && setActiveTab(nextTab.id)}
+            type="button"
+          >
+            <span>
+              <small>Siguiente solapa</small>
+              {nextTab?.label ?? "Fin"}
+            </span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </nav>
       </div>
     </section>
   );

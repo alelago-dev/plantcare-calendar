@@ -13,7 +13,7 @@ import {
   getEventKindLabel,
   getTodayIso
 } from "@/lib/calendar-events";
-import { getSectionHref, navigationByLocale, type AppSection } from "@/lib/navigation";
+import { getSectionHref, navigationByLocale, type AppSection, type NavigationItem } from "@/lib/navigation";
 import { getGeneticsCatalogAlphabetically, type GeneticReferenceEntry } from "@/lib/genetics-catalog";
 import { requestReminderNotification } from "@/lib/notifications";
 import { seedCatalog } from "@/lib/seed-catalog";
@@ -205,6 +205,9 @@ export function AppShell({
   const calendarHref = getSectionHref(locale, "calendar");
   const streakCount = getStreakCount(habitDates, todayIso);
   const shouldShowFirstCultivation = plantState.length === 0 && currentSection !== "privacy";
+  const currentNavIndex = navItems.findIndex((item) => item.key === currentSection);
+  const previousNavItem = currentNavIndex > 0 ? navItems[currentNavIndex - 1] : null;
+  const nextNavItem = currentNavIndex >= 0 && currentNavIndex < navItems.length - 1 ? navItems[currentNavIndex + 1] : null;
 
   function handleToggleTask(item: AgendaItem) {
     if (item.source === "event" && item.eventId && item.occurrenceDate) {
@@ -583,6 +586,14 @@ export function AppShell({
             setShowOnboarding(false);
           }}
           todayHref={todayHref}
+        />
+      ) : null}
+
+      {!shouldShowFirstCultivation ? (
+        <SectionStepper
+          locale={locale}
+          nextItem={nextNavItem}
+          previousItem={previousNavItem}
         />
       ) : null}
 
@@ -2106,6 +2117,56 @@ function LegalInfoSummary() {
         </p>
       </div>
     </details>
+  );
+}
+
+function SectionStepper({
+  locale,
+  nextItem,
+  previousItem
+}: {
+  locale: Locale;
+  nextItem: NavigationItem | null;
+  previousItem: NavigationItem | null;
+}) {
+  return (
+    <nav className="section-stepper" aria-label="Avanzar entre secciones">
+      {previousItem ? (
+        <a className="stepper-button secondary" href={getSectionHref(locale, previousItem.key)}>
+          <span aria-hidden="true">←</span>
+          <span>
+            <small>Anterior</small>
+            {previousItem.label}
+          </span>
+        </a>
+      ) : (
+        <span className="stepper-button disabled" aria-disabled="true">
+          <span aria-hidden="true">←</span>
+          <span>
+            <small>Anterior</small>
+            Inicio
+          </span>
+        </span>
+      )}
+
+      {nextItem ? (
+        <a className="stepper-button primary" href={getSectionHref(locale, nextItem.key)}>
+          <span>
+            <small>Siguiente</small>
+            {nextItem.label}
+          </span>
+          <span aria-hidden="true">→</span>
+        </a>
+      ) : (
+        <a className="stepper-button primary" href={getSectionHref(locale, "today")}>
+          <span>
+            <small>Volver</small>
+            Hoy
+          </span>
+          <span aria-hidden="true">→</span>
+        </a>
+      )}
+    </nav>
   );
 }
 
