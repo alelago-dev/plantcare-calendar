@@ -166,7 +166,8 @@ const storageKeys = {
   onboarding: "plantcare-onboarding-complete",
   plants: "plantcare-plants",
   quickChecks: "plantcare-quick-checks",
-  tasks: "plantcare-tasks"
+  tasks: "plantcare-tasks",
+  weatherConsent: "plantcare-weather-consent"
 };
 
 export function AppShell({
@@ -415,24 +416,28 @@ export function AppShell({
     });
   }
 
-  async function handleUseDeviceWeather() {
+  async function updateWeatherFromDevice(loadingMessage = "Esperando permiso de ubicacion...") {
     if (!("geolocation" in navigator)) {
       setWeatherStatus("Este navegador no permite leer ubicacion.");
       return;
     }
 
-    setWeatherStatus("Esperando permiso de ubicacion...");
+    setWeatherStatus(loadingMessage);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setWeatherStatus("Consultando clima real...");
         getDeviceWeather(position.coords.latitude, position.coords.longitude)
           .then((nextWeather) => {
             setWeather(nextWeather);
+            window.localStorage.setItem(storageKeys.weatherConsent, "true");
             setWeatherStatus("Clima actualizado.");
           })
           .catch(() => setWeatherStatus("No se pudo consultar Open-Meteo."));
       },
-      () => setWeatherStatus("Ubicacion no autorizada. Podes volver a intentarlo desde el navegador."),
+      () => {
+        window.localStorage.removeItem(storageKeys.weatherConsent);
+        setWeatherStatus("Ubicacion no autorizada. Podes volver a intentarlo desde el navegador.");
+      },
       {
         enableHighAccuracy: false,
         maximumAge: 600_000,
@@ -440,6 +445,20 @@ export function AppShell({
       }
     );
   }
+
+  async function handleUseDeviceWeather() {
+    await updateWeatherFromDevice();
+  }
+
+  useEffect(() => {
+    if (window.localStorage.getItem(storageKeys.weatherConsent) === "true") {
+      const timeoutId = window.setTimeout(() => {
+        void updateWeatherFromDevice("Actualizando clima segun tu ubicacion guardada...");
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, []);
 
   function handleClearCultivationData() {
     setPlantState([]);
@@ -454,6 +473,7 @@ export function AppShell({
     persistStoredState(storageKeys.habitDates, []);
     removeStoredState(storageKeys.calendarDate);
     removeStoredState(storageKeys.quickChecks);
+    removeStoredState(storageKeys.weatherConsent);
   }
 
   return (
@@ -801,7 +821,7 @@ function TodaySection({
               <p className="mt-3 text-sm leading-6 text-stone-700">{weather.message}</p>
               <div className="mt-4 flex flex-wrap items-center gap-2">
                 <button className="primary-button" onClick={onUseDeviceWeather} type="button">
-                  Usar ubicacion del dispositivo
+                  {weather.isLive ? "Actualizar clima" : "Usar ubicacion del dispositivo"}
                 </button>
                 {weatherStatus ? <span className="text-xs font-black text-stone-600">{weatherStatus}</span> : null}
               </div>
