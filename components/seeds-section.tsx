@@ -41,6 +41,8 @@ const setupPresets = [
     comfortable: "1 maceta de 7-10 L",
     compact: "2 macetas de 3-5 L",
     airflow: "Dejar margen libre para riego, poda sanitaria o revision visual.",
+    lightFit: "LED compacto de bajo calor; evitar sodio por temperatura y poca altura.",
+    plantHeight: "20-45 cm de altura util declarada",
     bestFor: "Plantin, aromatica, planta compacta o prueba de genetica declarada."
   },
   {
@@ -49,6 +51,8 @@ const setupPresets = [
     comfortable: "1 maceta de 15-20 L o 2 macetas de 7-10 L",
     compact: "4 macetas de 3-5 L si se prioriza variedad y registro individual",
     airflow: "Conviene no llenar toda la base: dejar pasillo visual y espacio para bandeja.",
+    lightFit: "LED de panel compacto; sodio solo si el usuario declara extraccion y temperatura controlada.",
+    plantHeight: "35-65 cm de altura util declarada",
     bestFor: "Espacio chico con seguimiento simple."
   },
   {
@@ -57,6 +61,8 @@ const setupPresets = [
     comfortable: "2 macetas de 15-20 L o 4 macetas de 7-11 L",
     compact: "6 macetas de 5-7 L si el usuario declara plantas chicas",
     airflow: "Configuracion equilibrada: 4 macetas deja buena lectura de hojas y acceso al sustrato.",
+    lightFit: "LED full spectrum mediano o mixta; sodio solo con control termico declarado.",
+    plantHeight: "50-90 cm de altura util declarada",
     bestFor: "Setup mediano: buen balance entre orden, fotos y mantenimiento."
   },
   {
@@ -65,6 +71,8 @@ const setupPresets = [
     comfortable: "4 macetas de 15-20 L",
     compact: "6 macetas de 10-11 L",
     airflow: "Usar grilla 2x2 para manejo comodo o 3x2 si se acepta menos espacio de acceso.",
+    lightFit: "LED mediano/grande; sodio compatible solo con buena extraccion y distancia fisica.",
+    plantHeight: "70-110 cm de altura util declarada",
     bestFor: "Varias plantas con bitacora separada."
   },
   {
@@ -73,6 +81,8 @@ const setupPresets = [
     comfortable: "4 macetas de 20-25 L o 6 macetas de 15 L",
     compact: "9 macetas de 10-11 L",
     airflow: "Priorizar circulacion y acceso frontal; no bloquear esquinas de revision.",
+    lightFit: "LED modular, mixta o sodio si el usuario declara control termico suficiente.",
+    plantHeight: "80-130 cm de altura util declarada",
     bestFor: "Espacio amplio con calendario por planta."
   }
 ];
@@ -180,7 +190,7 @@ function SetupSuggestionsTab() {
         </article>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <SetupSuggestionCard
           label="Comodo"
           tone="green"
@@ -198,6 +208,18 @@ function SetupSuggestionsTab() {
           tone="blue"
           value={selectedSetup.airflow}
           note="Pensado para mantenimiento, fotos y lectura visual."
+        />
+        <SetupSuggestionCard
+          label="Luz compatible"
+          tone="teal"
+          value={selectedSetup.lightFit}
+          note="Referencia por calor y espacio; el usuario declara el equipo real."
+        />
+        <SetupSuggestionCard
+          label="Altura util"
+          tone="soft"
+          value={selectedSetup.plantHeight}
+          note="Margen fisico para no perder acceso ni tocar luminaria o techo."
         />
       </div>
 
@@ -221,7 +243,7 @@ function SetupSuggestionCard({
 }: {
   label: string;
   note: string;
-  tone: "amber" | "blue" | "green";
+  tone: "amber" | "blue" | "green" | "soft" | "teal";
   value: string;
 }) {
   return (

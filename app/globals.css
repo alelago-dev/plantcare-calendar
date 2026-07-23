@@ -737,6 +737,14 @@ textarea {
     background: linear-gradient(135deg, #dff1f1, #ffffff);
   }
 
+  .setup-card.teal {
+    background: linear-gradient(135deg, #d8f0ea, #ffffff);
+  }
+
+  .setup-card.soft {
+    background: linear-gradient(135deg, #eef0ec, #ffffff);
+  }
+
   .setup-card p {
     color: #52604d;
     font-size: 0.7rem;
