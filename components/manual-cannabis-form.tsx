@@ -309,22 +309,31 @@ function GeneticDataReference({
         <span className="mode-badge manual">Manual</span>
       </div>
       <div className="mt-3 grid gap-2 sm:grid-cols-4">
-        <ReferenceValue label="Tipo publicado" value={geneticType} />
-        <ReferenceValue label="Dias a flora ref." value={daysToFlower} />
-        <ReferenceValue label="Floracion/ciclo" value={floweringWeeks} />
-        <ReferenceValue label="THC publicado" value={genetic ? formatThcRange(genetic.thc_percent_range) : "No declarado"} />
+        <ReferenceValue label="Tipo publicado" targetField="Tipo declarado" value={geneticType} />
+        <ReferenceValue label="Dias a flora ref." targetField="Dias a flora" value={daysToFlower} />
+        <ReferenceValue label="Floracion/ciclo" targetField="Semanas de floracion" value={floweringWeeks} />
+        <ReferenceValue
+          label="THC publicado"
+          targetField="Nota manual de genetica"
+          value={genetic ? formatThcRange(genetic.thc_percent_range) : "No declarado"}
+        />
       </div>
       {genetic?.raw_fields ? <RawFieldsPanel fields={genetic.raw_fields} /> : null}
     </article>
   );
 }
 
-function ReferenceValue({ label, value }: { label: string; value: string }) {
+function ReferenceValue({ label, targetField, value }: { label: string; targetField?: string; value: string }) {
+  const destination = targetField ?? getManualReferenceTarget(label);
+
   return (
     <div className="reference-value">
       <span>{label}</span>
       <strong>{value}</strong>
-      <CopyValueButton label={label} value={value} />
+      <div className="reference-copy-row">
+        <span className="reference-target-field">Campo: {destination}</span>
+        <CopyValueButton label={destination} value={value} />
+      </div>
     </div>
   );
 }
@@ -341,6 +350,17 @@ function RawFieldsPanel({ fields }: { fields: NonNullable<GeneticReferenceEntry[
       </div>
     </details>
   );
+}
+
+function getManualReferenceTarget(label: string) {
+  const normalizedLabel = label.toLowerCase();
+
+  if (normalizedLabel.includes("floracion") || normalizedLabel.includes("ciclo")) return "Semanas de floracion";
+  if (normalizedLabel.includes("flora")) return "Dias a flora";
+  if (normalizedLabel.includes("tipo")) return "Tipo declarado";
+  if (normalizedLabel.includes("maceta")) return "Maceta en litros";
+  if (normalizedLabel.includes("luz")) return "Tipo de luz";
+  return "Campo manual correspondiente";
 }
 
 function FormGroup({ children, title }: { children: ReactNode; title: string }) {

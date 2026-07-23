@@ -37,11 +37,11 @@ export function CopyValueButton({ value, label }: CopyValueButtonProps) {
     <button
       type="button"
       onClick={handleCopy}
-      aria-label={`Copiar ${label}: ${value}`}
-      title={`Copiar ${label}`}
+      aria-label={`Copiar para pegar en ${label}: ${value}`}
+      title={`Copiar para pegar en ${label}`}
       className="copy-value-button"
     >
-      {copied ? "Copiado" : "Copiar"}
+      {copied ? "Copiado" : "Copiar valor"}
     </button>
   );
 }

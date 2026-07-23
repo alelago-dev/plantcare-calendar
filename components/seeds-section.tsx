@@ -402,8 +402,9 @@ function ManualTaskTemplateCard({
     <div className="manual-task-template">
       <div className="flex items-start justify-between gap-2">
         <strong>{task.title}</strong>
-        <CopyValueButton label={task.title} value={value} />
+        <CopyValueButton label="titulo o nota de tarea manual" value={value} />
       </div>
+      <span className="reference-target-field">Campo: tarea manual del calendario</span>
       <span>{task.cadence}</span>
       <p>{task.detail}</p>
     </div>
@@ -425,8 +426,9 @@ function SetupSuggestionCard({
     <article className={`setup-card ${tone}`}>
       <div className="flex items-start justify-between gap-2">
         <p>{label}</p>
-        <CopyValueButton label={label} value={value} />
+        <CopyValueButton label={getReferenceTargetLabel(label)} value={value} />
       </div>
+      <span className="reference-target-field">Campo: {getReferenceTargetLabel(label)}</span>
       <strong>{value}</strong>
       <span>{note}</span>
     </article>
@@ -607,37 +609,48 @@ function SectionHeader({ eyebrow, id, title }: { eyebrow: string; id?: string; t
 }
 
 function ReferenceFact({ label, value }: { label: string; value: string }) {
+  const destination = getReferenceTargetLabel(label);
+
   return (
     <div className="rounded-md border border-moss-950/10 bg-paper/80 px-2.5 py-2">
-      <dt className="flex items-center justify-between gap-2 text-[11px] font-black uppercase text-stone-500">
-        <span>{label}</span>
-        <CopyValueButton label={label} value={value} />
-      </dt>
+      <dt className="text-[11px] font-black uppercase text-stone-500">{label}</dt>
       <dd className="mt-1 break-words font-black text-moss-950">{value}</dd>
+      <div className="reference-copy-row mt-2">
+        <span className="reference-target-field">Campo: {destination}</span>
+        <CopyValueButton label={destination} value={value} />
+      </div>
     </div>
   );
 }
 
 function ReferenceLine({ label, value }: { label: string; value: string }) {
+  const destination = getReferenceTargetLabel(label);
+
   return (
-    <div className="flex items-start justify-between gap-3 py-1">
+    <div className="py-1">
       <div className="min-w-0">
         <p className="text-[11px] font-black uppercase text-stone-500">{label}</p>
         <p className="mt-1 break-words text-sm font-black text-moss-950">{value}</p>
       </div>
-      <CopyValueButton label={label} value={value} />
+      <div className="reference-copy-row mt-2">
+        <span className="reference-target-field">Campo: {destination}</span>
+        <CopyValueButton label={destination} value={value} />
+      </div>
     </div>
   );
 }
 
 function ReferenceTextBlock({ label, value }: { label: string; value: string }) {
+  const destination = getReferenceTargetLabel(label);
+
   return (
     <div className="rounded-md border border-moss-950/10 bg-paper/80 p-2.5">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-[11px] font-black uppercase text-stone-500">{label}</p>
-        <CopyValueButton label={label} value={value} />
-      </div>
+      <p className="text-[11px] font-black uppercase text-stone-500">{label}</p>
       <p className="mt-2 text-xs font-bold leading-5 text-stone-700">{value}</p>
+      <div className="reference-copy-row mt-2">
+        <span className="reference-target-field">Campo: {destination}</span>
+        <CopyValueButton label={destination} value={value} />
+      </div>
     </div>
   );
 }
@@ -672,4 +685,19 @@ function formatGeneticType(type: GeneticReferenceEntry["type"]) {
   if (type === "faster_flowering") return "Faster flowering";
   if (type === "regular") return "Regular";
   return "Feminizada";
+}
+
+function getReferenceTargetLabel(label: string) {
+  const normalizedLabel = label.toLowerCase();
+
+  if (normalizedLabel.includes("floracion") || normalizedLabel.includes("ciclo")) return "Semanas de floracion";
+  if (normalizedLabel.includes("flora")) return "Dias a flora";
+  if (normalizedLabel.includes("maceta")) return "Maceta en litros";
+  if (normalizedLabel.includes("luz")) return "Tipo de luz";
+  if (normalizedLabel.includes("tipo") || normalizedLabel.includes("variante")) return "Tipo declarado";
+  if (normalizedLabel.includes("cruza") || normalizedLabel.includes("linaje")) return "Nota de genetica";
+  if (normalizedLabel.includes("thc")) return "Nota de referencia";
+  if (normalizedLabel.includes("fuente")) return "Nota de fuente";
+  if (normalizedLabel.includes("riego")) return "Nota de riego manual";
+  return "Nota manual";
 }

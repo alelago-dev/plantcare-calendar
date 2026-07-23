@@ -668,6 +668,28 @@ textarea {
     line-height: 1.2;
   }
 
+  .reference-copy-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.45rem;
+  }
+
+  .reference-target-field,
+  .reference-value .reference-target-field {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    background: rgba(232, 243, 223, 0.82);
+    padding: 0.28rem 0.42rem;
+    color: #23543e;
+    font-size: 0.68rem;
+    font-weight: 950;
+    line-height: 1.15;
+    text-transform: none;
+  }
+
   .setup-hero-card {
     display: flex;
     align-items: center;

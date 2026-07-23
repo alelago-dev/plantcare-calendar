@@ -1405,25 +1405,31 @@ function GeneticInfoPopup({ genetic, onClose }: { genetic: GeneticReferenceEntry
 }
 
 function GeneticPopupFact({ label, value }: { label: string; value: string }) {
+  const destination = getReferenceTargetLabel(label);
+
   return (
     <div className="rounded-md border border-moss-950/10 bg-white/80 px-2.5 py-2">
-      <dt className="flex items-center justify-between gap-2 text-[11px] font-black uppercase text-stone-500">
-        <span>{label}</span>
-        <CopyValueButton label={label} value={value} />
-      </dt>
+      <dt className="text-[11px] font-black uppercase text-stone-500">{label}</dt>
       <dd className="mt-1 break-words font-black text-moss-950">{value}</dd>
+      <div className="reference-copy-row mt-2">
+        <span className="reference-target-field">Campo: {destination}</span>
+        <CopyValueButton label={destination} value={value} />
+      </div>
     </div>
   );
 }
 
 function GeneticPopupText({ label, value }: { label: string; value: string }) {
+  const destination = getReferenceTargetLabel(label);
+
   return (
     <div className="rounded-md border border-moss-950/10 bg-white/80 p-2.5">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-[11px] font-black uppercase text-stone-500">{label}</p>
-        <CopyValueButton label={label} value={value} />
-      </div>
+      <p className="text-[11px] font-black uppercase text-stone-500">{label}</p>
       <p className="mt-2 text-sm font-bold leading-6 text-stone-700">{value}</p>
+      <div className="reference-copy-row mt-2">
+        <span className="reference-target-field">Campo: {destination}</span>
+        <CopyValueButton label={destination} value={value} />
+      </div>
     </div>
   );
 }
@@ -2510,6 +2516,21 @@ function formatRange([min, max]: [number, number], unit: string) {
 function formatThcRange([min, max]: [number, number]) {
   if (min === 0 && max === 0) return "No declarado";
   return min === max ? `${min}%` : `${min}-${max}%`;
+}
+
+function getReferenceTargetLabel(label: string) {
+  const normalizedLabel = label.toLowerCase();
+
+  if (normalizedLabel.includes("floracion") || normalizedLabel.includes("ciclo")) return "Semanas de floracion";
+  if (normalizedLabel.includes("flora")) return "Dias a flora";
+  if (normalizedLabel.includes("maceta")) return "Maceta en litros";
+  if (normalizedLabel.includes("luz")) return "Tipo de luz";
+  if (normalizedLabel.includes("tipo") || normalizedLabel.includes("variante")) return "Tipo declarado";
+  if (normalizedLabel.includes("cruza") || normalizedLabel.includes("linaje")) return "Nota de genetica";
+  if (normalizedLabel.includes("thc")) return "Nota de referencia";
+  if (normalizedLabel.includes("fuente")) return "Nota de fuente";
+  if (normalizedLabel.includes("riego")) return "Nota de riego manual";
+  return "Nota manual";
 }
 
 function normalizeLookupText(value: string) {
