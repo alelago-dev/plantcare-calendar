@@ -1255,6 +1255,31 @@ textarea {
     box-shadow: 0 24px 60px rgba(28, 54, 38, 0.24);
   }
 
+  .genetic-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    background: rgba(22, 32, 21, 0.42);
+    padding: 1rem;
+    backdrop-filter: blur(8px);
+  }
+
+  .genetic-popup-panel {
+    width: min(94vw, 720px);
+    max-height: min(86vh, 760px);
+    overflow: auto;
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.12);
+    background:
+      radial-gradient(circle at 100% 0%, rgba(226, 180, 87, 0.2), transparent 28%),
+      linear-gradient(135deg, #ffffff, #eef7f4 70%, #fff8e7),
+      #ffffff;
+    padding: 1rem;
+    box-shadow: 0 24px 70px rgba(28, 54, 38, 0.28);
+  }
+
   .onboarding-illustration {
     display: grid;
     margin-top: 1.25rem;

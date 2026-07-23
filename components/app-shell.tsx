@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { CopyValueButton } from "@/components/copy-button";
 import { SeedsSection } from "@/components/seeds-section";
 import {
   buildMonthGrid,
@@ -13,7 +14,7 @@ import {
   getTodayIso
 } from "@/lib/calendar-events";
 import { getSectionHref, navigationByLocale, type AppSection } from "@/lib/navigation";
-import { getGeneticsCatalogAlphabetically } from "@/lib/genetics-catalog";
+import { getGeneticsCatalogAlphabetically, type GeneticReferenceEntry } from "@/lib/genetics-catalog";
 import { requestReminderNotification } from "@/lib/notifications";
 import { seedCatalog } from "@/lib/seed-catalog";
 import type { CalendarEvent, CalendarEventOccurrence, CareEntry, Dictionary, GrowSpace, Locale, Plant, Task } from "@/lib/types";
@@ -1033,7 +1034,10 @@ function SpacesSection({
   spaces: GrowSpace[];
 }) {
   const [query, setQuery] = useState("");
+  const [referenceGeneticId, setReferenceGeneticId] = useState("");
+  const [popupGenetic, setPopupGenetic] = useState<GeneticReferenceEntry | null>(null);
   const normalizedQuery = query.trim().toLowerCase();
+  const selectedReferenceGenetic = geneticsCatalogAlphabetically.find((genetic) => genetic.id === referenceGeneticId);
   const visibleSpaces = spaces
     .map((space) => {
       const matchingPlants = plants.filter((plant) => {
@@ -1061,6 +1065,44 @@ function SpacesSection({
           />
         </label>
       </div>
+
+      <div className="mt-5 rounded-lg border border-moss-950/10 bg-white/82 p-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="eyebrow text-emerald-800">Referencia rapida</p>
+            <h3 className="mt-1 text-lg font-black text-moss-950">Elegir semilla y ver caracteristicas</h3>
+            <p className="mt-1 text-sm font-bold leading-6 text-stone-600">
+              Esta ficha es solo lectura para comparar datos publicados. No completa ni calcula tareas del cultivo.
+            </p>
+          </div>
+          <div className="grid min-w-72 gap-2">
+            <label className="grid gap-1 text-sm font-black text-moss-950">
+              Genetica de referencia
+              <select
+                className="form-control"
+                value={referenceGeneticId}
+                onChange={(event) => setReferenceGeneticId(event.target.value)}
+              >
+                <option value="">Seleccionar genetica</option>
+                {geneticsCatalogAlphabetically.map((genetic) => (
+                  <option key={genetic.id} value={genetic.id}>
+                    {genetic.name} - {formatGeneticType(genetic.type)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              className="secondary-button"
+              disabled={!selectedReferenceGenetic}
+              onClick={() => selectedReferenceGenetic && setPopupGenetic(selectedReferenceGenetic)}
+              type="button"
+            >
+              Ver ficha
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         {visibleSpaces.map((space) => (
           <article className="surface overflow-hidden" key={space.id}>
@@ -1076,30 +1118,140 @@ function SpacesSection({
             <div className="grid gap-0 divide-y divide-moss-950/10 p-4">
               {space.plants
                 .map((plant) => (
-                  <details className="plant-row-details" id={plant.id} key={plant.id}>
-                    <summary>
-                      <PlantAvatar plant={plant} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-black text-moss-950">{plant.name}</span>
-                        <span className="mt-1 block text-sm text-stone-600">{plant.variety}</span>
-                      </span>
-                      <span className="pill pill-green">{plant.stage}</span>
-                    </summary>
-                    <dl className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-                      <PlantFact label="Maceta" value={plant.pot} />
-                      <PlantFact label="Sustrato" value={plant.substrate} />
-                      <PlantFact label="Luz" value={plant.lighting} />
-                      <PlantFact label="Modo" value={plant.mode} />
-                    </dl>
-                    <PlantStageProgress plant={plant} />
-                    <PlantUtilityPanel calendarEvents={calendarEvents} entries={entries} plant={plant} />
-                  </details>
+                  <PlantSpaceRow
+                    calendarEvents={calendarEvents}
+                    entries={entries}
+                    key={plant.id}
+                    onOpenGenetic={setPopupGenetic}
+                    plant={plant}
+                  />
                 ))}
             </div>
           </article>
         ))}
       </div>
+
+      {popupGenetic ? <GeneticInfoPopup genetic={popupGenetic} onClose={() => setPopupGenetic(null)} /> : null}
     </section>
+  );
+}
+
+function PlantSpaceRow({
+  calendarEvents,
+  entries,
+  onOpenGenetic,
+  plant
+}: {
+  calendarEvents: CalendarEvent[];
+  entries: CareEntry[];
+  onOpenGenetic: (genetic: GeneticReferenceEntry) => void;
+  plant: Plant;
+}) {
+  const plantGenetic = findGeneticByPlantVariety(plant.variety);
+
+  return (
+    <details className="plant-row-details" id={plant.id}>
+      <summary>
+        <PlantAvatar plant={plant} />
+        <span className="min-w-0 flex-1">
+          <span className="block font-black text-moss-950">{plant.name}</span>
+          <span className="mt-1 block text-sm text-stone-600">{plant.variety}</span>
+        </span>
+        <span className="pill pill-green">{plant.stage}</span>
+      </summary>
+      {plantGenetic ? (
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-emerald-900/10 bg-white/75 p-3">
+          <p className="text-sm font-bold text-stone-700">
+            Hay una ficha publicada para <strong className="text-moss-950">{plantGenetic.name}</strong>.
+          </p>
+          <button className="secondary-button" onClick={() => onOpenGenetic(plantGenetic)} type="button">
+            Ver genetica
+          </button>
+        </div>
+      ) : null}
+      <dl className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+        <PlantFact label="Maceta" value={plant.pot} />
+        <PlantFact label="Sustrato" value={plant.substrate} />
+        <PlantFact label="Luz" value={plant.lighting} />
+        <PlantFact label="Modo" value={plant.mode} />
+      </dl>
+      <PlantStageProgress plant={plant} />
+      <PlantUtilityPanel calendarEvents={calendarEvents} entries={entries} plant={plant} />
+    </details>
+  );
+}
+
+function GeneticInfoPopup({ genetic, onClose }: { genetic: GeneticReferenceEntry; onClose: () => void }) {
+  return (
+    <div className="genetic-popup-backdrop" role="dialog" aria-modal="true" aria-labelledby="genetic-popup-title">
+      <section className="genetic-popup-panel">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="eyebrow text-emerald-800">Ficha de referencia</p>
+            <h2 className="mt-1 text-2xl font-black text-moss-950" id="genetic-popup-title">
+              {genetic.name}
+            </h2>
+            <p className="mt-1 text-sm font-bold leading-6 text-stone-600">{genetic.source}</p>
+          </div>
+          <button className="secondary-button" onClick={onClose} type="button">
+            Cerrar
+          </button>
+        </div>
+        <div className="mt-4 rounded-lg border border-moss-950/10 bg-paper/80 p-3 text-sm font-bold leading-6 text-stone-700">
+          Solo ayuda visual: copiar o leer estos datos no completa campos ni calcula riego, luz, flora, cosecha o secado.
+        </div>
+        <dl className="mt-4 grid gap-2 sm:grid-cols-2">
+          <GeneticPopupFact label="Cruza / linaje" value={genetic.cross} />
+          <GeneticPopupFact label="Tipo" value={formatGeneticType(genetic.type)} />
+          <GeneticPopupFact label="Floracion publicada" value={formatRange(genetic.flowering_weeks_range, "semanas")} />
+          <GeneticPopupFact label="THC publicado" value={formatThcRange(genetic.thc_percent_range)} />
+        </dl>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <GeneticPopupText label="Sabor / notas" value={genetic.flavor_notes} />
+          <GeneticPopupText label="Efecto / descripcion" value={genetic.effect_notes} />
+        </div>
+        {genetic.raw_fields ? (
+          <details className="mt-3 rounded-lg border border-moss-950/10 bg-white/76 p-3">
+            <summary className="cursor-pointer text-xs font-black uppercase text-stone-500">
+              Campos originales del Excel
+            </summary>
+            <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+              {Object.entries(genetic.raw_fields).map(([label, rawValue]) => (
+                <GeneticPopupFact
+                  key={label}
+                  label={label}
+                  value={rawValue === null ? "No declarado" : String(rawValue)}
+                />
+              ))}
+            </dl>
+          </details>
+        ) : null}
+      </section>
+    </div>
+  );
+}
+
+function GeneticPopupFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-moss-950/10 bg-white/80 px-2.5 py-2">
+      <dt className="flex items-center justify-between gap-2 text-[11px] font-black uppercase text-stone-500">
+        <span>{label}</span>
+        <CopyValueButton label={label} value={value} />
+      </dt>
+      <dd className="mt-1 break-words font-black text-moss-950">{value}</dd>
+    </div>
+  );
+}
+
+function GeneticPopupText({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md border border-moss-950/10 bg-white/80 p-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[11px] font-black uppercase text-stone-500">{label}</p>
+        <CopyValueButton label={label} value={value} />
+      </div>
+      <p className="mt-2 text-sm font-bold leading-6 text-stone-700">{value}</p>
+    </div>
   );
 }
 
@@ -1973,6 +2125,36 @@ function getElapsedDays(startedAt: string, todayIso: string) {
   const diff = new Date(`${todayIso}T00:00:00`).getTime() - new Date(`${startedAt}T00:00:00`).getTime();
 
   return Math.max(0, Math.floor(diff / 86_400_000));
+}
+
+function findGeneticByPlantVariety(variety: string) {
+  const normalizedVariety = normalizeLookupText(variety);
+
+  return geneticsCatalogAlphabetically.find((genetic) => normalizeLookupText(genetic.name) === normalizedVariety);
+}
+
+function formatGeneticType(type: GeneticReferenceEntry["type"]) {
+  if (type === "autoflowering") return "Automatica";
+  if (type === "faster_flowering") return "Rapida";
+  if (type === "regular") return "Regular";
+  return "Feminizada";
+}
+
+function formatRange([min, max]: [number, number], unit: string) {
+  return min === max ? `${min} ${unit}` : `${min}-${max} ${unit}`;
+}
+
+function formatThcRange([min, max]: [number, number]) {
+  if (min === 0 && max === 0) return "No declarado";
+  return min === max ? `${min}%` : `${min}-${max}%`;
+}
+
+function normalizeLookupText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
 }
 
 function getPlantStage(stage: string) {
