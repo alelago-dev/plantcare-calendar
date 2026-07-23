@@ -78,6 +78,68 @@ const recurrenceEndOptions = [
   { label: "Durante 60 dias", value: "60" },
   { label: "Durante 90 dias", value: "90" }
 ];
+
+type ReminderPresetFields = Partial<{
+  closingReminder: string;
+  dryingReminder: string;
+  maintenanceReminder: string;
+  moistureReminder: string;
+  nutritionReminder: string;
+  pestReminder: string;
+  photoReminder: string;
+  recurrenceDays: string;
+  recurrenceEnd: string;
+  stageReminder: string;
+  structureReminder: string;
+}>;
+
+const reviewSuggestionPresets: Array<{
+  fields: ReminderPresetFields;
+  summary: string;
+  title: string;
+}> = [
+  {
+    fields: {
+      moistureReminder: "0",
+      photoReminder: "0"
+    },
+    summary: "Revision de humedad y registro visual para dejar asentado el estado del dia.",
+    title: "Chequeo de hoy"
+  },
+  {
+    fields: {
+      maintenanceReminder: "7",
+      moistureReminder: "0",
+      pestReminder: "7",
+      photoReminder: "7",
+      recurrenceDays: "7",
+      recurrenceEnd: "30"
+    },
+    summary: "Agenda editable para revisar humedad, foto, mantenimiento y control visual semanal.",
+    title: "Rutina semanal"
+  },
+  {
+    fields: {
+      maintenanceReminder: "7",
+      nutritionReminder: "7",
+      pestReminder: "7",
+      structureReminder: "7"
+    },
+    summary: "Recordatorios manuales para revisar estructura, mantenimiento, nutricion y plagas.",
+    title: "Revision completa"
+  },
+  {
+    fields: {
+      closingReminder: "7",
+      dryingReminder: "14",
+      photoReminder: "7",
+      stageReminder: "7"
+    },
+    summary: "Hitos editables para registrar cambio de etapa, cierre declarado, foto y secado.",
+    title: "Hitos declarados"
+  }
+];
+
 const geneticsCatalogAlphabetically = getGeneticsCatalogAlphabetically();
 const geneticSelectOptions = [
   { label: "No seleccionada", value: "No seleccionada" },
@@ -228,6 +290,22 @@ export function ManualCannabisForm({
     }, 180);
   }
 
+  function applyReviewSuggestion(fields: ReminderPresetFields, title: string) {
+    if (fields.moistureReminder) setMoistureReminder(fields.moistureReminder);
+    if (fields.stageReminder) setStageReminder(fields.stageReminder);
+    if (fields.dryingReminder) setDryingReminder(fields.dryingReminder);
+    if (fields.maintenanceReminder) setMaintenanceReminder(fields.maintenanceReminder);
+    if (fields.photoReminder) setPhotoReminder(fields.photoReminder);
+    if (fields.structureReminder) setStructureReminder(fields.structureReminder);
+    if (fields.nutritionReminder) setNutritionReminder(fields.nutritionReminder);
+    if (fields.pestReminder) setPestReminder(fields.pestReminder);
+    if (fields.closingReminder) setClosingReminder(fields.closingReminder);
+    if (fields.recurrenceDays) setRecurrenceDays(fields.recurrenceDays);
+    if (fields.recurrenceEnd) setRecurrenceEnd(fields.recurrenceEnd);
+    setStatusMessage(`Sugerencia "${title}" aplicada. Podes ajustar cada desplegable antes de crear eventos.`);
+    setShowCalendarLink(false);
+  }
+
   return (
     <div className="grid gap-4">
       <FormGroup title="Identificacion">
@@ -264,6 +342,7 @@ export function ManualCannabisForm({
       </FormGroup>
 
       <FormGroup title="Fechas y recordatorios">
+        <ReviewSuggestionPanel onApply={applyReviewSuggestion} />
         <FormSelect label="Proxima revision de humedad" options={reminderOptions} value={moistureReminder} onChange={setMoistureReminder} />
         <FormSelect label="Cambio de etapa / flora" options={reminderOptions} value={stageReminder} onChange={setStageReminder} />
         <FormSelect label="Secado de ramas" options={reminderOptions} value={dryingReminder} onChange={setDryingReminder} />
@@ -292,6 +371,40 @@ export function ManualCannabisForm({
       <p className="text-xs font-bold leading-5 text-stone-600">
         Estos campos sirven para agenda y recordatorios definidos por el usuario. Evita guardar numeros de registro,
         domicilios exactos o datos medicos en esta demo publica.
+      </p>
+    </div>
+  );
+}
+
+function ReviewSuggestionPanel({
+  onApply
+}: {
+  onApply: (fields: ReminderPresetFields, title: string) => void;
+}) {
+  return (
+    <div className="review-suggestion-panel sm:col-span-2">
+      <div className="review-suggestion-header">
+        <div>
+          <p>Agenda sugerida</p>
+          <strong>Revisiones manuales rapidas</strong>
+        </div>
+        <span>Editable</span>
+      </div>
+      <div className="review-suggestion-grid">
+        {reviewSuggestionPresets.map((preset) => (
+          <button
+            className="review-suggestion-card"
+            key={preset.title}
+            onClick={() => onApply(preset.fields, preset.title)}
+            type="button"
+          >
+            <span>{preset.title}</span>
+            <small>{preset.summary}</small>
+          </button>
+        ))}
+      </div>
+      <p className="review-suggestion-note">
+        Estas sugerencias solo acomodan recordatorios visibles. No calculan fechas, riego, rendimiento ni decisiones de cultivo.
       </p>
     </div>
   );
