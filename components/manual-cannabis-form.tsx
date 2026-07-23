@@ -312,8 +312,9 @@ function GeneticDataReference({
         <ReferenceValue label="Tipo publicado" value={geneticType} />
         <ReferenceValue label="Dias a flora ref." value={daysToFlower} />
         <ReferenceValue label="Floracion/ciclo" value={floweringWeeks} />
-        <ReferenceValue label="THC publicado" value={genetic ? `${genetic.thc_percent_range[0]}-${genetic.thc_percent_range[1]}%` : "No declarado"} />
+        <ReferenceValue label="THC publicado" value={genetic ? formatThcRange(genetic.thc_percent_range) : "No declarado"} />
       </div>
+      {genetic?.raw_fields ? <RawFieldsPanel fields={genetic.raw_fields} /> : null}
     </article>
   );
 }
@@ -325,6 +326,20 @@ function ReferenceValue({ label, value }: { label: string; value: string }) {
       <strong>{value}</strong>
       <CopyValueButton label={label} value={value} />
     </div>
+  );
+}
+
+function RawFieldsPanel({ fields }: { fields: NonNullable<GeneticReferenceEntry["raw_fields"]> }) {
+  return (
+    <details className="mt-3 rounded-md border border-moss-950/10 bg-white/70 p-2">
+      <summary className="cursor-pointer text-xs font-black uppercase text-stone-500">Campos originales del Excel</summary>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        {Object.entries(fields).map(([label, rawValue]) => {
+          const value = rawValue === null ? "No declarado" : String(rawValue);
+          return <ReferenceValue key={label} label={label} value={value} />;
+        })}
+      </div>
+    </details>
   );
 }
 
@@ -417,6 +432,7 @@ function formatSeedType(type: SeedType) {
 function formatGeneticType(type: GeneticType) {
   if (type === "autoflowering") return "Automatica";
   if (type === "faster_flowering") return "Rapida";
+  if (type === "regular") return "Regular";
   return "Feminizada";
 }
 
@@ -424,7 +440,13 @@ function formatWeekRange(range: [number, number]) {
   return range[0] === range[1] ? `${range[0]} semanas` : `${range[0]}-${range[1]} semanas`;
 }
 
+function formatThcRange(range: [number, number]) {
+  if (range[0] === 0 && range[1] === 0) return "No declarado";
+  return range[0] === range[1] ? `${range[0]}%` : `${range[0]}-${range[1]}%`;
+}
+
 function mapGeneticTypeToSeedType(type: GeneticType): SeedType {
   if (type === "autoflowering") return "autoflowering";
+  if (type === "regular") return "regular";
   return "feminized";
 }

@@ -18,7 +18,8 @@
  *     fechas), igual que en cultivation-reference.ts.
  */
 
-export type GeneticType = "feminized" | "autoflowering" | "faster_flowering";
+export type GeneticType = "feminized" | "regular" | "autoflowering" | "faster_flowering";
+export type GeneticRawFieldValue = string | number | boolean | null;
 
 export interface GeneticReferenceEntry {
   id: string;
@@ -30,6 +31,8 @@ export interface GeneticReferenceEntry {
   thc_percent_range: [number, number];
   effect_notes: string;
   flavor_notes: string;
+  /** Campos originales de una fuente tabular importada. Solo lectura; no alimenta calculos. */
+  raw_fields?: Record<string, GeneticRawFieldValue>;
   source: string; // referencia de origen del dato
 }
 
@@ -996,6 +999,108 @@ export const GENETICS_CATALOG: GeneticReferenceEntry[] = [
     flavor_notes: "Caramelized vanilla apple and creamy notes",
     source: "Green House Seed Co. Brochure 2023 Q3 (8-9 weeks indoor flowering)",
   },
+
+  // ---- SEEDFINDER EXCEL - A-B-SEEDS (static reference with original fields) ----
+  {
+    id: "baseball-bat-a-b-seeds-seedfinder",
+    name: "Baseball Bat",
+    cross: "Skunk #1",
+    type: "regular",
+    flowering_weeks_range: [6, 8],
+    thc_percent_range: [0, 0],
+    effect_notes: "Boa semente para cultivo indoor e outdoor.",
+    flavor_notes: "No declarado en Excel",
+    source: "SeedFinder Excel - A-B-Seeds",
+    raw_fields: {
+      Breeder: "A-B-Seeds",
+      Variedad: "Baseball Bat",
+      "Tipo / herencia": "Mayormente sativa",
+      Cultivo: "Interior y exterior",
+      "Floracion aproximada": "50 dias",
+      "Rango indicado": "45 a 55 dias",
+      Feminizada: "No",
+      Descripcion: "Boa semente para cultivo indoor e outdoor.",
+      "Linaje conocido": "Skunk #1",
+      "Fenotipos / imagenes": "9 fenotipos conocidos; sin imagenes cargadas",
+      "URL de la variedad": "https://seedfinder.eu/es/strain-info/baseball-bat/a-b-seeds",
+      "Fuente breeder": "https://seedfinder.eu/es/database/breeder/a-b-seeds",
+    },
+  },
+  {
+    id: "early-pearl-x-northern-light-a-b-seeds-seedfinder",
+    name: "Early Pearl x Northern Light",
+    cross: "Early Pearl x Northern Lights",
+    type: "regular",
+    flowering_weeks_range: [6, 8],
+    thc_percent_range: [0, 0],
+    effect_notes: "Variedad de floracion precoz, resistente a distintas temperaturas, frio y humedad; indicada como apta para principiantes.",
+    flavor_notes: "No declarado en Excel",
+    source: "SeedFinder Excel - A-B-Seeds",
+    raw_fields: {
+      Breeder: "A-B-Seeds",
+      Variedad: "Early Pearl x Northern Light",
+      "Tipo / herencia": "Mayormente indica",
+      Cultivo: "Interior y exterior",
+      "Floracion aproximada": "50 dias",
+      "Rango indicado": "45 a 55 dias",
+      Feminizada: "No",
+      Descripcion: "Variedad de floracion precoz, resistente a distintas temperaturas, frio y humedad; indicada como apta para principiantes.",
+      "Linaje conocido": "Early Pearl x Northern Lights",
+      "Fenotipos / imagenes": "2 fenotipos listados; 2 imagenes",
+      "URL de la variedad": "https://seedfinder.eu/es/strain-info/early-pearl-x-northern-light/a-b-seeds",
+      "Fuente breeder": "https://seedfinder.eu/es/database/breeder/a-b-seeds",
+    },
+  },
+  {
+    id: "high-grade-a-b-seeds-seedfinder",
+    name: "High-Grade",
+    cross: "Variedad desconocida",
+    type: "regular",
+    flowering_weeks_range: [7, 9],
+    thc_percent_range: [0, 0],
+    effect_notes: "Boa semente para cultivo indoor e outdoor. O nome ja diz tudo. Germinacao rapida.",
+    flavor_notes: "No declarado en Excel",
+    source: "SeedFinder Excel - A-B-Seeds",
+    raw_fields: {
+      Breeder: "A-B-Seeds",
+      Variedad: "High-Grade",
+      "Tipo / herencia": "Desconocida",
+      Cultivo: "Interior y exterior",
+      "Floracion aproximada": "55 dias",
+      "Rango indicado": "50 a 60 dias",
+      Feminizada: "No",
+      Descripcion: "Boa semente para cultivo indoor e outdoor. O nome ja diz tudo. Germinacao rapida.",
+      "Linaje conocido": "Variedad desconocida",
+      "Fenotipos / imagenes": "Sin fenotipos ni imagenes cargadas",
+      "URL de la variedad": "https://seedfinder.eu/es/strain-info/high-grade/a-b-seeds",
+      "Fuente breeder": "https://seedfinder.eu/es/database/breeder/a-b-seeds",
+    },
+  },
+  {
+    id: "presidents-choice-a-b-seeds-seedfinder",
+    name: "President's Choice",
+    cross: "Early Pearl",
+    type: "regular",
+    flowering_weeks_range: [6, 8],
+    thc_percent_range: [0, 0],
+    effect_notes: "Bom para cultivo indoor e outdoor. Resultado das melhores plantas de 2002.",
+    flavor_notes: "No declarado en Excel",
+    source: "SeedFinder Excel - A-B-Seeds",
+    raw_fields: {
+      Breeder: "A-B-Seeds",
+      Variedad: "President's Choice",
+      "Tipo / herencia": "Mayormente sativa",
+      Cultivo: "Interior y exterior",
+      "Floracion aproximada": "50 dias",
+      "Rango indicado": "45 a 55 dias",
+      Feminizada: "No",
+      Descripcion: "Bom para cultivo indoor e outdoor. Resultado das melhores plantas de 2002.",
+      "Linaje conocido": "Early Pearl",
+      "Fenotipos / imagenes": "Sin fenotipos ni imagenes cargadas",
+      "URL de la variedad": "https://seedfinder.eu/es/strain-info/presidents-choice/a-b-seeds",
+      "Fuente breeder": "https://seedfinder.eu/es/database/breeder/a-b-seeds",
+    },
+  },
 ];
 
 /** Helper de lectura — NO calcula fechas, solo devuelve el dato de referencia. */
@@ -1015,7 +1120,8 @@ export function searchGeneticsByName(query: string): GeneticReferenceEntry[] {
   }
 
   return getGeneticsCatalogAlphabetically().filter((g) => {
-    const searchableText = [g.name, g.cross, g.type, g.source].join(" ").toLowerCase();
+    const rawText = g.raw_fields ? Object.values(g.raw_fields).join(" ") : "";
+    const searchableText = [g.name, g.cross, g.type, g.source, rawText].join(" ").toLowerCase();
     return searchableText.includes(q);
   }).slice(0, 8);
 }

@@ -31,6 +31,10 @@ Para semillas reguladas:
 - no se cargan tiempos reales desde bancos externos ni catalogos scrapeados;
 - solo se permite carga manual declarada por el usuario, agenda, recordatorios, bitacora y registro legal.
 
+El catalogo `lib/genetics-catalog.ts` puede incluir referencias tabulares importadas desde Excel, conservando todas las
+columnas originales en `raw_fields`. Esos campos son solo lectura para consulta y copia manual; no alimentan calculos,
+autofill ni planes automaticos para cultivos regulados.
+
 Para semillas horticultoras no reguladas (`regulated: false`, `category: "horticultural"`), la calculadora puede mostrar valores orientativos de sustrato, agua, luz, espacio y ventana de cosecha.
 
 ### Casos de prueba manuales

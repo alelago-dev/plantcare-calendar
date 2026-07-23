@@ -576,12 +576,13 @@ function GeneticsReferencePanel({ genetic }: { genetic: GeneticReferenceEntry | 
         <ReferenceFact label="Cruza" value={genetic.cross} />
         <ReferenceFact label="Tipo" value={formatGeneticType(genetic.type)} />
         <ReferenceFact label="Floracion publicada" value={formatRange(genetic.flowering_weeks_range, "semanas")} />
-        <ReferenceFact label="THC publicado" value={formatRange(genetic.thc_percent_range, "%")} />
+        <ReferenceFact label="THC publicado" value={formatThcRange(genetic.thc_percent_range)} />
       </dl>
       <div className="mt-3 grid gap-2">
         <ReferenceTextBlock label="Sabor" value={genetic.flavor_notes} />
         <ReferenceTextBlock label="Efecto" value={genetic.effect_notes} />
       </div>
+      {genetic.raw_fields ? <RawFieldsReference fields={genetic.raw_fields} /> : null}
     </article>
   );
 }
@@ -641,12 +642,34 @@ function ReferenceTextBlock({ label, value }: { label: string; value: string }) 
   );
 }
 
+function RawFieldsReference({ fields }: { fields: NonNullable<GeneticReferenceEntry["raw_fields"]> }) {
+  return (
+    <details className="mt-3 rounded-lg border border-moss-950/10 bg-paper/80 p-3">
+      <summary className="cursor-pointer text-xs font-black uppercase text-stone-500">
+        Campos originales del Excel
+      </summary>
+      <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+        {Object.entries(fields).map(([label, rawValue]) => {
+          const value = rawValue === null ? "No declarado" : String(rawValue);
+          return <ReferenceFact key={label} label={label} value={value} />;
+        })}
+      </dl>
+    </details>
+  );
+}
+
 function formatRange([min, max]: [number, number], unit: string) {
   return min === max ? `${min} ${unit}` : `${min}-${max} ${unit}`;
+}
+
+function formatThcRange([min, max]: [number, number]) {
+  if (min === 0 && max === 0) return "No declarado";
+  return min === max ? `${min}%` : `${min}-${max}%`;
 }
 
 function formatGeneticType(type: GeneticReferenceEntry["type"]) {
   if (type === "autoflowering") return "Automatica";
   if (type === "faster_flowering") return "Faster flowering";
+  if (type === "regular") return "Regular";
   return "Feminizada";
 }
