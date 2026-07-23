@@ -500,7 +500,7 @@ export function AppShell({
 
   return (
     <main className="min-h-screen pb-28 text-moss-950 lg:pb-0">
-      <header className="sticky top-0 z-20 border-b border-moss-950/10 bg-paper/92 backdrop-blur-xl">
+      <header className="app-header sticky top-0 z-20 border-b border-moss-950/10 bg-paper/92 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <a className="flex items-center gap-3" href={todayHref} aria-label="PlantCare Calendar">
             <BrandLogo />
