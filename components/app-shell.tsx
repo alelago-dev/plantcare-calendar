@@ -1203,17 +1203,17 @@ function SpacesSection({
         </label>
       </div>
 
-      <div className="mt-5 rounded-lg border border-moss-950/10 bg-white/82 p-4">
+      <div className="genetics-reference-panel mt-5 rounded-lg border p-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="eyebrow text-emerald-800">Referencia rapida</p>
-            <h3 className="mt-1 text-lg font-black text-moss-950">Elegir semilla y ver caracteristicas</h3>
-            <p className="mt-1 text-sm font-bold leading-6 text-stone-600">
+            <p className="eyebrow">Referencia rapida</p>
+            <h3 className="genetics-panel-title mt-1 text-lg font-black">Elegir semilla y ver caracteristicas</h3>
+            <p className="genetics-panel-copy mt-1 text-sm font-bold leading-6">
               Esta ficha es solo lectura para comparar datos publicados. La cantidad de macetas la declara el usuario.
             </p>
           </div>
           <div className="grid min-w-72 gap-2 sm:grid-cols-[1fr_140px]">
-            <label className="grid gap-1 text-sm font-black text-moss-950">
+            <label className="grid gap-1 text-sm font-black">
               Genetica de referencia
               <select
                 className="form-control"
@@ -1228,7 +1228,7 @@ function SpacesSection({
                 ))}
               </select>
             </label>
-            <label className="grid gap-1 text-sm font-black text-moss-950">
+            <label className="grid gap-1 text-sm font-black">
               Cantidad
               <select
                 className="form-control"
@@ -1243,7 +1243,7 @@ function SpacesSection({
               </select>
             </label>
             <button
-              className="secondary-button sm:col-span-2"
+              className="secondary-button genetics-reference-button sm:col-span-2"
               disabled={!selectedReferenceGenetic}
               onClick={() => selectedReferenceGenetic && setPopupGenetic(selectedReferenceGenetic)}
               type="button"
@@ -1346,17 +1346,17 @@ function PlantGeneticSummary({
   plant: Plant;
 }) {
   return (
-    <div className="mt-3 rounded-lg border border-emerald-900/10 bg-white/75 p-3">
+    <div className="plant-genetic-summary mt-3 rounded-lg border p-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="text-[11px] font-black uppercase text-stone-500">Genetica declarada</p>
-          <p className="mt-1 font-black text-moss-950">{genetic?.name ?? plant.variety}</p>
-          <p className="mt-1 text-sm font-bold leading-6 text-stone-600">
+          <p className="plant-genetic-eyebrow text-[11px] font-black uppercase">Genetica declarada</p>
+          <p className="plant-genetic-name mt-1 font-black">{genetic?.name ?? plant.variety}</p>
+          <p className="plant-genetic-source mt-1 text-sm font-bold leading-6">
             {genetic ? genetic.source : "No hay ficha publicada vinculada en el catalogo."}
           </p>
         </div>
         {genetic ? (
-          <button className="secondary-button" onClick={() => onOpenGenetic(genetic)} type="button">
+          <button className="secondary-button plant-genetic-button" onClick={() => onOpenGenetic(genetic)} type="button">
             Ver ficha completa
           </button>
         ) : null}
@@ -1369,7 +1369,7 @@ function PlantGeneticSummary({
           <PlantFact label="Linaje" value={genetic.cross} />
         </dl>
       ) : (
-        <p className="mt-3 text-xs font-bold leading-5 text-stone-600">
+        <p className="plant-genetic-empty mt-3 text-xs font-bold leading-5">
           Para ver datos aca, elegi una genetica del catalogo al cargar el cultivo o agregala al catalogo de referencia.
         </p>
       )}
@@ -1383,17 +1383,17 @@ function GeneticInfoPopup({ genetic, onClose }: { genetic: GeneticReferenceEntry
       <section className="genetic-popup-panel">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="eyebrow text-emerald-800">Ficha de referencia</p>
-            <h2 className="mt-1 text-2xl font-black text-moss-950" id="genetic-popup-title">
+            <p className="eyebrow">Ficha de referencia</p>
+            <h2 className="genetic-popup-title mt-1 text-2xl font-black" id="genetic-popup-title">
               {genetic.name}
             </h2>
-            <p className="mt-1 text-sm font-bold leading-6 text-stone-600">{genetic.source}</p>
+            <p className="genetic-popup-source mt-1 text-sm font-bold leading-6">{genetic.source}</p>
           </div>
-          <button className="secondary-button" onClick={onClose} type="button">
+          <button className="secondary-button genetic-popup-close" onClick={onClose} type="button">
             Cerrar
           </button>
         </div>
-        <div className="mt-4 rounded-lg border border-moss-950/10 bg-paper/80 p-3 text-sm font-bold leading-6 text-stone-700">
+        <div className="genetic-popup-note mt-4 rounded-lg border p-3 text-sm font-bold leading-6">
           Solo ayuda visual: copiar o leer estos datos no completa campos ni calcula riego, luz, flora, cosecha o secado.
         </div>
         <dl className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -1407,8 +1407,8 @@ function GeneticInfoPopup({ genetic, onClose }: { genetic: GeneticReferenceEntry
           <GeneticPopupText label="Efecto / descripcion" value={genetic.effect_notes} />
         </div>
         {genetic.raw_fields ? (
-          <details className="mt-3 rounded-lg border border-moss-950/10 bg-white/76 p-3">
-            <summary className="cursor-pointer text-xs font-black uppercase text-stone-500">
+          <details className="genetic-raw-fields mt-3 rounded-lg border p-3">
+            <summary className="cursor-pointer text-xs font-black uppercase">
               Campos originales del Excel
             </summary>
             <dl className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -1431,9 +1431,9 @@ function GeneticPopupFact({ label, value }: { label: string; value: string }) {
   const destination = getReferenceTargetLabel(label);
 
   return (
-    <div className="rounded-md border border-moss-950/10 bg-white/80 px-2.5 py-2">
-      <dt className="text-[11px] font-black uppercase text-stone-500">{label}</dt>
-      <dd className="mt-1 break-words font-black text-moss-950">{value}</dd>
+    <div className="genetic-popup-fact rounded-md border px-2.5 py-2">
+      <dt className="text-[11px] font-black uppercase">{label}</dt>
+      <dd className="mt-1 break-words font-black">{value}</dd>
       <div className="reference-copy-row mt-2">
         <span className="reference-target-field">Campo: {destination}</span>
         <CopyValueButton label={destination} value={value} />
@@ -1446,9 +1446,9 @@ function GeneticPopupText({ label, value }: { label: string; value: string }) {
   const destination = getReferenceTargetLabel(label);
 
   return (
-    <div className="rounded-md border border-moss-950/10 bg-white/80 p-2.5">
-      <p className="text-[11px] font-black uppercase text-stone-500">{label}</p>
-      <p className="mt-2 text-sm font-bold leading-6 text-stone-700">{value}</p>
+    <div className="genetic-popup-text rounded-md border p-2.5">
+      <p className="text-[11px] font-black uppercase">{label}</p>
+      <p className="mt-2 text-sm font-bold leading-6">{value}</p>
       <div className="reference-copy-row mt-2">
         <span className="reference-target-field">Campo: {destination}</span>
         <CopyValueButton label={destination} value={value} />
