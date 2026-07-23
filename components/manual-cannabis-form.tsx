@@ -379,7 +379,7 @@ function getManualReferenceTarget(label: string) {
 
 function FormGroup({ children, title }: { children: ReactNode; title: string }) {
   return (
-    <section className="rounded-lg border border-moss-950/10 bg-white/70 p-3">
+    <section className="manual-form-group rounded-lg border border-moss-950/10 bg-white/70 p-3">
       <h3 className="text-xs font-black uppercase text-stone-500">{title}</h3>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">{children}</div>
     </section>
@@ -389,7 +389,6 @@ function FormGroup({ children, title }: { children: ReactNode; title: string }) 
 function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string) => void; value: string }) {
   const query = value === "No seleccionada" ? "" : value;
   const results = useMemo(() => searchGeneticsByName(query), [query]);
-  const selectValue = geneticSelectOptions.some((option) => option.value === value) ? value : "Otra / no listada";
   const showResults = query.trim().length >= 2 && results.length > 0 && query !== value;
   const selectedGenetic = geneticsCatalogAlphabetically.find((genetic) => genetic.name === value);
 
@@ -404,6 +403,7 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
         <input
           aria-label="Buscar genetica por nombre, banco o linaje"
           className="form-control"
+          list="manual-genetic-options"
           placeholder="Escribi para buscar: Gorilla, Baseball, Kush..."
           value={query}
           onChange={(event) => {
@@ -411,6 +411,11 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
             onChange(nextQuery.trim() ? nextQuery : "No seleccionada");
           }}
         />
+        <datalist id="manual-genetic-options">
+          {geneticSelectOptions.slice(1, -1).map((option) => (
+            <option key={option.value} value={option.value} />
+          ))}
+        </datalist>
       </label>
 
       {showResults ? (
@@ -423,7 +428,7 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
               type="button"
             >
               <strong>{genetic.name}</strong>
-              <span>{formatGeneticType(genetic.type)} · {formatWeekRange(genetic.flowering_weeks_range)}</span>
+              <span>{formatGeneticType(genetic.type)} - {formatWeekRange(genetic.flowering_weeks_range)}</span>
             </button>
           ))}
         </div>
@@ -453,17 +458,7 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
         </p>
       )}
 
-      <details className="genetic-full-list">
-        <summary>Elegir desde la lista completa ({geneticsCatalogAlphabetically.length})</summary>
-        <FormSelect
-          label="Lista completa de geneticas"
-          options={geneticSelectOptions}
-          value={selectValue}
-          onChange={(nextValue) => {
-            onChange(nextValue);
-          }}
-        />
-      </details>
+      <div className="genetic-count-note">{geneticsCatalogAlphabetically.length} geneticas disponibles en el buscador.</div>
     </div>
   );
 }

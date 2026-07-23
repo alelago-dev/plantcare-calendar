@@ -748,6 +748,18 @@ textarea {
     padding: 0.85rem;
   }
 
+  .manual-form-group {
+    background:
+      radial-gradient(circle at 100% 0%, rgba(36, 118, 111, 0.08), transparent 34%),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 244, 0.78));
+    box-shadow: 0 12px 26px rgba(28, 54, 38, 0.07);
+  }
+
+  .manual-form-group > h3 {
+    color: #52604d;
+    letter-spacing: 0;
+  }
+
   .genetic-entry-card {
     display: grid;
     gap: 0.72rem;
@@ -891,6 +903,17 @@ textarea {
 
   .genetic-full-list label {
     margin-top: 0.65rem;
+  }
+
+  .genetic-count-note {
+    width: fit-content;
+    border-radius: 999px;
+    background: rgba(35, 84, 62, 0.1);
+    color: #23543e;
+    font-size: 0.72rem;
+    font-weight: 950;
+    line-height: 1;
+    padding: 0.38rem 0.55rem;
   }
 
   .reference-value {
@@ -2951,6 +2974,45 @@ textarea {
   }
 
   @media (max-width: 639px) {
+    .manual-form-group {
+      border-color: rgba(35, 84, 62, 0.12);
+      padding: 0.82rem;
+    }
+
+    .manual-form-group > h3 {
+      font-size: 0.7rem;
+    }
+
+    .manual-form-group label {
+      gap: 0.38rem;
+      color: #24362d;
+      font-size: 0.86rem;
+      line-height: 1.15;
+    }
+
+    .manual-form-group .form-control {
+      min-height: 44px;
+      border-width: 1px;
+      font-size: 0.96rem;
+      font-weight: 850;
+      line-height: 1.15;
+      padding: 0.58rem 0.68rem;
+    }
+
+    .manual-reference-card {
+      padding: 0.72rem;
+    }
+
+    .manual-reference-card h4 {
+      font-size: 0.98rem;
+      line-height: 1.15;
+    }
+
+    .manual-reference-card p {
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
     .genetic-entry-card {
       margin-inline: -0.25rem;
       padding: 0.68rem;
@@ -2961,13 +3023,46 @@ textarea {
       font-size: 0.88rem;
     }
 
-    .genetic-full-list .form-control {
-      font-size: 0.92rem;
-      text-overflow: ellipsis;
+    .genetic-entry-card .form-control {
+      min-height: 46px;
+      border-color: rgba(36, 118, 111, 0.22);
+      background: #ffffff;
+      font-size: 1rem;
+      line-height: 1.15;
     }
 
     .selected-genetic-card {
       grid-template-columns: 1fr;
+      padding: 0.7rem;
+    }
+
+    .selected-genetic-card strong {
+      font-size: 1rem;
+    }
+
+    .selected-genetic-card dl {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .genetic-suggestion-list {
+      max-height: 178px;
+    }
+
+    .genetic-suggestion-option {
+      min-height: 42px;
+      padding: 0.52rem 0.6rem;
+    }
+
+    .genetic-suggestion-option strong {
+      font-size: 0.9rem;
+    }
+
+    .genetic-entry-help {
+      font-size: 0.76rem;
+    }
+
+    .genetic-count-note {
+      font-size: 0.68rem;
     }
 
     .finder-result-grid {
