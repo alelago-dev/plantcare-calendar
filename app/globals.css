@@ -1201,6 +1201,36 @@ textarea {
     color: #162015;
   }
 
+  .paste-select-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.45rem;
+  }
+
+  .paste-value-button {
+    min-height: 40px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(35, 84, 62, 0.28);
+    background: #e8f3df;
+    padding: 0.55rem 0.7rem;
+    color: #23543e;
+    font-size: 0.78rem;
+    font-weight: 950;
+    line-height: 1;
+  }
+
+  .paste-value-button:hover {
+    border-color: rgba(35, 84, 62, 0.44);
+    background: #dff1f1;
+  }
+
+  .paste-status {
+    color: #52604d;
+    font-size: 0.72rem;
+    font-weight: 900;
+    line-height: 1.35;
+  }
+
   .copy-value-button {
     flex: 0 0 auto;
     border-radius: 6px;

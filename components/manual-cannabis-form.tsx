@@ -97,6 +97,12 @@ export function ManualCannabisForm({
 }) {
   const [seedType, setSeedType] = useState<SeedType>("feminized");
   const [geneticName, setGeneticName] = useState("No seleccionada");
+  const [daysToFlower, setDaysToFlower] = useState(floweringDayOptions[0]);
+  const [floweringWeeks, setFloweringWeeks] = useState(floweringWeekOptions[0]);
+  const [spaceType, setSpaceType] = useState("Interior");
+  const [indoorSize, setIndoorSize] = useState(indoorSizeOptions[0]);
+  const [lightType, setLightType] = useState("LED");
+  const [potLiters, setPotLiters] = useState(potOptions[0]);
   const [moistureReminder, setMoistureReminder] = useState("0");
   const [stageReminder, setStageReminder] = useState("none");
   const [dryingReminder, setDryingReminder] = useState("none");
@@ -225,30 +231,36 @@ export function ManualCannabisForm({
         <FormSelect label="Banco o catalogo" options={bankOptions} recentKey="bank" />
         <GeneticPredictiveSelect value={geneticName} onChange={setGeneticName} />
         <FormSelect label="Registro legal" options={["Confirmado", "Pendiente de verificar", "No aplica"]} />
-        <label className="grid gap-1 text-sm font-black text-moss-950">
-          Tipo declarado
-          <select
-            className="form-control"
-            value={seedType}
-            onChange={(event) => setSeedType(event.target.value as SeedType)}
-          >
-            {seedTypeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <FormSelect
+          allowClipboardPaste
+          label="Tipo declarado"
+          options={seedTypeOptions}
+          value={seedType}
+          onChange={(nextValue) => setSeedType(nextValue as SeedType)}
+        />
       </FormGroup>
 
       <FormGroup title="Datos de cultivo">
         <GeneticDataReference genetic={selectedGenetic} visualReference={visualReference} />
-        <FormSelect label="Dias a flora" options={floweringDayOptions} />
-        <FormSelect label="Semanas de floracion" options={floweringWeekOptions} />
-        <FormSelect label="Tipo de espacio" options={["Interior", "Exterior", "Invernadero"]} />
-        <FormSelect label="Tamano indoor" options={indoorSizeOptions} recentKey="indoor-size" />
-        <FormSelect label="Tipo de luz" options={["LED", "Sodio", "Mixta", "Luz natural", "No declarado"]} recentKey="light-type" />
-        <FormSelect label="Maceta en litros" options={potOptions} recentKey="pot-liters" />
+        <FormSelect allowClipboardPaste label="Dias a flora" options={floweringDayOptions} value={daysToFlower} onChange={setDaysToFlower} />
+        <FormSelect
+          allowClipboardPaste
+          label="Semanas de floracion"
+          options={floweringWeekOptions}
+          value={floweringWeeks}
+          onChange={setFloweringWeeks}
+        />
+        <FormSelect allowClipboardPaste label="Tipo de espacio" options={["Interior", "Exterior", "Invernadero"]} value={spaceType} onChange={setSpaceType} />
+        <FormSelect allowClipboardPaste label="Tamano indoor" options={indoorSizeOptions} recentKey="indoor-size" value={indoorSize} onChange={setIndoorSize} />
+        <FormSelect
+          allowClipboardPaste
+          label="Tipo de luz"
+          options={["LED", "Sodio", "Mixta", "Luz natural", "No declarado"]}
+          recentKey="light-type"
+          value={lightType}
+          onChange={setLightType}
+        />
+        <FormSelect allowClipboardPaste label="Maceta en litros" options={potOptions} recentKey="pot-liters" value={potLiters} onChange={setPotLiters} />
       </FormGroup>
 
       <FormGroup title="Fechas y recordatorios">
@@ -436,12 +448,14 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
 }
 
 function FormSelect({
+  allowClipboardPaste = false,
   label,
   onChange,
   options,
   recentKey,
   value
 }: {
+  allowClipboardPaste?: boolean;
   label: string;
   onChange?: (value: string) => void;
   options: string[] | Array<{ label: string; value: string }>;
@@ -450,35 +464,89 @@ function FormSelect({
 }) {
   const normalizedOptions = options.map((option) => (typeof option === "string" ? { label: option, value: option } : option));
   const { recentOptions, rememberOption } = useRecentOptions(recentKey, normalizedOptions);
+  const [pasteStatus, setPasteStatus] = useState("");
+  const isControlled = typeof value === "string";
+  const currentValue = value ?? normalizedOptions[0]?.value ?? "";
+  const pastedOption =
+    isControlled && currentValue && !normalizedOptions.some((option) => option.value === currentValue)
+      ? { label: `Pegado: ${currentValue}`, value: currentValue }
+      : null;
   const regularOptions = normalizedOptions.filter((option) => !recentOptions.some((recentOption) => recentOption.value === option.value));
 
+  function applyValue(nextValue: string) {
+    rememberOption(nextValue);
+    onChange?.(nextValue);
+  }
+
+  async function handlePasteFromClipboard() {
+    if (!navigator.clipboard?.readText) {
+      setPasteStatus("El navegador no permite leer el portapapeles.");
+      return;
+    }
+
+    try {
+      const clipboardText = (await navigator.clipboard.readText()).trim();
+
+      if (!clipboardText) {
+        setPasteStatus("No hay texto copiado.");
+        return;
+      }
+
+      const matchingOption = normalizedOptions.find((option) => {
+        const optionLabel = option.label.toLowerCase();
+        const optionValue = option.value.toLowerCase();
+        const pastedValue = clipboardText.toLowerCase();
+
+        return optionLabel === pastedValue || optionValue === pastedValue;
+      });
+      const nextValue = matchingOption?.value ?? clipboardText;
+
+      applyValue(nextValue);
+      setPasteStatus(`Pegado manualmente en ${label}.`);
+    } catch {
+      setPasteStatus("No se pudo leer el portapapeles.");
+    }
+  }
+
   return (
-    <label className="grid gap-1 text-sm font-black text-moss-950">
-      {label}
-      <select
-        aria-label={label}
-        className="form-control"
-        defaultValue={value ? undefined : normalizedOptions[0]?.value}
-        value={value}
-        onChange={(event) => {
-          rememberOption(event.target.value);
-          onChange?.(event.target.value);
-        }}
-      >
-        {recentOptions.length > 0 ? <option disabled>Usados recientemente</option> : null}
-        {recentOptions.map((option) => (
-          <option key={`recent-${option.value}`} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-        {recentOptions.length > 0 ? <option disabled>Opciones</option> : null}
-        {regularOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
+    <div className="grid gap-1">
+      <label className="grid gap-1 text-sm font-black text-moss-950">
+        {label}
+        <div className={allowClipboardPaste ? "paste-select-row" : ""}>
+          <select
+            aria-label={label}
+            className="form-control"
+            defaultValue={isControlled ? undefined : normalizedOptions[0]?.value}
+            value={value}
+            onChange={(event) => applyValue(event.target.value)}
+          >
+            {pastedOption ? (
+              <option key={`pasted-${pastedOption.value}`} value={pastedOption.value}>
+                {pastedOption.label}
+              </option>
+            ) : null}
+            {recentOptions.length > 0 ? <option disabled>Usados recientemente</option> : null}
+            {recentOptions.map((option) => (
+              <option key={`recent-${option.value}`} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+            {recentOptions.length > 0 ? <option disabled>Opciones</option> : null}
+            {regularOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {allowClipboardPaste ? (
+            <button className="paste-value-button" onClick={handlePasteFromClipboard} type="button">
+              Pegar
+            </button>
+          ) : null}
+        </div>
+      </label>
+      {allowClipboardPaste && pasteStatus ? <span className="paste-status">{pasteStatus}</span> : null}
+    </div>
   );
 }
 
