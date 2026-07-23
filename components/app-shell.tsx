@@ -4,6 +4,7 @@ import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { CopyValueButton } from "@/components/copy-button";
 import { GeneticFinderWizard } from "@/components/genetic-finder-wizard";
+import { PlantTimeline } from "@/components/plant-timeline";
 import { SeedsSection } from "@/components/seeds-section";
 import {
   buildMonthGrid,
@@ -560,7 +561,7 @@ export function AppShell({
         />
       ) : null}
       {!shouldShowFirstCultivation && currentSection === "spaces" ? (
-        <SpacesSection calendarEvents={eventState} entries={entryState} plants={plantState} spaces={spaces} />
+        <SpacesSection calendarEvents={eventState} entries={entryState} plants={plantState} spaces={spaces} tasks={taskState} />
       ) : null}
       {!shouldShowFirstCultivation && currentSection === "calendar" ? (
         <CalendarSection
@@ -832,15 +833,22 @@ function TodaySection({
         <section className="surface p-4 sm:p-5" aria-labelledby="today-title">
           <SectionHeader eyebrow="Panel principal" title="Tareas de hoy" />
           <div className="mt-5 grid gap-3">
-            {agendaItems.map((task, index) => (
-              <TaskCard
-                isPrimary={index === 0 && task.status !== "done"}
-                key={`${task.source}-${task.id}`}
-                onToggle={() => onToggleTask(task)}
-                plant={plants.find((plant) => plant.id === task.plantId)}
-                task={task}
+            {agendaItems.length > 0 ? (
+              agendaItems.map((task, index) => (
+                <TaskCard
+                  isPrimary={index === 0 && task.status !== "done"}
+                  key={`${task.source}-${task.id}`}
+                  onToggle={() => onToggleTask(task)}
+                  plant={plants.find((plant) => plant.id === task.plantId)}
+                  task={task}
+                />
+              ))
+            ) : (
+              <EmptyState
+                body="Cuando crees recordatorios o tareas, este panel va a mostrar primero lo urgente."
+                title="No hay tareas para hoy"
               />
-            ))}
+            )}
           </div>
         </section>
 
@@ -1150,12 +1158,14 @@ function SpacesSection({
   calendarEvents,
   entries,
   plants,
-  spaces
+  spaces,
+  tasks
 }: {
   calendarEvents: CalendarEvent[];
   entries: CareEntry[];
   plants: Plant[];
   spaces: GrowSpace[];
+  tasks: Task[];
 }) {
   const [query, setQuery] = useState("");
   const [referenceGeneticId, setReferenceGeneticId] = useState("");
@@ -1256,31 +1266,40 @@ function SpacesSection({
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        {visibleSpaces.map((space) => (
-          <article className="surface overflow-hidden" key={space.id}>
-            <div className="space-banner">
-              <div>
-                <h3 className="text-xl font-black tracking-tight text-white">{space.name}</h3>
-                <p className="mt-1 text-sm font-semibold text-mint-50/86">
-                  {space.region} - {space.mode}
-                </p>
+        {visibleSpaces.length > 0 ? (
+          visibleSpaces.map((space) => (
+            <article className="surface overflow-hidden" key={space.id}>
+              <div className="space-banner">
+                <div>
+                  <h3 className="text-xl font-black tracking-tight text-white">{space.name}</h3>
+                  <p className="mt-1 text-sm font-semibold text-mint-50/86">
+                    {space.region} - {space.mode}
+                  </p>
+                </div>
+                <span className="rounded-md bg-white/16 px-3 py-1.5 text-xs font-black text-white">{space.privacyLevel}</span>
               </div>
-              <span className="rounded-md bg-white/16 px-3 py-1.5 text-xs font-black text-white">{space.privacyLevel}</span>
-            </div>
-            <div className="grid gap-0 divide-y divide-moss-950/10 p-4">
-              {space.plants
-                .map((plant) => (
-                  <PlantSpaceRow
-                    calendarEvents={calendarEvents}
-                    entries={entries}
-                    key={plant.id}
-                    onOpenGenetic={setPopupGenetic}
-                    plant={plant}
-                  />
-                ))}
-            </div>
-          </article>
-        ))}
+              <div className="grid gap-0 divide-y divide-moss-950/10 p-4">
+                {space.plants.map((plant) => (
+                    <PlantSpaceRow
+                      calendarEvents={calendarEvents}
+                      entries={entries}
+                      key={plant.id}
+                      onOpenGenetic={setPopupGenetic}
+                      plant={plant}
+                      tasks={tasks}
+                    />
+                  ))}
+              </div>
+            </article>
+          ))
+        ) : (
+          <div className="lg:col-span-2">
+            <EmptyState
+              body="No hay coincidencias con tu busqueda. Proba limpiar el filtro o crear un cultivo desde el alta inicial."
+              title="No encontramos cultivos"
+            />
+          </div>
+        )}
       </div>
 
       {popupGenetic ? <GeneticInfoPopup genetic={popupGenetic} onClose={() => setPopupGenetic(null)} /> : null}
@@ -1292,12 +1311,14 @@ function PlantSpaceRow({
   calendarEvents,
   entries,
   onOpenGenetic,
-  plant
+  plant,
+  tasks
 }: {
   calendarEvents: CalendarEvent[];
   entries: CareEntry[];
   onOpenGenetic: (genetic: GeneticReferenceEntry) => void;
   plant: Plant;
+  tasks: Task[];
 }) {
   const plantGenetic = findGeneticByPlant(plant);
 
@@ -1320,6 +1341,7 @@ function PlantSpaceRow({
       </dl>
       <PlantStageProgress plant={plant} />
       <PlantUtilityPanel calendarEvents={calendarEvents} entries={entries} plant={plant} />
+      <PlantTimeline calendarEvents={calendarEvents} entries={entries} plant={plant} tasks={tasks} />
     </details>
   );
 }
@@ -1892,40 +1914,47 @@ function JournalSection({
       <div className="surface p-4 sm:p-5">
         <SectionHeader eyebrow="Bitacora" title="Observaciones y fotos" />
         <div className="journal-timeline mt-5">
-          {groupedEntries.map((group) => (
-            <section className="journal-group" key={`${group.plantName}-${group.date}`}>
-              <div className="journal-date">
-                <PlantStateIcon stage={group.stage} />
-                <div>
-                  <p className="font-black text-moss-950">{group.plantName}</p>
-                  <p className="text-xs font-bold text-stone-600">{group.date}</p>
+          {groupedEntries.length > 0 ? (
+            groupedEntries.map((group) => (
+              <section className="journal-group" key={`${group.plantName}-${group.date}`}>
+                <div className="journal-date">
+                  <PlantStateIcon stage={group.stage} />
+                  <div>
+                    <p className="font-black text-moss-950">{group.plantName}</p>
+                    <p className="text-xs font-bold text-stone-600">{group.date}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="grid gap-3">
-                {group.entries.map((entry) => (
-                  <article className="journal-photo-card" key={entry.id}>
-                    {entry.photoDataUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img className="journal-photo" src={entry.photoDataUrl} alt={`Foto de ${entry.title}`} />
-                    ) : (
-                      <div className="journal-photo" aria-label={`Foto demo de ${entry.title}`} />
-                    )}
-                    <div className="p-3">
-                      <h3 className="font-black text-moss-950">{entry.title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-stone-700">{entry.note}</p>
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-black text-moss-700">
-                        {entry.tags.map((tag) => (
-                          <span className="pill pill-soft" key={tag}>
-                            {tag}
-                          </span>
-                        ))}
+                <div className="grid gap-3">
+                  {group.entries.map((entry) => (
+                    <article className="journal-photo-card" key={entry.id}>
+                      {entry.photoDataUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img className="journal-photo" src={entry.photoDataUrl} alt={`Foto de ${entry.title}`} />
+                      ) : (
+                        <div className="journal-photo" aria-label={`Foto demo de ${entry.title}`} />
+                      )}
+                      <div className="p-3">
+                        <h3 className="font-black text-moss-950">{entry.title}</h3>
+                        <p className="mt-2 text-sm leading-6 text-stone-700">{entry.note}</p>
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs font-black text-moss-700">
+                          {entry.tags.map((tag) => (
+                            <span className="pill pill-soft" key={tag}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-          ))}
+                    </article>
+                  ))}
+                </div>
+              </section>
+            ))
+          ) : (
+            <EmptyState
+              body="Las notas y fotos que guardes desde el calendario o el diario van a formar el historial de cada planta."
+              title="Todavia no hay bitacora"
+            />
+          )}
         </div>
       </div>
 
@@ -2417,6 +2446,18 @@ function InfoCard({ title, body }: { title: string; body: string }) {
     <article className="info-card p-5">
       <h3 className="font-black text-moss-950">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-stone-700">{body}</p>
+    </article>
+  );
+}
+
+function EmptyState({ body, title }: { body: string; title: string }) {
+  return (
+    <article className="empty-state">
+      <span aria-hidden="true" />
+      <div>
+        <h3>{title}</h3>
+        <p>{body}</p>
+      </div>
     </article>
   );
 }

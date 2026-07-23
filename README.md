@@ -13,6 +13,7 @@ PlantCare Calendar es una PWA mobile-first para seguimiento de cultivos horticol
 - Tareas manuales y recurrentes con vista de hoy.
 - Calendario mensual.
 - Bitacora de observaciones y fotografias.
+- Linea de tiempo local por planta que unifica inicio, tareas, eventos del calendario, fotos y observaciones.
 - Interfaz de clima preparada para proveedor externo.
 - Consentimiento de privacidad y uso legal.
 - Base para exportacion y eliminacion completa de datos del usuario.
@@ -70,6 +71,11 @@ NEXT_PUBLIC_WEATHER_API_KEY=
 3. Configurar el bucket privado `plant-photos` si no se creo automaticamente.
 4. Completar las variables de entorno.
 5. Reemplazar los datos demo por llamadas a Supabase usando `lib/supabase/client.ts`.
+
+## Fase 1: timeline local
+
+La base de historial unificado vive en `lib/timeline.ts` y se muestra con `components/plant-timeline.tsx`.
+Por ahora combina datos locales/demo y `localStorage`; no modifica tablas ni migraciones de Supabase.
 
 ## Scripts
 
