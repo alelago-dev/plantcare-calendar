@@ -99,6 +99,7 @@ const firstReminderLabels = {
 };
 const storageKeys = {
   calendarDate: "plantcare-calendar-selected-date",
+  entries: "plantcare-journal-entries",
   events: "plantcare-calendar-events",
   habitDates: "plantcare-habit-dates",
   onboarding: "plantcare-onboarding-complete",
@@ -120,6 +121,7 @@ export function AppShell({
   const [plantState, setPlantState] = useStoredState(storageKeys.plants, plants);
   const [taskState, setTaskState] = useStoredState(storageKeys.tasks, tasks);
   const [eventState, setEventState] = useStoredState(storageKeys.events, calendarEvents);
+  const [entryState, setEntryState] = useStoredState(storageKeys.entries, entries);
   const [habitDates, setHabitDates] = useStoredState<string[]>(storageKeys.habitDates, []);
   const [showOnboarding, setShowOnboarding] = useState(
     () => typeof window !== "undefined" && window.localStorage.getItem(storageKeys.onboarding) !== "true"
@@ -331,14 +333,23 @@ export function AppShell({
     goToCalendar(nextEvents[0]?.startDate ?? todayIso, locale);
   }
 
+  function handleAddJournalEntry(entry: CareEntry) {
+    const nextEntries = [entry, ...entryState];
+
+    setEntryState(nextEntries);
+    persistStoredState(storageKeys.entries, nextEntries);
+  }
+
   function handleClearCultivationData() {
     setPlantState([]);
     setTaskState([]);
     setEventState([]);
+    setEntryState([]);
     setHabitDates([]);
     persistStoredState(storageKeys.plants, []);
     persistStoredState(storageKeys.tasks, []);
     persistStoredState(storageKeys.events, []);
+    persistStoredState(storageKeys.entries, []);
     persistStoredState(storageKeys.habitDates, []);
     removeStoredState(storageKeys.calendarDate);
     removeStoredState(storageKeys.quickChecks);
@@ -407,17 +418,19 @@ export function AppShell({
         />
       ) : null}
       {!shouldShowFirstCultivation && currentSection === "spaces" ? (
-        <SpacesSection calendarEvents={eventState} entries={entries} plants={plantState} spaces={spaces} />
+        <SpacesSection calendarEvents={eventState} entries={entryState} plants={plantState} spaces={spaces} />
       ) : null}
       {!shouldShowFirstCultivation && currentSection === "calendar" ? (
         <CalendarSection
+          entries={entryState}
           events={eventState}
           locale={locale}
+          onAddJournalEntry={handleAddJournalEntry}
           onToggleOccurrence={(eventId, date) => setEventState((events) => toggleEventCompletion(events, eventId, date))}
           plants={plantState}
         />
       ) : null}
-      {!shouldShowFirstCultivation && currentSection === "journal" ? <JournalSection entries={entries} onCreateQuickPlant={handleCreateQuickPlant} plants={plantState} /> : null}
+      {!shouldShowFirstCultivation && currentSection === "journal" ? <JournalSection entries={entryState} onCreateQuickPlant={handleCreateQuickPlant} plants={plantState} /> : null}
       {currentSection === "privacy" ? <PrivacySection onClearCultivationData={handleClearCultivationData} /> : null}
 
       {showOnboarding && !shouldShowFirstCultivation ? (
@@ -1046,13 +1059,17 @@ function SpacesSection({
 }
 
 function CalendarSection({
+  entries,
   events,
   locale,
+  onAddJournalEntry,
   onToggleOccurrence,
   plants
 }: {
+  entries: CareEntry[];
   events: CalendarEvent[];
   locale: Locale;
+  onAddJournalEntry: (entry: CareEntry) => void;
   onToggleOccurrence: (eventId: string, date: string) => void;
   plants: Plant[];
 }) {
@@ -1071,6 +1088,7 @@ function CalendarSection({
   const lastDate = days[days.length - 1]?.isoDate ?? todayIso;
   const occurrences = useMemo(() => expandEventOccurrences(events, firstDate, lastDate), [events, firstDate, lastDate]);
   const selectedOccurrences = occurrences.filter((occurrence) => occurrence.date === selectedDate);
+  const selectedEntries = entries.filter((entry) => entry.createdAt === selectedDate);
 
   return (
     <section className="mx-auto mt-7 max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -1149,7 +1167,116 @@ function CalendarSection({
               </p>
             )}
           </div>
+          <CalendarDayJournal
+            entries={selectedEntries}
+            onAddJournalEntry={onAddJournalEntry}
+            plants={plants}
+            selectedDate={selectedDate}
+          />
         </aside>
+      </div>
+    </section>
+  );
+}
+
+function CalendarDayJournal({
+  entries,
+  onAddJournalEntry,
+  plants,
+  selectedDate
+}: {
+  entries: CareEntry[];
+  onAddJournalEntry: (entry: CareEntry) => void;
+  plants: Plant[];
+  selectedDate: string;
+}) {
+  const [plantId, setPlantId] = useState(plants[0]?.id ?? "");
+  const [title, setTitle] = useState("Revision del dia");
+  const [note, setNote] = useState("");
+  const [tag, setTag] = useState("Revision");
+
+  function handleSave() {
+    const trimmedNote = note.trim();
+
+    if (!trimmedNote) return;
+
+    onAddJournalEntry({
+      createdAt: selectedDate,
+      id: createEventId("entry-calendar"),
+      note: trimmedNote,
+      plantId: plantId || undefined,
+      tags: [tag],
+      title: title.trim() || "Revision del dia"
+    });
+    setNote("");
+    setTitle("Revision del dia");
+  }
+
+  return (
+    <section className="calendar-journal-card mt-4" aria-labelledby="calendar-journal-title">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="eyebrow text-emerald-800">Bitacora</p>
+          <h4 className="mt-1 font-black text-moss-950" id="calendar-journal-title">
+            Anotar lo que hiciste
+          </h4>
+        </div>
+        <span className="pill pill-soft">Manual</span>
+      </div>
+
+      <div className="mt-3 grid gap-2">
+        <FormSelect
+          label="Planta"
+          onChange={setPlantId}
+          options={plants.length > 0 ? plants.map((plant) => plant.id) : [""]}
+          value={plantId}
+          valueLabels={Object.fromEntries(plants.map((plant) => [plant.id, plant.name]))}
+        />
+        <FormSelect
+          label="Tipo de registro"
+          onChange={setTag}
+          options={["Revision", "Riego", "Poda", "Nutricion", "Plagas", "Limpieza", "Foto", "Otro"]}
+          value={tag}
+        />
+        <FormField label="Titulo" onChange={setTitle} placeholder="Ej. Revision general" value={title} />
+        <label className="grid gap-1 text-sm font-black text-moss-950">
+          Nota del dia
+          <textarea
+            aria-label="Nota del dia"
+            className="form-control min-h-28"
+            onChange={(event) => setNote(event.target.value)}
+            placeholder="Ej. Revise humedad, hojas, plagas, riego realizado, poda, fertilizacion o cualquier observacion."
+            value={note}
+          />
+        </label>
+        <button className="primary-button" onClick={handleSave} type="button">
+          Guardar en bitacora
+        </button>
+      </div>
+
+      <div className="mt-4 grid gap-2">
+        {entries.length > 0 ? (
+          entries.map((entry) => {
+            const plant = plants.find((candidate) => candidate.id === entry.plantId);
+
+            return (
+              <article className="calendar-journal-entry" key={entry.id}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[11px] font-black uppercase text-stone-500">{plant?.name ?? "Sin planta"}</p>
+                    <h5 className="mt-1 font-black text-moss-950">{entry.title}</h5>
+                  </div>
+                  <span className="pill pill-blue">{entry.tags[0] ?? "Nota"}</span>
+                </div>
+                <p className="mt-2 text-sm font-bold leading-6 text-stone-700">{entry.note}</p>
+              </article>
+            );
+          })
+        ) : (
+          <p className="rounded-lg border border-moss-950/10 bg-white/70 p-3 text-sm font-bold text-stone-600">
+            Todavia no hay notas guardadas para este dia.
+          </p>
+        )}
       </div>
     </section>
   );

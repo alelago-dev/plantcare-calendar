@@ -1057,6 +1057,22 @@ textarea {
     padding: 0.85rem;
   }
 
+  .calendar-journal-card {
+    border-radius: 8px;
+    border: 1px solid rgba(36, 118, 111, 0.18);
+    background:
+      linear-gradient(135deg, rgba(223, 241, 241, 0.72), rgba(255, 255, 255, 0.94)),
+      #ffffff;
+    padding: 0.85rem;
+  }
+
+  .calendar-journal-entry {
+    border-radius: 8px;
+    border: 1px solid rgba(22, 32, 21, 0.08);
+    background: rgba(255, 255, 255, 0.78);
+    padding: 0.75rem;
+  }
+
   .pill {
     display: inline-flex;
     align-items: center;
