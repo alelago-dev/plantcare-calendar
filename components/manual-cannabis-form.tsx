@@ -90,13 +90,15 @@ const geneticSelectOptions = [
 
 export function ManualCannabisForm({
   calendarHref,
-  onCreateEvents
+  onCreateEvents,
+  selectedGeneticName
 }: {
   calendarHref: string;
   onCreateEvents: (events: CalendarEvent[]) => void;
+  selectedGeneticName?: string;
 }) {
   const [seedType, setSeedType] = useState<SeedType>("feminized");
-  const [geneticName, setGeneticName] = useState("No seleccionada");
+  const [geneticName, setGeneticName] = useState(selectedGeneticName || "No seleccionada");
   const [daysToFlower, setDaysToFlower] = useState(floweringDayOptions[0]);
   const [floweringWeeks, setFloweringWeeks] = useState(floweringWeekOptions[0]);
   const [spaceType, setSpaceType] = useState("Interior");
@@ -385,13 +387,12 @@ function FormGroup({ children, title }: { children: ReactNode; title: string }) 
 }
 
 function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string) => void; value: string }) {
-  const [query, setQuery] = useState(value === "No seleccionada" ? "" : value);
+  const query = value === "No seleccionada" ? "" : value;
   const results = useMemo(() => searchGeneticsByName(query), [query]);
   const selectValue = geneticSelectOptions.some((option) => option.value === value) ? value : "Otra / no listada";
   const showResults = query.trim().length >= 2 && results.length > 0 && query !== value;
 
   function chooseGenetic(genetic: GeneticReferenceEntry) {
-    setQuery(genetic.name);
     onChange(genetic.name);
   }
 
@@ -406,7 +407,6 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
           value={query}
           onChange={(event) => {
             const nextQuery = event.target.value;
-            setQuery(nextQuery);
             onChange(nextQuery.trim() ? nextQuery : "No seleccionada");
           }}
         />
@@ -435,7 +435,6 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
         options={geneticSelectOptions}
         value={selectValue}
         onChange={(nextValue) => {
-          setQuery(nextValue === "No seleccionada" ? "" : nextValue);
           onChange(nextValue);
         }}
       />

@@ -334,7 +334,7 @@ function FinderResults({
               <p className="finder-notes">{compactText(genetic.flavor_notes || genetic.effect_notes)}</p>
               {onSelectGenetic ? (
                 <button className="finder-use-button" onClick={() => onSelectGenetic(genetic.name)} type="button">
-                  Usar nombre en formulario
+                  Agregar esta semilla
                 </button>
               ) : null}
             </article>

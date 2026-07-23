@@ -152,6 +152,7 @@ const manualTaskTemplates = [
 
 export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: SeedsSectionProps) {
   const [activeTab, setActiveTab] = useState<SeedTab>("finder");
+  const [selectedGeneticName, setSelectedGeneticName] = useState("");
   const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
   const previousTab = activeTabIndex > 0 ? tabs[activeTabIndex - 1] : null;
   const nextTab = activeTabIndex >= 0 && activeTabIndex < tabs.length - 1 ? tabs[activeTabIndex + 1] : null;
@@ -185,7 +186,14 @@ export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: See
         </div>
 
         <div className="mt-4">
-          {activeTab === "finder" ? <GeneticFinderWizard /> : null}
+          {activeTab === "finder" ? (
+            <GeneticFinderWizard
+              onSelectGenetic={(name) => {
+                setSelectedGeneticName(name);
+                setActiveTab("manual");
+              }}
+            />
+          ) : null}
 
           {activeTab === "manual" ? (
             <section className="surface p-4 sm:p-5" aria-labelledby="manual-seed-title">
@@ -199,7 +207,16 @@ export function SeedsSection({ calendarHref, locale, onCreateManualEvents }: See
                 <ModeBadge mode="manual" />
               </div>
               <div className="mt-4">
-                <ManualCannabisForm calendarHref={calendarHref} onCreateEvents={onCreateManualEvents} />
+                {selectedGeneticName ? (
+                  <div className="mb-3 rounded-lg border border-emerald-900/15 bg-mint-100/70 p-3 text-sm font-black text-moss-950">
+                    Semilla seleccionada desde Finder: {selectedGeneticName}
+                  </div>
+                ) : null}
+                <ManualCannabisForm
+                  calendarHref={calendarHref}
+                  onCreateEvents={onCreateManualEvents}
+                  selectedGeneticName={selectedGeneticName}
+                />
               </div>
             </section>
           ) : null}
