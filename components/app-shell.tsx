@@ -501,9 +501,7 @@ export function AppShell({
       <header className="sticky top-0 z-20 border-b border-moss-950/10 bg-paper/92 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <a className="flex items-center gap-3" href={todayHref} aria-label="PlantCare Calendar">
-            <span className="brand-mark" aria-hidden="true">
-              PC
-            </span>
+            <BrandLogo />
             <span>
               <span className="block text-xs font-black uppercase text-moss-700">PlantCare</span>
               <span className="block text-lg font-black leading-none tracking-tight text-moss-950">Calendar</span>
@@ -802,10 +800,13 @@ function TodaySection({
     <>
       <section className="mx-auto max-w-7xl px-4 pb-5 pt-4 sm:px-6 lg:px-8 lg:pt-6">
         <div className="intro-panel">
-          <div className="min-w-0">
+          <div className="intro-copy min-w-0">
             <p className="eyebrow text-emerald-800">{dictionary.hero.kicker}</p>
             <h1 className="mt-1 text-2xl font-black tracking-tight text-moss-950 sm:text-3xl">PlantCare Calendar</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-700">{dictionary.hero.body}</p>
+          </div>
+          <div className="intro-visual" aria-hidden="true">
+            <LeafCluster variant="hero" />
           </div>
           <div className="summary-grid">
             <MiniStat label="Cultivos" value={plants.length.toString()} />
@@ -901,6 +902,9 @@ function GrowCommandPanel({
 
   return (
     <section className="grow-command" aria-labelledby="grow-command-title">
+      <div className="grow-command-leaves" aria-hidden="true">
+        <LeafCluster variant="soft" />
+      </div>
       <div className="grow-command-copy">
         <p className="eyebrow text-mint-50/80">Vista tipo grow tracker</p>
         <h2 id="grow-command-title">Tu cultivo, de un vistazo</h2>
@@ -2117,6 +2121,56 @@ function LegalInfoSummary() {
         </p>
       </div>
     </details>
+  );
+}
+
+function BrandLogo() {
+  return (
+    <span className="brand-logo" aria-hidden="true">
+      <svg viewBox="0 0 64 64" role="img">
+        <defs>
+          <linearGradient id="brand-logo-bg" x1="10" x2="54" y1="8" y2="58">
+            <stop stopColor="#f0c35b" />
+            <stop offset="0.46" stopColor="#24766f" />
+            <stop offset="1" stopColor="#23543e" />
+          </linearGradient>
+        </defs>
+        <rect width="64" height="64" rx="14" fill="url(#brand-logo-bg)" />
+        <path
+          d="M32 47c-2-8-2-15 0-23m0 11c-7-6-13-8-19-7 4 7 9 11 17 11m2-4c7-6 13-8 19-7-4 7-9 11-17 11m-3-9c-4-8-8-12-14-14 0 8 4 14 12 18m6-4c4-8 8-12 14-14 0 8-4 14-12 18m-5-5c-1-8 0-14 4-20 5 7 5 14 0 22"
+          fill="none"
+          stroke="#fffaf0"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="3.2"
+        />
+        <circle cx="48" cy="15" r="4" fill="#fff0c8" opacity="0.9" />
+      </svg>
+    </span>
+  );
+}
+
+function LeafCluster({ variant }: { variant: "hero" | "soft" }) {
+  return (
+    <svg className={`leaf-cluster ${variant}`} viewBox="0 0 220 150" role="img">
+      <defs>
+        <linearGradient id={`leaf-gradient-${variant}`} x1="22" x2="190" y1="18" y2="142">
+          <stop stopColor="#6f8f2f" />
+          <stop offset="0.52" stopColor="#24766f" />
+          <stop offset="1" stopColor="#e2b457" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M109 126c-3-31-3-58 0-92m0 43c-28-25-54-34-82-28 16 28 39 43 74 43m10-16c29-25 55-34 83-28-16 28-40 43-75 43m-14-35C91 27 74 12 48 7c1 31 18 54 52 66m24-17c14-29 31-44 57-49-1 31-18 54-52 66m-18-20c-2-31 4-55 19-73 18 28 18 54-2 81"
+        fill="none"
+        stroke={`url(#leaf-gradient-${variant})`}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="10"
+      />
+      <circle cx="178" cy="30" r="16" fill="#fff0c8" opacity="0.92" />
+      <circle cx="39" cy="112" r="10" fill="#dff1f1" opacity="0.95" />
+    </svg>
   );
 }
 
