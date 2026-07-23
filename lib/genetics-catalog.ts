@@ -1123,7 +1123,7 @@ export function searchGeneticsByName(query: string): GeneticReferenceEntry[] {
     const rawText = g.raw_fields ? Object.values(g.raw_fields).join(" ") : "";
     const searchableText = [g.name, g.cross, g.type, g.source, rawText].join(" ").toLowerCase();
     return searchableText.includes(q);
-  }).slice(0, 8);
+  }).slice(0, 20);
 }
 
 function compareGeneticNames(first: GeneticReferenceEntry, second: GeneticReferenceEntry) {

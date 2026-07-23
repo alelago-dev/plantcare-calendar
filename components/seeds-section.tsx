@@ -478,7 +478,10 @@ function ReferenceTab({ locale }: { locale: Locale }) {
     <section className="surface p-4 sm:p-5" aria-labelledby="reference-title">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <SectionHeader eyebrow="Solo lectura" id="reference-title" title="Referencia" />
-        <ModeBadge mode="manual" />
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="pill pill-blue">{geneticsCatalogAlphabetically.length} geneticas cargadas</span>
+          <ModeBadge mode="manual" />
+        </div>
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
@@ -516,17 +519,20 @@ function ReferenceTab({ locale }: { locale: Locale }) {
               <option value="">Sin genetica seleccionada</option>
               {geneticsCatalogAlphabetically.map((genetic) => (
                 <option key={genetic.id} value={genetic.id}>
-                  {genetic.name} - {formatGeneticType(genetic.type)}
+                  {genetic.name} - {formatGeneticType(genetic.type)} - {genetic.source}
                 </option>
               ))}
             </select>
+            <span className="text-xs font-bold leading-5 text-stone-600">
+              Lista completa ordenada alfabeticamente.
+            </span>
           </label>
 
           <label className="grid gap-1 text-sm font-black text-moss-950">
             Buscar genetica
             <input
               className="form-control"
-              placeholder="Ej. Gorilla, AK, Auto"
+              placeholder="Ej. Gorilla, AK 47, Red Skunk Auto, OBG Kush"
               value={geneticsSearch}
               onChange={(event) => setGeneticsSearch(event.target.value)}
             />

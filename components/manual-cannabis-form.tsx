@@ -419,7 +419,7 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
       ) : null}
 
       <FormSelect
-        label="O elegir desde la lista completa"
+        label={`O elegir desde la lista completa (${geneticsCatalogAlphabetically.length} geneticas)`}
         options={geneticSelectOptions}
         value={selectValue}
         onChange={(nextValue) => {
@@ -428,7 +428,8 @@ function GeneticPredictiveSelect({ onChange, value }: { onChange: (value: string
         }}
       />
       <p className="text-xs font-bold leading-5 text-stone-600">
-        Elegir una genetica solo muestra referencia para copiar. No completa dias, luz, riego ni fechas.
+        Busca por nombre o banco. Ejemplos cargados: Gorilla Glue #4, AK 47, Red Skunk Auto, OBG Kush. Elegir una
+        genetica solo muestra referencia para copiar; no completa dias, luz, riego ni fechas.
       </p>
     </div>
   );
