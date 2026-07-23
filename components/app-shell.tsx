@@ -416,6 +416,23 @@ export function AppShell({
     });
   }
 
+  function handleUpdateCalendarEvent(eventId: string, updates: Partial<Pick<CalendarEvent, "description" | "startDate" | "title">>) {
+    const nextEvents = eventState.map((event) => (event.id === eventId ? { ...event, ...updates } : event));
+
+    setEventState(nextEvents);
+    persistStoredState(storageKeys.events, nextEvents);
+    if (updates.startDate) {
+      persistCalendarDate(updates.startDate);
+    }
+  }
+
+  function handleDeleteCalendarEvent(eventId: string) {
+    const nextEvents = eventState.filter((event) => event.id !== eventId);
+
+    setEventState(nextEvents);
+    persistStoredState(storageKeys.events, nextEvents);
+  }
+
   async function updateWeatherFromDevice(loadingMessage = "Esperando permiso de ubicacion...") {
     if (!("geolocation" in navigator)) {
       setWeatherStatus("Este navegador no permite leer ubicacion.");
@@ -550,7 +567,9 @@ export function AppShell({
           locale={locale}
           onAddCalendarEvent={handleAddCalendarEvent}
           onAddJournalEntry={handleAddJournalEntry}
+          onDeleteCalendarEvent={handleDeleteCalendarEvent}
           onToggleOccurrence={(eventId, date) => setEventState((events) => toggleEventCompletion(events, eventId, date))}
+          onUpdateCalendarEvent={handleUpdateCalendarEvent}
           plants={plantState}
         />
       ) : null}
@@ -1415,7 +1434,9 @@ function CalendarSection({
   locale,
   onAddCalendarEvent,
   onAddJournalEntry,
+  onDeleteCalendarEvent,
   onToggleOccurrence,
+  onUpdateCalendarEvent,
   plants
 }: {
   entries: CareEntry[];
@@ -1423,7 +1444,12 @@ function CalendarSection({
   locale: Locale;
   onAddCalendarEvent: (event: CalendarEvent) => void;
   onAddJournalEntry: (entry: CareEntry) => void;
+  onDeleteCalendarEvent: (eventId: string) => void;
   onToggleOccurrence: (eventId: string, date: string) => void;
+  onUpdateCalendarEvent: (
+    eventId: string,
+    updates: Partial<Pick<CalendarEvent, "description" | "startDate" | "title">>
+  ) => void;
   plants: Plant[];
 }) {
   const todayIso = getTodayIso();
@@ -1446,6 +1472,11 @@ function CalendarSection({
   const [quickEventStatus, setQuickEventStatus] = useState("");
 
   function handleQuickEvent(action: (typeof calendarQuickActions)[number]) {
+    if (hasDuplicateCalendarAction(selectedOccurrences, action.label)) {
+      setQuickEventStatus(`Ya existe una tarea de ${action.label} para ${formatDisplayDate(selectedDate)}.`);
+      return;
+    }
+
     if (action.kind === "photo") {
       if (!photoInputRef.current) {
         setQuickEventStatus("No se pudo abrir la camara en este navegador.");
@@ -1480,6 +1511,11 @@ function CalendarSection({
     const plantId = plants[0]?.id ?? manualPlantId;
     let photoDataUrl = "";
 
+    if (hasDuplicateCalendarAction(selectedOccurrences, "Foto")) {
+      setQuickEventStatus(`Ya existe una tarea de Foto para ${formatDisplayDate(selectedDate)}.`);
+      return;
+    }
+
     try {
       photoDataUrl = await readPhotoFileAsDataUrl(file);
     } catch {
@@ -1507,6 +1543,49 @@ function CalendarSection({
       title: "Foto del estado"
     });
     setQuickEventStatus(`Foto guardada en bitacora y calendario para ${formatDisplayDate(selectedDate)}.`);
+  }
+
+  function handleEditOccurrence(occurrence: CalendarEventOccurrence) {
+    const nextTitle = window.prompt("Editar nombre de la tarea", occurrence.title)?.trim();
+
+    if (!nextTitle) return;
+
+    const nextDate = window.prompt("Editar fecha de la tarea (AAAA-MM-DD)", occurrence.date)?.trim();
+
+    if (!nextDate) return;
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(nextDate)) {
+      setQuickEventStatus("La fecha debe tener formato AAAA-MM-DD.");
+      return;
+    }
+
+    const hasDuplicate = events.some(
+      (event) =>
+        event.id !== occurrence.eventId &&
+        event.startDate === nextDate &&
+        normalizeCalendarTitle(event.title) === normalizeCalendarTitle(nextTitle)
+    );
+
+    if (hasDuplicate) {
+      setQuickEventStatus(`Ya existe una tarea llamada ${nextTitle} para ${formatDisplayDate(nextDate)}.`);
+      return;
+    }
+
+    onUpdateCalendarEvent(occurrence.eventId, {
+      startDate: nextDate,
+      title: nextTitle
+    });
+    setSelectedDate(nextDate);
+    setQuickEventStatus("Tarea editada.");
+  }
+
+  function handleDeleteOccurrence(occurrence: CalendarEventOccurrence) {
+    const confirmed = window.confirm(`Eliminar "${occurrence.title}" del calendario?`);
+
+    if (!confirmed) return;
+
+    onDeleteCalendarEvent(occurrence.eventId);
+    setQuickEventStatus("Tarea eliminada.");
   }
 
   return (
@@ -1593,6 +1672,8 @@ function CalendarSection({
                   key={occurrence.occurrenceId}
                   locale={locale}
                   occurrence={occurrence}
+                  onDelete={() => handleDeleteOccurrence(occurrence)}
+                  onEdit={() => handleEditOccurrence(occurrence)}
                   onToggle={() => onToggleOccurrence(occurrence.eventId, occurrence.date)}
                   plant={plants.find((plant) => plant.id === occurrence.plantId)}
                 />
@@ -1725,11 +1806,15 @@ function CalendarDayJournal({
 function CalendarOccurrenceCard({
   locale,
   occurrence,
+  onDelete,
+  onEdit,
   onToggle,
   plant
 }: {
   locale: Locale;
   occurrence: CalendarEventOccurrence;
+  onDelete: () => void;
+  onEdit: () => void;
   onToggle: () => void;
   plant?: Plant;
 }) {
@@ -1754,6 +1839,12 @@ function CalendarOccurrenceCard({
       <div className="mt-3 flex flex-wrap gap-2">
         <button className="secondary-button" onClick={onToggle} type="button">
           {occurrence.completed ? "Marcar pendiente" : "Marcar hecho"}
+        </button>
+        <button className="secondary-button" onClick={onEdit} type="button">
+          Editar
+        </button>
+        <button className="danger-button" onClick={onDelete} type="button">
+          Eliminar
         </button>
         {plant ? (
           <a className="secondary-button" href={`${getSectionHref(locale, "spaces")}#${plant.id}`}>
@@ -2232,6 +2323,22 @@ function getEventClass(kind: CalendarEventOccurrence["kind"]) {
   if (kind === "photo") return "event-photo";
   if (kind === "cleaning") return "event-clean";
   return "event-review";
+}
+
+function hasDuplicateCalendarAction(occurrences: CalendarEventOccurrence[], actionLabel: string) {
+  const normalizedAction = normalizeCalendarTitle(actionLabel);
+
+  return occurrences.some((occurrence) => normalizeCalendarTitle(occurrence.title).includes(normalizedAction));
+}
+
+function normalizeCalendarTitle(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 }
 
 function buildAgendaItems(tasks: Task[], occurrences: CalendarEventOccurrence[]): AgendaItem[] {

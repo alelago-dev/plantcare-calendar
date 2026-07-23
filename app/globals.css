@@ -1521,6 +1521,7 @@ textarea {
 
   .primary-button,
   .secondary-button,
+  .danger-button,
   .dark-button {
     border-radius: 8px;
     padding: 0.7rem 0.9rem;
@@ -1549,8 +1550,15 @@ textarea {
     color: #ffffff;
   }
 
+  .danger-button {
+    border: 1px solid rgba(155, 41, 41, 0.24);
+    background: rgba(255, 245, 245, 0.82);
+    color: #8a1f1f;
+  }
+
   .primary-button:hover,
   .secondary-button:hover,
+  .danger-button:hover,
   .dark-button:hover {
     transform: translateY(-1px);
   }
