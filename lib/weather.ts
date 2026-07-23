@@ -48,6 +48,13 @@ type OpenMeteoResponse = {
   timezone?: string;
 };
 
+type ReverseGeocodeResponse = {
+  city?: string;
+  countryName?: string;
+  locality?: string;
+  principalSubdivision?: string;
+};
+
 export async function getDeviceWeather(latitude: number, longitude: number): Promise<WeatherReadiness> {
   const params = new URLSearchParams({
     current: [
@@ -68,7 +75,10 @@ export async function getDeviceWeather(latitude: number, longitude: number): Pro
     timezone: "auto",
     wind_speed_unit: "kmh"
   });
-  const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+  const [response, region] = await Promise.all([
+    fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`),
+    getApproximateRegion(latitude, longitude)
+  ]);
 
   if (!response.ok) {
     throw new Error("No se pudo consultar el clima.");
@@ -79,7 +89,6 @@ export async function getDeviceWeather(latitude: number, longitude: number): Pro
   const daily = data.daily ?? {};
   const precipitationProbability = data.hourly?.precipitation_probability?.[0];
   const localTime = current.time ? formatWeatherTime(current.time) : "Ahora";
-  const region = `Ubicacion aproximada ${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
 
   return {
     isLive: true,
@@ -97,6 +106,30 @@ export async function getDeviceWeather(latitude: number, longitude: number): Pro
     providerLabel: "Open-Meteo en tiempo real",
     region
   };
+}
+
+async function getApproximateRegion(latitude: number, longitude: number) {
+  try {
+    const params = new URLSearchParams({
+      latitude: latitude.toString(),
+      localityLanguage: "es",
+      longitude: longitude.toString()
+    });
+    const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?${params.toString()}`);
+
+    if (!response.ok) {
+      return "Ubicacion aproximada detectada";
+    }
+
+    const data = (await response.json()) as ReverseGeocodeResponse;
+    const city = data.city || data.locality;
+    const province = data.principalSubdivision;
+    const country = data.countryName;
+
+    return [city, province, country].filter(Boolean).join(", ") || "Ubicacion aproximada detectada";
+  } catch {
+    return "Ubicacion aproximada detectada";
+  }
 }
 
 function formatNumber(value: number | undefined, unit: string) {
